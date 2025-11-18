@@ -2,6 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { PaychanguService } from "../_shared/paychangu.ts";
 import { checkRateLimit } from "../_shared/rateLimiter.ts";
+import { calculatePayoutFees } from "../_shared/feeCalculations.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -203,9 +204,11 @@ serve(async (req) => {
     const paymentAccountDetails = paymentResult.payment_account_details;
     console.log(`[${requestId}] PayChangu response: ${paychanguTxn.status} - Ref: ${paychanguTxn.ref_id}`);
 
-    // Calculate fees using PaychanguService
-    const { feeAmount, netAmount } = PaychanguService.calculateFee(amount);
-    console.log(`[${requestId}] Fee calculation: Amount=${amount}, Fee=${feeAmount}, Net=${netAmount}`);
+    // Calculate PayFesa fees (12% total: 1% safety + 5% service + 6% government)
+    const feeBreakdown = calculatePayoutFees(amount);
+    const netAmount = feeBreakdown.netAmount;
+    const feeAmount = feeBreakdown.totalFees;
+    console.log(`[${requestId}] Fee calculation: Gross=${amount}, Fees=${feeAmount} (Safety=${feeBreakdown.payoutSafetyFee}, Service=${feeBreakdown.serviceFee}, Govt=${feeBreakdown.governmentFee}), Net=${netAmount}`);
 
     // Create contribution record with pending status
     console.log(`[${requestId}] Creating contribution record...`);
@@ -216,8 +219,22 @@ serve(async (req) => {
         group_id: groupId,
         amount: amount,
         payment_method: paymentMethod,
+        payment_provider: 'paychangu',
+        payment_reference: paychanguTxn.ref_id || null,
+        fee_amount: feeAmount,
+        net_amount: netAmount,
         transaction_id: chargeId,
         status: paychanguTxn.status === 'pending' ? 'pending' : 'completed',
+        metadata: {
+          phone_number: phoneNumber,
+          provider: paymentMethod,
+          fee_breakdown: {
+            payout_safety_fee: feeBreakdown.payoutSafetyFee,
+            service_fee: feeBreakdown.serviceFee,
+            government_fee: feeBreakdown.governmentFee,
+            total_fees: feeBreakdown.totalFees,
+          },
+        },
       })
       .select()
       .single();
