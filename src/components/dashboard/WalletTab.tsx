@@ -340,14 +340,16 @@ const WalletTab = ({ user }: Props) => {
                   className="h-6 w-6 rounded"
                 />
               )}
-              {primaryMethod.type === 'bank' && primaryMethod.bank_name && getBankLogo(primaryMethod.bank_name) ? (
-                <img
-                  src={getBankLogo(primaryMethod.bank_name)}
-                  alt={primaryMethod.bank_name}
-                  className="h-6 w-6 object-contain rounded"
-                />
-              ) : primaryMethod.type === 'bank' ? (
-                <Building2 className="h-6 w-6 text-muted-foreground" />
+              {primaryMethod.type === 'bank' && primaryMethod.bank_name ? (
+                getBankLogo(primaryMethod.bank_name) ? (
+                  <img
+                    src={getBankLogo(primaryMethod.bank_name)}
+                    alt={primaryMethod.bank_name}
+                    className="h-6 w-6 object-contain rounded"
+                  />
+                ) : (
+                  <Building2 className="h-6 w-6 text-muted-foreground" />
+                )
               ) : null}
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-[10px] truncate">

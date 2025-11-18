@@ -6,26 +6,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import natbankLogo from '@/assets/natbank-logo.png';
-import standardBankLogo from '@/assets/standard-bank-logo.png';
-import fdhBankLogo from '@/assets/fdh-bank-logo.png';
-import fcbLogo from '@/assets/fcb-logo.png';
-import nbsBankLogo from '@/assets/nbs-bank-logo.png';
-import cdhBankLogo from '@/assets/cdh-bank-logo.png';
-import ecobankLogo from '@/assets/ecobank-logo.png';
-import centenaryBankLogo from '@/assets/centenary-bank-logo.png';
-import { getBankLogo } from '@/utils/bankLogos';
+import { BANK_LOGOS, getBankLogo } from '@/utils/bankLogos';
 
-const MALAWI_BANKS = [
-  { name: 'National Bank of Malawi', logo: natbankLogo },
-  { name: 'Standard Bank Malawi', logo: standardBankLogo },
-  { name: 'FDH Bank', logo: fdhBankLogo },
-  { name: 'First Capital Bank', logo: fcbLogo },
-  { name: 'NBS Bank', logo: nbsBankLogo },
-  { name: 'CDH Investment Bank', logo: cdhBankLogo },
-  { name: 'Ecobank Malawi', logo: ecobankLogo },
-  { name: 'Centenary Bank', logo: centenaryBankLogo }
-];
+const MALAWI_BANKS = Object.keys(BANK_LOGOS).map(bankName => ({
+  name: bankName,
+  logo: BANK_LOGOS[bankName]
+}));
 
 interface Props {
   open: boolean;
