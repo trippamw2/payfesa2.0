@@ -10,14 +10,7 @@ import { celebrateSmall } from '@/lib/confetti';
 import airtelLogo from '@/assets/airtel-money-logo.png';
 import tnmLogo from '@/assets/tnm-mpamba-logo.jpg';
 import AddPaymentMethodDialog from '@/components/wallet/AddPaymentMethodDialog';
-import natbankLogo from '@/assets/natbank-logo.png';
-import standardBankLogo from '@/assets/standard-bank-logo.png';
-import fdhBankLogo from '@/assets/fdh-bank-logo.png';
-import fcbLogo from '@/assets/fcb-logo.png';
-import nbsBankLogo from '@/assets/nbs-bank-logo.png';
-import cdhBankLogo from '@/assets/cdh-bank-logo.png';
-import ecobankLogo from '@/assets/ecobank-logo.png';
-import centenaryBankLogo from '@/assets/centenary-bank-logo.png';
+import { getBankLogo } from '@/utils/bankLogos';
 
 interface Props {
   user: any;
@@ -347,9 +340,15 @@ const WalletTab = ({ user }: Props) => {
                   className="h-6 w-6 rounded"
                 />
               )}
-              {primaryMethod.type === 'bank' && (
+              {primaryMethod.type === 'bank' && primaryMethod.bank_name && getBankLogo(primaryMethod.bank_name) ? (
+                <img
+                  src={getBankLogo(primaryMethod.bank_name)}
+                  alt={primaryMethod.bank_name}
+                  className="h-6 w-6 object-contain rounded"
+                />
+              ) : primaryMethod.type === 'bank' ? (
                 <Building2 className="h-6 w-6 text-muted-foreground" />
-              )}
+              ) : null}
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-[10px] truncate">
                   {primaryMethod.account_name}
@@ -365,8 +364,20 @@ const WalletTab = ({ user }: Props) => {
               )}
             </div>
           </div>
-        </Card>
-      )}
+        ) : (
+          <div className="p-3 text-center">
+            <p className="text-xs text-muted-foreground mb-2">No payment method added</p>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 text-xs"
+              onClick={() => setShowAddPaymentDialog(true)}
+            >
+              Add Payment Method
+            </Button>
+          </div>
+        )}
+      </Card>
 
       {/* Recent Transactions */}
       <Card className="mx-3">
@@ -420,6 +431,15 @@ const WalletTab = ({ user }: Props) => {
           )}
         </div>
       </Card>
+
+      <AddPaymentMethodDialog
+        open={showAddPaymentDialog}
+        onOpenChange={setShowAddPaymentDialog}
+        onSuccess={() => {
+          fetchPrimaryAccount();
+          fetchWalletStats();
+        }}
+      />
     </div>
   );
 };
