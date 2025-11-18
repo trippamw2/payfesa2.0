@@ -22,10 +22,10 @@ const TrustScoreCard = ({ score, onTimeContributions, lateContributions, missedC
   const isElite = score > 90;
   
   const getScoreColor = (score: number) => {
-    if (score > 90) return 'text-yellow-600 bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-400';
-    if (score >= 70) return 'text-blue-600 bg-blue-50 border-blue-200';
-    if (score >= 50) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    return 'text-red-600 bg-red-50 border-red-200';
+    if (score > 90) return 'text-warning bg-gradient-to-r from-warning/10 to-accent/10 border-warning';
+    if (score >= 70) return 'text-info bg-info/10 border-info/20';
+    if (score >= 50) return 'text-warning bg-warning/10 border-warning/20';
+    return 'text-destructive bg-destructive/10 border-destructive/20';
   };
 
   const getScoreLabel = (score: number) => {
@@ -43,7 +43,7 @@ const TrustScoreCard = ({ score, onTimeContributions, lateContributions, missedC
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            {isElite ? <Crown className="h-5 w-5 text-yellow-600" /> : <Award className="h-5 w-5" />}
+            {isElite ? <Crown className="h-5 w-5 text-warning" /> : <Award className="h-5 w-5" />}
             <h3 className="font-semibold">Your Trust Score</h3>
             <TooltipProvider>
               <Tooltip>
@@ -72,7 +72,7 @@ const TrustScoreCard = ({ score, onTimeContributions, lateContributions, missedC
 
         {/* Score Label with Elite indicator */}
         <div className="text-center">
-          <p className={`text-sm font-medium ${isElite ? 'text-yellow-600 flex items-center justify-center gap-1' : ''}`}>
+          <p className={`text-sm font-medium ${isElite ? 'text-warning flex items-center justify-center gap-1' : ''}`}>
             {isElite && <Crown size={16} />}
             {getScoreLabel(score)} Trust Rating
             {isElite && <Sparkles size={16} />}
@@ -86,15 +86,15 @@ const TrustScoreCard = ({ score, onTimeContributions, lateContributions, missedC
 
         {/* Elite Stats */}
         {isElite && (
-          <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-3 border border-yellow-200">
+          <div className="bg-gradient-to-r from-warning/10 to-accent/10 rounded-lg p-3 border border-warning/20">
             <div className="grid grid-cols-2 gap-3">
               <div className="text-center">
-                <p className="text-xs text-yellow-700 font-medium mb-1">Streak</p>
-                <p className="text-2xl font-bold text-yellow-600">🔥 {streak}</p>
+                <p className="text-xs text-warning font-medium mb-1">Streak</p>
+                <p className="text-2xl font-bold text-warning">🔥 {streak}</p>
               </div>
               <div className="text-center">
-                <p className="text-xs text-orange-700 font-medium mb-1">Fast</p>
-                <p className="text-2xl font-bold text-orange-600">⚡ {fastContributions}</p>
+                <p className="text-xs text-accent font-medium mb-1">Fast</p>
+                <p className="text-2xl font-bold text-accent">⚡ {fastContributions}</p>
               </div>
             </div>
           </div>
@@ -104,26 +104,26 @@ const TrustScoreCard = ({ score, onTimeContributions, lateContributions, missedC
         <div className="grid grid-cols-3 gap-2 pt-2 border-t">
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <CheckCircle2 className="h-3 w-3 text-green-600" />
+              <CheckCircle2 className="h-3 w-3 text-success" />
               <p className="text-xs text-muted-foreground">On-Time</p>
             </div>
-            <p className="text-lg font-bold text-green-600">{onTimeContributions}</p>
+            <p className="text-lg font-bold text-success">{onTimeContributions}</p>
           </div>
 
           <div className="text-center border-x border-border/50">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <TrendingDown className="h-3 w-3 text-yellow-600" />
+              <TrendingDown className="h-3 w-3 text-warning" />
               <p className="text-xs text-muted-foreground">Late</p>
             </div>
-            <p className="text-lg font-bold text-yellow-600">{lateContributions}</p>
+            <p className="text-lg font-bold text-warning">{lateContributions}</p>
           </div>
 
           <div className="text-center">
             <div className="flex items-center justify-center gap-1 mb-1">
-              <XCircle className="h-3 w-3 text-red-600" />
+              <XCircle className="h-3 w-3 text-destructive" />
               <p className="text-xs text-muted-foreground">Missed</p>
             </div>
-            <p className="text-lg font-bold text-red-600">{missedContributions}</p>
+            <p className="text-lg font-bold text-destructive">{missedContributions}</p>
           </div>
         </div>
 
@@ -148,17 +148,17 @@ const TrustScoreCard = ({ score, onTimeContributions, lateContributions, missedC
         {/* Impact Info - Elite Requirements */}
         <div className={`text-xs p-3 rounded ${isElite ? 'bg-yellow-50 border border-yellow-200' : 'bg-background/50'}`}>
           <p className="font-medium mb-1.5 flex items-center gap-1">
-            {isElite ? <Crown size={14} className="text-yellow-600" /> : null}
+            {isElite ? <Crown size={14} className="text-warning" /> : null}
             {isElite ? 'Maintaining Elite Status:' : 'How to reach Elite (>90):'}
           </p>
           <ul className="space-y-1 text-[11px]">
-            <li className={streak >= 20 ? 'text-green-600' : ''}>
+            <li className={streak >= 20 ? 'text-success' : ''}>
               • {streak >= 20 ? '✅' : '❌'} Perfect 20+ contribution streak (current: {streak})
             </li>
-            <li className={missedContributions === 0 ? 'text-green-600' : 'text-red-600'}>
+            <li className={missedContributions === 0 ? 'text-success' : 'text-destructive'}>
               • {missedContributions === 0 ? '✅' : '❌'} Zero missed payments (missed: {missedContributions})
             </li>
-            <li className={fastContributions >= 20 ? 'text-green-600' : ''}>
+            <li className={fastContributions >= 20 ? 'text-success' : ''}>
               • {fastContributions >= 20 ? '✅' : '⏱️'} Fast contributions within 3 hours ({fastContributions})
             </li>
             <li>• 🤝 At least 1 active referral (5+ contributions)</li>

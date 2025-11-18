@@ -330,24 +330,24 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
+        return <CheckCircle2 className="h-4 w-4 text-success" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-600" />;
+        return <Clock className="h-4 w-4 text-warning" />;
       case 'failed':
-        return <XCircle className="h-4 w-4 text-red-600" />;
+        return <XCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <AlertCircle className="h-4 w-4 text-gray-600" />;
+        return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
-        return <Badge className="bg-green-100 text-green-700 text-[10px]">Completed</Badge>;
+        return <Badge className="bg-success/10 text-success text-[10px]">Completed</Badge>;
       case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-700 text-[10px]">Pending</Badge>;
+        return <Badge className="bg-warning/10 text-warning text-[10px]">Pending</Badge>;
       case 'failed':
-        return <Badge className="bg-red-100 text-red-700 text-[10px]">Failed</Badge>;
+        return <Badge className="bg-destructive/10 text-destructive text-[10px]">Failed</Badge>;
       default:
         return <Badge variant="secondary" className="text-[10px]">{status}</Badge>;
     }
@@ -418,7 +418,7 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
               {mobileMoneyAccounts.map((account) => (
                 <Card key={account.id} className="p-3 border-primary border-2 bg-primary/5">
                   <div className="flex items-center gap-3">
-                    <Smartphone className={`h-5 w-5 ${account.provider === 'airtel' ? 'text-red-500' : 'text-blue-500'}`} />
+                    <Smartphone className={`h-5 w-5 ${account.provider === 'airtel' ? 'text-destructive' : 'text-info'}`} />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{account.provider === 'airtel' ? 'Airtel Money' : 'TNM Mpamba'}</span>
@@ -531,10 +531,10 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
                 key={contribution.id} 
                 className={`p-3 border ${
                   contribution.status === 'completed' 
-                    ? 'border-green-200 bg-green-50/30' 
+                    ? 'border-success/20 bg-success/10' 
                     : contribution.status === 'pending'
-                    ? 'border-yellow-200 bg-yellow-50/30'
-                    : 'border-red-200 bg-red-50/30'
+                    ? 'border-warning/20 bg-warning/10'
+                    : 'border-destructive/20 bg-destructive/10'
                 }`}
               >
                 <div className="flex items-start justify-between">

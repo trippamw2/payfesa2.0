@@ -355,7 +355,7 @@ const RegisterStep3 = ({ formData, updateFormData, onBack }: Props) => {
           type="button"
           onClick={handleSubmit}
           disabled={loading}
-          className="flex-1 bg-primary hover:bg-primary/90 text-white h-10"
+          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground h-10"
         >
           {loading ? (
             <>

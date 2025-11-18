@@ -124,10 +124,10 @@ const MyGroupsTab = ({ user, profile }: Props) => {
   };
 
   const getTrustScoreBadge = (score: number) => {
-    if (score >= 90) return { text: 'Excellent', color: 'text-green-600 bg-green-50' };
-    if (score >= 70) return { text: 'Good', color: 'text-blue-600 bg-blue-50' };
-    if (score >= 50) return { text: 'Fair', color: 'text-yellow-600 bg-yellow-50' };
-    return { text: 'Low', color: 'text-red-600 bg-red-50' };
+    if (score >= 90) return { text: 'Excellent', color: 'text-success bg-success/10' };
+    if (score >= 70) return { text: 'Good', color: 'text-info bg-info/10' };
+    if (score >= 50) return { text: 'Fair', color: 'text-warning bg-warning/10' };
+    return { text: 'Low', color: 'text-destructive bg-destructive/10' };
   };
 
   return (
@@ -240,12 +240,12 @@ const MyGroupsTab = ({ user, profile }: Props) => {
 
                 <div className="flex items-center justify-between pt-1.5 border-t border-border/50">
                   {group.status === 'active' ? (
-                    <Badge className="bg-green-100 text-green-700 text-[9px] px-1.5 py-0">
+                    <Badge className="bg-success/10 text-success text-[9px] px-1.5 py-0">
                       <CheckCircle2 className="h-2.5 w-2.5 mr-0.5" />
                       Active
                     </Badge>
                   ) : (
-                    <Badge className="bg-blue-100 text-blue-700 text-[9px] px-1.5 py-0">
+                    <Badge className="bg-info/10 text-info text-[9px] px-1.5 py-0">
                       <Clock className="h-2.5 w-2.5 mr-0.5" />
                       {group.status}
                     </Badge>

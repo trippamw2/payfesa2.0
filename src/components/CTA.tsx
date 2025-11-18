@@ -31,7 +31,7 @@ const CTA = () => {
           <Button 
             onClick={() => navigate('/auth')}
             size="lg"
-            className="bg-white text-primary hover:bg-white/90 font-semibold text-sm sm:text-base md:text-lg px-5 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 touch-feedback min-h-[48px]"
+            className="bg-background text-primary hover:bg-background/90 font-semibold text-sm sm:text-base md:text-lg px-5 sm:px-6 md:px-8 py-4 sm:py-5 md:py-6 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-105 active:scale-95 touch-feedback min-h-[48px]"
           >
             Create Your Account
             <ArrowRight className="ml-2 h-4 md:h-5 w-4 md:w-5" />

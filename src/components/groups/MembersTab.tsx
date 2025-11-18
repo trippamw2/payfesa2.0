@@ -178,10 +178,10 @@ const MembersTab = ({ groupId, currentUserId, groupCode, groupName, inviterName 
   };
 
   const getTrustScoreBadge = (score: number) => {
-    if (score >= 90) return { text: 'Excellent', color: 'bg-green-100 text-green-700' };
-    if (score >= 70) return { text: 'Good', color: 'bg-blue-100 text-blue-700' };
-    if (score >= 50) return { text: 'Fair', color: 'bg-yellow-100 text-yellow-700' };
-    return { text: 'Low', color: 'bg-red-100 text-red-700' };
+    if (score >= 90) return { text: 'Excellent', color: 'bg-success/10 text-success' };
+    if (score >= 70) return { text: 'Good', color: 'bg-info/10 text-info' };
+    if (score >= 50) return { text: 'Fair', color: 'bg-warning/10 text-warning' };
+    return { text: 'Low', color: 'bg-destructive/10 text-destructive' };
   };
 
   if (loading) {
@@ -336,7 +336,7 @@ const MembersTab = ({ groupId, currentUserId, groupCode, groupName, inviterName 
                       Paid
                     </Badge>
                   ) : (
-                    <Badge className="bg-red-100 text-red-700 border-red-300 text-[10px]">
+                    <Badge className="bg-destructive/10 text-destructive border-destructive/20 text-[10px]">
                       <XCircle className="h-3 w-3 mr-1" />
                       Unpaid
                     </Badge>

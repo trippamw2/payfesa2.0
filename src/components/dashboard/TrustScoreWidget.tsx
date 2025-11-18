@@ -78,12 +78,12 @@ export const TrustScoreWidget = () => {
   };
 
   const getTrustLevel = (score: number) => {
-    if (score >= 95) return { label: 'Diamond Trust', color: 'bg-gradient-to-r from-purple-500 to-pink-500', icon: '💎' };
-    if (score >= 85) return { label: 'Highly Trusted', color: 'bg-gradient-to-r from-yellow-400 to-orange-500', icon: '⭐' };
-    if (score >= 75) return { label: 'Trusted Member', color: 'bg-gradient-to-r from-green-400 to-blue-500', icon: '🌟' };
-    if (score >= 60) return { label: 'Good Standing', color: 'bg-gradient-to-r from-blue-400 to-cyan-500', icon: '✓' };
-    if (score >= 40) return { label: 'Fair Standing', color: 'bg-gradient-to-r from-gray-400 to-gray-600', icon: '○' };
-    return { label: 'Needs Improvement', color: 'bg-gradient-to-r from-orange-500 to-red-500', icon: '⚠' };
+    if (score >= 95) return { label: 'Diamond Trust', color: 'bg-gradient-to-r from-primary to-accent', icon: '💎' };
+    if (score >= 85) return { label: 'Highly Trusted', color: 'bg-gradient-to-r from-warning to-accent', icon: '⭐' };
+    if (score >= 75) return { label: 'Trusted Member', color: 'bg-gradient-to-r from-success to-info', icon: '🌟' };
+    if (score >= 60) return { label: 'Good Standing', color: 'bg-gradient-to-r from-info to-primary', icon: '✓' };
+    if (score >= 40) return { label: 'Fair Standing', color: 'bg-muted', icon: '○' };
+    return { label: 'Needs Improvement', color: 'bg-gradient-to-r from-warning to-destructive', icon: '⚠' };
   };
 
   if (loading) {
@@ -133,7 +133,7 @@ export const TrustScoreWidget = () => {
             {level.icon} {score}
             <span className="text-sm text-muted-foreground">/100</span>
           </div>
-          <Badge className={level.color + ' text-white border-0 text-[8px] px-1.5 py-0'}>
+          <Badge className={level.color + ' text-primary-foreground border-0 text-[8px] px-1.5 py-0'}>
             {level.label}
           </Badge>
         </div>

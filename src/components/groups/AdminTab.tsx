@@ -211,10 +211,10 @@ const AdminTab = ({ groupId, groupData, currentUserId, isCreator }: Props) => {
       </div>
 
       {/* Danger Zone */}
-      <Card className="p-4 border-red-200 bg-red-50/50">
+      <Card className="p-4 border-destructive/20 bg-destructive/5">
         <div className="flex items-center gap-2 mb-3">
-          <Trash2 className="h-4 w-4 text-red-600" />
-          <h3 className="font-semibold text-sm text-red-600">Danger Zone</h3>
+          <Trash2 className="h-4 w-4 text-destructive" />
+          <h3 className="font-semibold text-sm text-destructive">Danger Zone</h3>
         </div>
         
         <AlertDialog>
@@ -233,7 +233,7 @@ const AdminTab = ({ groupId, groupData, currentUserId, isCreator }: Props) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={deleteGroup} className="bg-red-600">
+              <AlertDialogAction onClick={deleteGroup} className="bg-destructive text-destructive-foreground">
                 Delete Permanently
               </AlertDialogAction>
             </AlertDialogFooter>
