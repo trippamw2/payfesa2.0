@@ -100,13 +100,13 @@ export const TrustScoreWidget = () => {
     <Card className="relative overflow-hidden">
       <div className={`absolute inset-0 opacity-10 ${level.color}`}></div>
       
-      <CardHeader className="relative p-2 pb-1">
+      <CardHeader className="relative p-2 pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-[10px] font-semibold flex items-center gap-1">
             🎯 Trust Score
           </CardTitle>
           {recentChange && recentChange.change_amount !== 0 && (
-            <Badge variant={recentChange.change_amount > 0 ? 'default' : 'destructive'} className="gap-0.5 text-[9px] px-1 py-0 h-4">
+            <Badge variant={recentChange.change_amount > 0 ? 'default' : 'destructive'} className="gap-0.5 text-[8px] px-1.5 py-0 h-4">
               {recentChange.change_amount > 0 ? (
                 <TrendingUp className="h-2.5 w-2.5" />
               ) : (
@@ -118,30 +118,21 @@ export const TrustScoreWidget = () => {
         </div>
       </CardHeader>
 
-      <CardContent className="relative space-y-2 p-2">
-        {/* Score Display */}
-        <div className="text-center py-2">
-          <div className="text-3xl font-bold mb-1">
+      <CardContent className="relative p-2 pt-0">
+        <div className="text-center py-1">
+          <div className="text-2xl font-bold">
             {level.icon} {score}
-            <span className="text-lg text-muted-foreground">/100</span>
+            <span className="text-sm text-muted-foreground">/100</span>
           </div>
-          <Badge className={level.color + ' text-white border-0 text-[9px] px-1.5 py-0'}>
+          <Badge className={level.color + ' text-white border-0 text-[8px] px-1.5 py-0'}>
             {level.label}
           </Badge>
         </div>
-
-        {/* Progress Bar */}
-        <div className="space-y-1">
-          <Progress value={score} className="h-1.5" />
-        </div>
-
-        {/* CTA */}
         <Button
-          variant="outline"
-          className="w-full h-7 text-[10px]"
+          variant="ghost"
+          className="w-full h-6 text-[9px] mt-1"
           onClick={() => navigate('/trust-score-history')}
         >
-          <Award className="h-3 w-3 mr-1" />
           View History
         </Button>
       </CardContent>
