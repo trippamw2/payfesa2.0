@@ -1,14 +1,15 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useBackNavigation } from '@/hooks/useBackNavigation';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, AlertTriangle, Clock, CheckCircle2, XCircle, Eye, Plus } from 'lucide-react';
+import { AlertTriangle, Clock, CheckCircle2, XCircle, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import CreateDisputeDialog from '@/components/payments/CreateDisputeDialog';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { LoadingSkeleton } from '@/components/loading/LoadingSkeleton';
+import { StatCard } from '@/components/layout/StatCard';
 
 interface Dispute {
   id: string;
@@ -36,9 +37,8 @@ interface Transaction {
 }
 
 const DisputeManagement = () => {
-  const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [disputes, setDisputes] = useState<Dispute[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -62,6 +62,7 @@ const DisputeManagement = () => {
 
   const fetchData = async () => {
     try {
+      setError(null);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -89,8 +90,9 @@ const DisputeManagement = () => {
 
       setDisputes(disputesData || []);
       setTransactions(transactionsData || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch (err) {
+      console.error('Error fetching data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load disputes');
       toast.error('Failed to load disputes');
     } finally {
       setLoading(false);
@@ -131,56 +133,62 @@ const DisputeManagement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <PageLayout
+        title="Payment Disputes"
+        subtitle="Manage your transaction disputes"
+        icon={<AlertTriangle className="h-5 w-5" />}
+        showBackButton={true}
+      >
+        <LoadingSkeleton variant="list" count={3} />
+      </PageLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayout
+        title="Payment Disputes"
+        subtitle="Manage your transaction disputes"
+        icon={<AlertTriangle className="h-5 w-5" />}
+        showBackButton={true}
+      >
+        <Card className="p-8 text-center">
+          <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-destructive" />
+          <p className="text-muted-foreground mb-4">{error}</p>
+          <Button onClick={fetchData}>Try Again</Button>
+        </Card>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-20">
-      {/* Header */}
-      <div className="mb-6">
-        <Button variant="ghost" onClick={goBack} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-full">
-            <AlertTriangle className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold">Payment Disputes</h1>
-            <p className="text-muted-foreground">Manage your transaction disputes</p>
-          </div>
-        </div>
-      </div>
+    <PageLayout
+      title="Payment Disputes"
+      subtitle="Manage your transaction disputes"
+      icon={<AlertTriangle className="h-5 w-5" />}
+      showBackButton={true}
+    >
 
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3 mb-6">
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-orange-600">{disputes.length}</p>
-            <p className="text-xs text-muted-foreground">Total Disputes</p>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-yellow-600">
-              {disputes.filter(d => d.status === 'pending').length}
-            </p>
-            <p className="text-xs text-muted-foreground">Pending</p>
-          </div>
-        </Card>
-        <Card className="p-4">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-green-600">
-              {disputes.filter(d => d.status === 'approved').length}
-            </p>
-            <p className="text-xs text-muted-foreground">Resolved</p>
-          </div>
-        </Card>
+        <StatCard
+          value={disputes.length}
+          label="Total Disputes"
+          icon={AlertTriangle}
+          iconColor="text-warning"
+        />
+        <StatCard
+          value={disputes.filter(d => d.status === 'pending').length}
+          label="Pending"
+          icon={Clock}
+          iconColor="text-warning"
+        />
+        <StatCard
+          value={disputes.filter(d => d.status === 'approved').length}
+          label="Resolved"
+          icon={CheckCircle2}
+          iconColor="text-success"
+        />
       </div>
 
       <Tabs defaultValue="disputes" className="space-y-4">
@@ -321,7 +329,7 @@ const DisputeManagement = () => {
           }}
         />
       )}
-    </div>
+    </PageLayout>
   );
 };
 

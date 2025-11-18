@@ -10,6 +10,7 @@ import { Session } from "@supabase/supabase-js";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import BackToTop from "@/components/BackToTop";
+import { useOfflineDetection } from "@/hooks/useOfflineDetection";
 
 // Landing Page Components
 import Index from "./pages/Index";
@@ -87,6 +88,8 @@ const LoadingFallback = () => (
 const AppContent = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  useOfflineDetection();
 
   useEffect(() => {
     let mounted = true;
