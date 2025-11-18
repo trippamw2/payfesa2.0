@@ -162,215 +162,203 @@ const PaymentAccounts = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background to-muted/20 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center p-3">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-sm text-muted-foreground">Loading accounts...</p>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
+          <p className="text-[10px] text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" onClick={goBack} className="rounded-full">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div className="flex-1">
-              <h1 className="text-lg font-bold">Payment Accounts</h1>
-              <p className="text-xs text-muted-foreground">Manage your mobile money accounts</p>
-            </div>
+    <div className="min-h-screen bg-background p-3 pb-20">
+      {/* Header */}
+      <div className="mb-3">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={goBack}
+          className="mb-2 h-7"
+        >
+          <ArrowLeft className="mr-1.5 h-3 w-3" />
+          <span className="text-xs">Back</span>
+        </Button>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-lg font-bold">Payment Accounts</h1>
+            <p className="text-[10px] text-muted-foreground">
+              {(mobileAccounts.length + bankAccounts.length) === 0 
+                ? 'Add your first payment account' 
+                : `${mobileAccounts.length + bankAccounts.length} account${(mobileAccounts.length + bankAccounts.length) !== 1 ? 's' : ''}`}
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6 pb-20">
-        <div className="max-w-2xl mx-auto space-y-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {(mobileAccounts.length + bankAccounts.length) === 0 
-                  ? 'Add your first payment account' 
-                  : `${mobileAccounts.length + bankAccounts.length} account${(mobileAccounts.length + bankAccounts.length) !== 1 ? 's' : ''}`}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => setShowAddMobileDialog(true)} size="sm" className="gap-2">
-                <Smartphone className="h-4 w-4" />
-                Mobile Money
-              </Button>
-              <Button onClick={() => setShowAddBankDialog(true)} size="sm" variant="outline" className="gap-2">
-                <Building2 className="h-4 w-4" />
-                Bank Account
-              </Button>
-            </div>
-          </div>
+      {/* Add Account Buttons */}
+      <div className="flex gap-2 mb-3">
+        <Button onClick={() => setShowAddMobileDialog(true)} size="sm" className="h-7 text-xs flex-1">
+          <Smartphone className="mr-1.5 h-3 w-3" />
+          Mobile Money
+        </Button>
+        <Button onClick={() => setShowAddBankDialog(true)} size="sm" variant="outline" className="h-7 text-xs flex-1">
+          <Building2 className="mr-1.5 h-3 w-3" />
+          Bank Account
+        </Button>
+      </div>
 
-          {(mobileAccounts.length + bankAccounts.length) === 0 ? (
-            <Card className="p-8 text-center">
-              <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                <Smartphone className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">No payment accounts</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Add a mobile money or bank account to receive payouts and make contributions
-              </p>
-              <div className="flex gap-2 justify-center">
-                <Button onClick={() => setShowAddMobileDialog(true)} className="gap-2">
-                  <Smartphone className="h-4 w-4" />
-                  Add Mobile Money
-                </Button>
-                <Button onClick={() => setShowAddBankDialog(true)} variant="outline" className="gap-2">
-                  <Building2 className="h-4 w-4" />
-                  Add Bank Account
-                </Button>
+      {/* Empty State or Accounts List */}
+      {(mobileAccounts.length + bankAccounts.length) === 0 ? (
+        <Card className="p-6 text-center">
+          <Smartphone className="h-8 w-8 mx-auto mb-3 text-muted-foreground" />
+          <h3 className="text-sm font-semibold mb-1.5">No payment accounts</h3>
+          <p className="text-[10px] text-muted-foreground mb-3">
+            Add accounts to receive payouts and make contributions
+          </p>
+        </Card>
+      ) : (
+        <div className="space-y-2">
+          {/* Mobile Money Accounts */}
+          {mobileAccounts.map((account) => (
+            <Card key={account.id} className="p-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-full bg-background flex items-center justify-center border">
+                  <img
+                    src={getProviderLogo(account.provider)}
+                    alt={account.provider}
+                    className="w-6 h-6 object-contain"
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <p className="font-semibold text-xs truncate">{account.account_name}</p>
+                    {account.is_primary && (
+                      <Badge variant="default" className="text-[8px] h-4 px-1">
+                        <Check className="h-2.5 w-2.5 mr-0.5" />
+                        Primary
+                      </Badge>
+                    )}
+                    {account.is_verified && (
+                      <Badge variant="outline" className="text-[8px] h-4 px-1">
+                        Verified
+                      </Badge>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">{getProviderName(account.provider)}</p>
+                  <p className="text-[9px] text-muted-foreground font-mono">{account.phone_number}</p>
+                </div>
+
+                <div className="flex gap-1">
+                  {!account.is_primary && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-[9px] px-2"
+                      onClick={() => handleSetPrimary(account.id, 'mobile')}
+                    >
+                      Set Primary
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setEditingMobileAccount(account)}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    onClick={() => handleDelete(account.id, account.is_primary, 'mobile')}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
             </Card>
-          ) : (
-            <div className="space-y-3">
-              {/* Mobile Money Accounts */}
-              {mobileAccounts.map((account) => (
-                <Card key={account.id} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center border-2">
-                      <img
-                        src={getProviderLogo(account.provider)}
-                        alt={account.provider}
-                        className="w-8 h-8 object-contain"
-                      />
-                    </div>
+          ))}
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm truncate">{account.account_name}</p>
-                        {account.is_primary && (
-                          <Badge variant="default" className="text-[10px] px-1.5 py-0">
-                            <Check className="h-3 w-3 mr-1" />
-                            Primary
-                          </Badge>
-                        )}
-                        {account.is_verified && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                            Verified
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{getProviderName(account.provider)}</p>
-                      <p className="text-xs text-muted-foreground font-mono">{account.phone_number}</p>
-                    </div>
+          {/* Bank Accounts */}
+          {bankAccounts.map((account) => (
+            <Card key={account.id} className="p-2.5">
+              <div className="flex items-center gap-2.5">
+                <div className="p-1.5 bg-primary/10 rounded">
+                  <Building2 className="h-4 w-4 text-primary" />
+                </div>
 
-                    <div className="flex items-center gap-2">
-                      {!account.is_primary && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleSetPrimary(account.id, 'mobile')}
-                          className="text-xs"
-                        >
-                          Set Primary
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingMobileAccount(account)}
-                        className="hover:bg-muted"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(account.id, account.is_primary, 'mobile')}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    <p className="font-semibold text-xs truncate">{account.account_name}</p>
+                    {account.is_primary && (
+                      <Badge variant="default" className="text-[8px] h-4 px-1">
+                        <Check className="h-2.5 w-2.5 mr-0.5" />
+                        Primary
+                      </Badge>
+                    )}
+                    {account.is_verified && (
+                      <Badge variant="outline" className="text-[8px] h-4 px-1">
+                        Verified
+                      </Badge>
+                    )}
                   </div>
-                </Card>
-              ))}
+                  <p className="text-[10px] text-muted-foreground">{account.bank_name}</p>
+                  <p className="text-[9px] text-muted-foreground font-mono">{account.account_number}</p>
+                </div>
 
-              {/* Bank Accounts */}
-              {bankAccounts.map((account) => (
-                <Card key={account.id} className="p-4 hover:shadow-md transition-shadow">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-background flex items-center justify-center border-2">
-                      <Building2 className="h-6 w-6 text-primary" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <p className="font-medium text-sm truncate">{account.account_name}</p>
-                        {account.is_primary && (
-                          <Badge variant="default" className="text-[10px] px-1.5 py-0">
-                            <Check className="h-3 w-3 mr-1" />
-                            Primary
-                          </Badge>
-                        )}
-                        {account.is_verified && (
-                          <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-                            Verified
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{account.bank_name}</p>
-                      <p className="text-xs text-muted-foreground font-mono">{account.account_number}</p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      {!account.is_primary && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleSetPrimary(account.id, 'bank')}
-                          className="text-xs"
-                        >
-                          Set Primary
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => setEditingBankAccount(account)}
-                        className="hover:bg-muted"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleDelete(account.id, account.is_primary, 'bank')}
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          <Card className="p-4 bg-primary/5 border-primary/20">
-            <div className="flex gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <Smartphone className="h-5 w-5 text-primary" />
+                <div className="flex gap-1">
+                  {!account.is_primary && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-[9px] px-2"
+                      onClick={() => handleSetPrimary(account.id, 'bank')}
+                    >
+                      Set Primary
+                    </Button>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setEditingBankAccount(account)}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    onClick={() => handleDelete(account.id, account.is_primary, 'bank')}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-sm mb-1">About Payment Accounts</h4>
-                <p className="text-xs text-muted-foreground">
-                  Your primary account is used for automatic payouts. You can add both mobile money and bank accounts. All accounts must be registered in your name.
-                </p>
-              </div>
-            </div>
-          </Card>
+            </Card>
+          ))}
         </div>
-      </div>
+      )}
 
+      {/* Info Card */}
+      <Card className="p-3 mt-3 bg-primary/5 border-primary/20">
+        <div className="flex gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+            <Smartphone className="h-4 w-4 text-primary" />
+          </div>
+          <div className="flex-1">
+            <h4 className="font-semibold text-xs mb-1">About Payment Accounts</h4>
+            <p className="text-[10px] text-muted-foreground">
+              Your primary account is used for automatic payouts. You can add both mobile money and bank accounts. All accounts must be registered in your name.
+            </p>
+          </div>
+        </div>
+      </Card>
+
+      {/* Dialogs */}
       <AddMobileMoneyDialog
         open={showAddMobileDialog}
         onOpenChange={setShowAddMobileDialog}
