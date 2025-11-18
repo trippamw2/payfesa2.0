@@ -245,6 +245,69 @@ class PaymentService {
   }
 
   /**
+   * Verify mobile money account
+   */
+  async verifyMobileAccount(accountId: string): Promise<PaymentResult> {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-mobile-account', {
+        body: { accountId }
+      });
+
+      if (error) throw error;
+
+      if (!data?.success) {
+        return {
+          success: false,
+          error: data?.error || 'Verification failed'
+        };
+      }
+
+      return {
+        success: true,
+        reference: data.verification?.reference,
+        message: data.message || 'Verification initiated'
+      };
+    } catch (error: any) {
+      console.error('Error verifying mobile account:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to verify mobile account'
+      };
+    }
+  }
+
+  /**
+   * Verify bank account
+   */
+  async verifyBankAccount(accountId: string): Promise<PaymentResult> {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-bank-account', {
+        body: { accountId }
+      });
+
+      if (error) throw error;
+
+      if (!data?.success) {
+        return {
+          success: false,
+          error: data?.error || 'Verification failed'
+        };
+      }
+
+      return {
+        success: true,
+        message: data.message || 'Bank account verified'
+      };
+    } catch (error: any) {
+      console.error('Error verifying bank account:', error);
+      return {
+        success: false,
+        error: error.message || 'Failed to verify bank account'
+      };
+    }
+  }
+
+  /**
    * Add bank account
    */
   async addBankAccount(

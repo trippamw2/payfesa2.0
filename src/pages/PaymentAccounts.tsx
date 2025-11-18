@@ -5,7 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Plus, Check, Trash2, Smartphone, Building2, Edit } from 'lucide-react';
+import { ArrowLeft, Plus, Check, Trash2, Smartphone, Building2, Edit, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/i18n';
@@ -16,6 +16,7 @@ import EditBankAccountDialog from '@/components/banking/EditBankAccountDialog';
 import airtelLogo from '@/assets/airtel-money-logo.png';
 import tnmLogo from '@/assets/tnm-mpamba-logo.jpg';
 import { getBankLogo } from '@/utils/bankLogos';
+import { paymentService } from '@/services/paymentService';
 
 interface MobileMoneyAccount {
   id: string;
@@ -123,6 +124,27 @@ const PaymentAccounts = () => {
     } catch (error) {
       console.error('Error setting primary:', error);
       toast.error('Failed to update primary account');
+    }
+  };
+
+  const handleVerify = async (accountId: string, type: 'mobile' | 'bank') => {
+    try {
+      setLoading(true);
+      const result = type === 'mobile' 
+        ? await paymentService.verifyMobileAccount(accountId)
+        : await paymentService.verifyBankAccount(accountId);
+      
+      if (result.success) {
+        toast.success(result.message || 'Account verified successfully');
+        fetchAccounts();
+      } else {
+        toast.error(result.error || 'Verification failed');
+      }
+    } catch (error) {
+      console.error('Error verifying account:', error);
+      toast.error('Failed to verify account');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -252,6 +274,18 @@ const PaymentAccounts = () => {
                 </div>
 
                 <div className="flex gap-1">
+                  {!account.is_verified && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-[9px] px-2"
+                      onClick={() => handleVerify(account.id, 'mobile')}
+                      disabled={loading}
+                    >
+                      <Shield className="h-2.5 w-2.5 mr-1" />
+                      Verify
+                    </Button>
+                  )}
                   {!account.is_primary && (
                     <Button
                       variant="outline"
@@ -321,6 +355,18 @@ const PaymentAccounts = () => {
                 </div>
 
                 <div className="flex gap-1">
+                  {!account.is_verified && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-6 text-[9px] px-2"
+                      onClick={() => handleVerify(account.id, 'bank')}
+                      disabled={loading}
+                    >
+                      <Shield className="h-2.5 w-2.5 mr-1" />
+                      Verify
+                    </Button>
+                  )}
                   {!account.is_primary && (
                     <Button
                       variant="outline"
