@@ -139,85 +139,26 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
 
   return (
     <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 backdrop-blur border-primary/20">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Gift className="h-4 w-4 text-primary" />
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-[10px] font-semibold flex items-center gap-1">
+            <Gift className="h-3 w-3 text-primary" />
             Bonuses
-          </div>
-          <Badge variant="secondary" className="font-mono">
-            MWK {totalEarned.toLocaleString()}
-          </Badge>
-        </CardTitle>
+          </CardTitle>
+          {recentBonuses.length > 0 && (
+            <Badge variant="secondary" className="text-[8px] px-1.5 py-0 h-4 font-mono">
+              Latest: +{Number(recentBonuses[0].amount).toLocaleString()}
+            </Badge>
+          )}
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Recent Bonuses */}
-        {recentBonuses.length > 0 ? (
-          <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">Recent Bonuses</p>
-            {recentBonuses.map((bonus) => (
-              <div
-                key={bonus.id}
-                className="flex items-center justify-between p-2 rounded-lg bg-background/50 border border-border/50"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 rounded-full bg-primary/10 text-primary">
-                    {getBonusIcon(bonus.bonus_type_code)}
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium">
-                      {getBonusName(bonus.bonus_type_code)}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground">
-                      {new Date(bonus.awarded_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-xs font-semibold text-green-600 dark:text-green-400">
-                  +MWK {Number(bonus.amount).toLocaleString()}
-                </p>
-              </div>
-            ))}
+      <CardContent className="p-2 pt-0">
+        <div className="text-center py-1">
+          <div className="text-2xl font-bold">
+            MWK {totalEarned.toLocaleString()}
           </div>
-        ) : (
-          <div className="text-center py-4">
-            <Gift className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
-            <p className="text-xs text-muted-foreground">No bonuses yet</p>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              Keep up good payment habits to earn bonuses!
-            </p>
-          </div>
-        )}
-
-        {/* Available Bonuses */}
-        {availableBonuses.length > 0 && (
-          <div className="pt-3 border-t border-border/50">
-            <p className="text-xs text-muted-foreground mb-2">Available Bonuses</p>
-            <div className="space-y-1.5">
-              {availableBonuses.slice(0, 3).map((bonus) => (
-                <div
-                  key={bonus.code}
-                  className="flex items-center justify-between p-2 rounded bg-muted/30"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className="p-1 rounded-full bg-primary/5 text-primary">
-                      {getBonusIcon(bonus.code)}
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-medium">{bonus.name}</p>
-                      <p className="text-[9px] text-muted-foreground">
-                        {bonus.description}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-[10px] font-semibold text-primary">
-                    MWK {Number(bonus.bonus_amount).toLocaleString()}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          <p className="text-[9px] text-muted-foreground">Total Earned</p>
+        </div>
       </CardContent>
     </Card>
   );
