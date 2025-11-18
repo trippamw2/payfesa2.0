@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import "./index.css";
 
+console.log("PayFesa App Starting...");
+
 const rootElement = document.getElementById("root");
 
 if (!rootElement) {
