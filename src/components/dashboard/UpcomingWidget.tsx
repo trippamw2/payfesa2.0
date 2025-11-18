@@ -4,6 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Clock, TrendingUp, Users, Calendar, Trophy } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface Props {
   userId: string;
@@ -147,6 +148,7 @@ const UpcomingWidget = ({ userId }: Props) => {
       }
     } catch (error) {
       console.error('Error fetching upcoming data:', error);
+      toast.error('Failed to load upcoming events');
     } finally {
       setLoading(false);
     }

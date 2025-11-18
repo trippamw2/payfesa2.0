@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Gift, TrendingUp, Zap, Award, Target } from 'lucide-react';
+import { Gift, TrendingUp, Zap, Award, Target, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Bonus {
@@ -26,6 +27,7 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
   const [availableBonuses, setAvailableBonuses] = useState<BonusType[]>([]);
   const [totalEarned, setTotalEarned] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchBonuses();
@@ -35,6 +37,7 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
 
   const fetchBonuses = async () => {
     try {
+      setError(null);
       const { data, error } = await supabase
         .from('bonus_transactions')
         .select('*')
@@ -51,6 +54,8 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
       setTotalEarned(total);
     } catch (error) {
       console.error('Error fetching bonuses:', error);
+      setError('Failed to load bonuses');
+      toast.error('Failed to load bonuses');
     } finally {
       setLoading(false);
     }
@@ -67,6 +72,7 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
       setAvailableBonuses(data || []);
     } catch (error) {
       console.error('Error fetching bonus types:', error);
+      toast.error('Failed to load available bonuses');
     }
   };
 
@@ -128,10 +134,37 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse space-y-2">
-            <div className="h-4 bg-muted rounded w-3/4"></div>
-            <div className="h-4 bg-muted rounded w-1/2"></div>
+          <div className="space-y-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="flex items-center gap-2 p-2 bg-muted/50 rounded animate-pulse">
+                <div className="h-8 w-8 rounded-full bg-muted" />
+                <div className="flex-1 space-y-1">
+                  <div className="h-3 bg-muted rounded w-3/4" />
+                  <div className="h-2 bg-muted rounded w-1/2" />
+                </div>
+              </div>
+            ))}
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="bg-card/50 backdrop-blur border-destructive/20">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <Gift className="h-4 w-4 text-destructive" />
+            Bonuses
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="text-center py-4">
+          <p className="text-xs text-muted-foreground mb-2">{error}</p>
+          <Button onClick={fetchBonuses} variant="outline" size="sm">
+            <RefreshCw className="h-3 w-3 mr-2" />
+            Retry
+          </Button>
         </CardContent>
       </Card>
     );

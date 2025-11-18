@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { ArrowLeft, Trophy, TrendingUp, Target, Award, Share2 } from 'lucide-react';
+import { ArrowLeft, Trophy, TrendingUp, Target, Award, Share2, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
@@ -30,6 +30,7 @@ const Leaderboard = () => {
   const navigate = useNavigate();
   const { goBack } = useBackNavigation();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [timeFilter, setTimeFilter] = useState<'all' | 'month'>('all');
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
@@ -52,12 +53,17 @@ const Leaderboard = () => {
   }, [timeFilter]);
 
   const getCurrentUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setCurrentUserId(user?.id || null);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUserId(user?.id || null);
+    } catch (error) {
+      console.error('Error fetching current user:', error);
+    }
   };
 
   const fetchLeaderboard = async () => {
     try {
+      setError(null);
       setLoading(true);
 
       // Get all users with trust scores
@@ -143,6 +149,8 @@ const Leaderboard = () => {
       setLeaderboard(leaderboardData);
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
+      setError('Failed to load leaderboard');
+      toast.error('Failed to load leaderboard');
     } finally {
       setLoading(false);
     }
@@ -380,6 +388,34 @@ const Leaderboard = () => {
       </div>
     );
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background p-4 pb-20">
+        <div className="mb-6">
+          <Button variant="ghost" onClick={goBack} className="mb-4">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back
+          </Button>
+        </div>
+        <Card className="p-6 text-center">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="p-3 rounded-full bg-destructive/10">
+              <AlertTriangle className="h-8 w-8 text-destructive" />
+            </div>
+            <div>
+              <h3 className="font-semibold mb-2">{error}</h3>
+              <p className="text-sm text-muted-foreground">Please try again</p>
+            </div>
+            <Button onClick={fetchLeaderboard} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background p-4 pb-20">

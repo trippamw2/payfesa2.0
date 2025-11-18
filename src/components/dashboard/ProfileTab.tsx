@@ -59,6 +59,7 @@ const ProfileTab = ({ user, profile }: Props) => {
       setIsAdmin(!!data);
     } catch (error) {
       console.error('Error checking admin role:', error);
+      // Silent fail - admin check is not critical
     }
   };
 
@@ -96,6 +97,7 @@ const ProfileTab = ({ user, profile }: Props) => {
       }
     } catch (error) {
       console.error('Error fetching user stats:', error);
+      toast.error('Failed to load profile stats');
     }
   };
 
@@ -120,6 +122,7 @@ const ProfileTab = ({ user, profile }: Props) => {
       }
     } catch (error) {
       console.error('Error checking achievements:', error);
+      // Silent fail - achievements check is not critical
     }
   };
 
