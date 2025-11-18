@@ -1,0 +1,58 @@
+project_id = "fisljlameaewzwndwpsq"
+
+[functions.admin-login]
+verify_jwt = false
+
+[functions.paychangu-webhook]
+verify_jwt = false
+
+[functions.process-scheduled-payouts]
+verify_jwt = false
+
+[functions.send-contribution-reminders]
+verify_jwt = false
+
+[functions.trigger-scheduled-payouts]
+verify_jwt = false
+
+[functions.detect-missed-contributions]
+verify_jwt = false
+
+[functions.reserve-payout-engine]
+verify_jwt = false
+
+[functions.calculate-trust-scores]
+verify_jwt = false
+
+[functions.update-payout-positions]
+verify_jwt = false
+
+[functions.calculate-bonuses]
+verify_jwt = false
+
+[functions.send-system-message]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.create-group]
+verify_jwt = true
+
+[functions.join-group]
+verify_jwt = true
+
+[functions.retry-failed-payment]
+verify_jwt = true
+
+[functions.reset-pin]
+verify_jwt = false
+
+[functions.edit-group]
+verify_jwt = true
+
+[functions.export-transactions]
+verify_jwt = true
+
+[functions.create-payment-dispute]
+verify_jwt = true
