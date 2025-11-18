@@ -27,10 +27,15 @@ import {
   RefreshCw,
   Lock,
   Unlock,
-  Zap
+  Zap,
+  Receipt,
+  FileText
 } from 'lucide-react';
 import { toast } from 'sonner';
 import bcrypt from 'bcryptjs';
+import { TransactionReceipt } from '@/components/payments/TransactionReceipt';
+import { TransactionFilters, TransactionFilterOptions } from '@/components/payments/TransactionFilters';
+import CreateDisputeDialog from '@/components/payments/CreateDisputeDialog';
 
 interface WalletBalances {
   wallet_balance: number;
@@ -56,6 +61,10 @@ const WalletManagement = () => {
   const [transferAmount, setTransferAmount] = useState('');
   const [transferPin, setTransferPin] = useState('');
   const [transferring, setTransferring] = useState(false);
+  const [selectedReceipt, setSelectedReceipt] = useState<any>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState<TransactionFilterOptions>({});
+  const [disputeTransaction, setDisputeTransaction] = useState<any>(null);
 
   useEffect(() => {
     fetchWalletData();
@@ -157,9 +166,30 @@ const WalletManagement = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+      {/* Receipt Dialog */}
+      {selectedReceipt && (
+        <TransactionReceipt
+          open={!!selectedReceipt}
+          onOpenChange={(open) => !open && setSelectedReceipt(null)}
+          transaction={selectedReceipt}
+        />
+      )}
+
+      {/* Dispute Dialog */}
+      {disputeTransaction && (
+        <CreateDisputeDialog
+          open={!!disputeTransaction}
+          onOpenChange={(open) => !open && setDisputeTransaction(null)}
+          transaction={disputeTransaction}
+          onSuccess={() => {
+            toast.success('Dispute created successfully');
+            setDisputeTransaction(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
 
   return (
     <div className="min-h-screen bg-background p-4 pb-20">
@@ -246,10 +276,18 @@ const WalletManagement = () => {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle>Recent Transactions</CardTitle>
-            <Button variant="ghost" size="sm" onClick={fetchWalletData}>
-              <RefreshCw className="h-4 w-4" />
-            </Button>
+            <CardTitle>Transaction History</CardTitle>
+            <div className="flex gap-2">
+              <TransactionFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                showFilters={showFilters}
+                onToggleFilters={() => setShowFilters(!showFilters)}
+              />
+              <Button variant="ghost" size="sm" onClick={fetchWalletData}>
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -260,28 +298,49 @@ const WalletManagement = () => {
               <TabsTrigger value="contribution">Contributions</TabsTrigger>
             </TabsList>
             
-            {['all', 'payout', 'contribution'].map(tab => (
-              <TabsContent key={tab} value={tab} className="space-y-4">
-                {transactions
-                  .filter(t => tab === 'all' || t.type === tab)
-                  .map(transaction => (
+            {['all', 'payout', 'contribution'].map(tab => {
+              const filteredTransactions = transactions
+                .filter(t => {
+                  // Tab filter
+                  if (tab !== 'all' && t.type !== tab) return false;
+                  
+                  // Type filter
+                  if (filters.type && t.type !== filters.type) return false;
+                  
+                  // Status filter
+                  if (filters.status && t.status !== filters.status) return false;
+                  
+                  // Amount filters
+                  if (filters.minAmount && t.amount < filters.minAmount) return false;
+                  if (filters.maxAmount && t.amount > filters.maxAmount) return false;
+                  
+                  // Date filters
+                  if (filters.startDate && new Date(t.created_at) < filters.startDate) return false;
+                  if (filters.endDate && new Date(t.created_at) > filters.endDate) return false;
+                  
+                  return true;
+                });
+
+              return (
+                <TabsContent key={tab} value={tab} className="space-y-4">
+                  {filteredTransactions.map(transaction => (
                     <div
                       key={transaction.id}
                       className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent/50 transition-colors"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 flex-1">
                         <div className={`p-2 rounded-full ${
                           transaction.type === 'payout' 
-                            ? 'bg-green-100 dark:bg-green-900/20' 
-                            : 'bg-red-100 dark:bg-red-900/20'
+                            ? 'bg-success/10' 
+                            : 'bg-destructive/10'
                         }`}>
                           {transaction.type === 'payout' ? (
-                            <ArrowDownLeft className="h-4 w-4 text-green-600 dark:text-green-400" />
+                            <ArrowDownLeft className="h-4 w-4 text-success" />
                           ) : (
-                            <ArrowUpRight className="h-4 w-4 text-red-600 dark:text-red-400" />
+                            <ArrowUpRight className="h-4 w-4 text-destructive" />
                           )}
                         </div>
-                        <div>
+                        <div className="flex-1">
                           <p className="font-medium capitalize">{transaction.type}</p>
                           <p className="text-sm text-muted-foreground">{transaction.group_name}</p>
                           <p className="text-xs text-muted-foreground">
@@ -289,29 +348,55 @@ const WalletManagement = () => {
                           </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className={`font-bold ${
-                          transaction.type === 'payout' ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {transaction.type === 'payout' ? '+' : '-'}MWK {transaction.amount.toLocaleString()}
-                        </p>
-                        <Badge variant={
-                          transaction.status === 'completed' ? 'default' :
-                          transaction.status === 'pending' ? 'secondary' : 'destructive'
-                        }>
-                          {transaction.status}
-                        </Badge>
+                      <div className="text-right flex items-center gap-2">
+                        <div>
+                          <p className={`font-bold ${
+                            transaction.type === 'payout' ? 'text-success' : 'text-destructive'
+                          }`}>
+                            {transaction.type === 'payout' ? '+' : '-'}MWK {transaction.amount.toLocaleString()}
+                          </p>
+                          <Badge variant={
+                            transaction.status === 'completed' ? 'default' :
+                            transaction.status === 'pending' ? 'secondary' : 'destructive'
+                          }>
+                            {transaction.status}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setSelectedReceipt(transaction)}
+                            title="View Receipt"
+                          >
+                            <Receipt className="h-4 w-4" />
+                          </Button>
+                          {transaction.status === 'completed' && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setDisputeTransaction(transaction)}
+                              title="File Dispute"
+                            >
+                              <FileText className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}
                 
-                {transactions.filter(t => tab === 'all' || t.type === tab).length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No {tab !== 'all' ? tab : ''} transactions yet
-                  </div>
-                )}
-              </TabsContent>
-            ))}
+                  {filteredTransactions.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      {Object.keys(filters).length > 0 
+                        ? 'No transactions match your filters'
+                        : `No ${tab !== 'all' ? tab : ''} transactions yet`
+                      }
+                    </div>
+                  )}
+                </TabsContent>
+              );
+            })}
           </Tabs>
         </CardContent>
       </Card>
