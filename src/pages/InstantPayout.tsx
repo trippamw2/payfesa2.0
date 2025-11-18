@@ -286,60 +286,205 @@ const InstantPayout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-3 max-w-2xl">
-        {/* Header */}
-        <div className="flex items-center gap-2 mb-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8"
-            onClick={goBack}
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold flex items-center gap-2">
-              <Zap className="h-5 w-5 text-yellow-500" />
-              Instant Payout
-            </h1>
-            <p className="text-xs text-muted-foreground">Get your payout immediately</p>
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary to-secondary text-white px-2 py-2 shadow-sm">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={goBack}
+              className="text-white hover:bg-white/10 h-7 w-7"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+            </Button>
+            <div>
+              <h1 className="text-sm font-semibold">Instant Payout</h1>
+              <p className="text-[10px] text-white/70">Get your money instantly</p>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Info Card */}
-        <Card className="p-3 mb-4 bg-yellow-50 border-yellow-200">
-          <div className="flex items-start gap-2">
-            <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5" />
-            <div className="flex-1 text-xs">
-              <p className="font-medium text-yellow-900 mb-1">Instant Payout Fee: MWK {INSTANT_PAYOUT_FEE.toLocaleString()}</p>
-              <p className="text-yellow-700">
-                Skip the waiting period and get your payout immediately. A processing fee of MWK {INSTANT_PAYOUT_FEE.toLocaleString()} will be deducted from your payout amount.
-              </p>
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto p-2 space-y-2">
+        {/* Balance Overview */}
+        <Card className="p-2 bg-gradient-to-br from-primary/5 to-secondary/5 border-border/50">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <div className="p-1 rounded-full bg-primary/10">
+                <Wallet className="h-3.5 w-3.5 text-primary" />
+              </div>
+              <div>
+                <p className="text-[10px] text-muted-foreground">Total Balance</p>
+                <p className="text-lg font-bold">
+                  MWK {(balance.wallet_balance + balance.escrow_balance).toLocaleString()}
+                </p>
+              </div>
+            </div>
+            <Badge variant="secondary" className="text-[9px] px-1.5 py-0">Available</Badge>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-border/50">
+            <div>
+              <p className="text-[9px] text-muted-foreground">Wallet</p>
+              <p className="text-xs font-semibold">MWK {balance.wallet_balance.toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-muted-foreground">Escrow</p>
+              <p className="text-xs font-semibold">MWK {balance.escrow_balance.toLocaleString()}</p>
             </div>
           </div>
         </Card>
 
-        {/* Current Balance */}
-        <Card className="p-4 mb-4">
-          <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
-            <Wallet className="h-4 w-4" />
-            Your Balances
-          </h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">Wallet Balance</p>
-              <p className="text-lg font-bold text-primary">MWK {balance.wallet_balance.toLocaleString()}</p>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-3 gap-1.5">
+          <Card className="p-1.5 border-border/50">
+            <Zap className="h-3 w-3 text-primary mb-0.5" />
+            <p className="text-sm font-bold">{pendingPayouts.length}</p>
+            <p className="text-[9px] text-muted-foreground">Pending</p>
+          </Card>
+          <Card className="p-1.5 border-border/50">
+            <Clock className="h-3 w-3 text-blue-500 mb-0.5" />
+            <p className="text-sm font-bold">Instant</p>
+            <p className="text-[9px] text-muted-foreground">Speed</p>
+          </Card>
+          <Card className="p-1.5 border-border/50">
+            <DollarSign className="h-3 w-3 text-green-500 mb-0.5" />
+            <p className="text-sm font-bold">{INSTANT_PAYOUT_FEE.toLocaleString()}</p>
+            <p className="text-[9px] text-muted-foreground">Fee (MWK)</p>
+          </Card>
+        </div>
+
+        {/* Info Cards */}
+        <div className="grid md:grid-cols-2 gap-2">
+          <Card className="p-2 border-border/50">
+            <div className="flex items-start gap-1.5">
+              <div className="p-1 rounded-full bg-green-500/10">
+                <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[10px] font-semibold mb-0.5">Instant Transfer</h3>
+                <p className="text-[9px] text-muted-foreground">
+                  Receive money within minutes to your mobile money account
+                </p>
+              </div>
             </div>
-            <div className="p-3 bg-secondary/10 rounded-lg">
-              <p className="text-xs text-muted-foreground mb-1">Escrow Balance</p>
-              <p className="text-lg font-bold text-secondary">MWK {balance.escrow_balance.toLocaleString()}</p>
+          </Card>
+
+          <Card className="p-2 border-border/50">
+            <div className="flex items-start gap-1.5">
+              <div className="p-1 rounded-full bg-blue-500/10">
+                <Smartphone className="h-3.5 w-3.5 text-blue-500" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-[10px] font-semibold mb-0.5">Mobile Money</h3>
+                <p className="text-[9px] text-muted-foreground">
+                  Direct transfer to your registered mobile money account
+                </p>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
 
         {/* Pending Payouts Selection */}
         {pendingPayouts.length > 0 ? (
+          <>
+            <Card className="p-2 border-border/50">
+              <h2 className="text-[10px] font-semibold mb-1.5 flex items-center gap-1">
+                <Zap className="h-3 w-3 text-primary" />
+                Select Payout to Cash Out
+              </h2>
+              <div className="space-y-1.5">
+                {pendingPayouts.map((payout) => (
+                  <div
+                    key={payout.id}
+                    onClick={() => setSelectedPayout(payout.id)}
+                    className={`p-1.5 rounded-lg border cursor-pointer transition-all ${
+                      selectedPayout === payout.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <p className="text-[10px] font-semibold">{payout.rosca_groups.name}</p>
+                        <p className="text-[9px] text-muted-foreground">
+                          Due: {new Date(payout.scheduled_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-xs font-bold text-primary">MWK {payout.amount.toLocaleString()}</p>
+                        <p className="text-[9px] text-muted-foreground">-{INSTANT_PAYOUT_FEE.toLocaleString()} fee</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* Payment Account Selection */}
+            <Card className="p-2 border-border/50">
+              <h2 className="text-[10px] font-semibold mb-1.5 flex items-center gap-1">
+                <Wallet className="h-3 w-3 text-primary" />
+                Select Payment Account
+              </h2>
+              {accounts.length === 0 ? (
+                <div className="text-center py-3">
+                  <AlertCircle className="h-5 w-5 mx-auto text-muted-foreground mb-1" />
+                  <p className="text-[10px] text-muted-foreground mb-1.5">No payment account linked</p>
+                  <Button onClick={() => navigate('/wallet')} variant="outline" size="sm" className="h-7 text-[10px]">
+                    Add Payment Account
+                  </Button>
+                </div>
+              ) : (
+                <Select value={selectedAccount} onValueChange={setSelectedAccount}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select account" /></SelectTrigger>
+                  <SelectContent>
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id} className="text-xs">
+                        {account.type === 'mobile' ? `${account.provider} • ${account.phone_number}` : `${account.bank_name} • ${account.account_number}`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </Card>
+
+            {selectedPayout && (
+              <Card className="p-2 bg-muted/30 border-border/50">
+                <h3 className="text-[10px] font-semibold mb-1.5">Fee Breakdown</h3>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-[9px]">
+                    <span className="text-muted-foreground">Payout Amount</span>
+                    <span className="font-semibold">MWK {pendingPayouts.find(p => p.id === selectedPayout)?.amount.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-[9px]">
+                    <span className="text-muted-foreground">Instant Fee</span>
+                    <span className="text-red-600">-MWK {INSTANT_PAYOUT_FEE.toLocaleString()}</span>
+                  </div>
+                  <div className="pt-1 border-t border-border/50">
+                    <div className="flex justify-between">
+                      <span className="text-[10px] font-semibold">You'll Receive</span>
+                      <span className="text-xs font-bold text-primary">MWK {((pendingPayouts.find(p => p.id === selectedPayout)?.amount || 0) - INSTANT_PAYOUT_FEE).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            <Button onClick={() => setShowPinDialog(true)} disabled={!selectedPayout || !selectedAccount || requesting} className="w-full h-8 text-xs">
+              {requesting ? <><Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" />Processing...</> : <><Zap className="mr-1 h-3.5 w-3.5" />Request Instant Payout</>}
+            </Button>
+          </>
+        ) : (
+          <Card className="p-3 text-center border-border/50">
+            <AlertCircle className="h-6 w-6 mx-auto text-muted-foreground mb-1.5" />
+            <p className="text-xs text-muted-foreground mb-1">No Pending Payouts</p>
+            <p className="text-[10px] text-muted-foreground">You don't have any pending payouts at the moment</p>
+          </Card>
+        )}
           <>
             <Card className="p-4 mb-4">
               <h2 className="text-base font-semibold mb-3">Select Payout</h2>
