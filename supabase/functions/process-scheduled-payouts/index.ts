@@ -1,37 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 import { PaychanguService } from "../_shared/paychangu.ts";
+import { calculatePayoutFees } from "../_shared/feeCalculations.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-// PayFesa Fee Structure
-const FEE_RATES = {
-  PAYOUT_SAFETY: 0.01,   // 1%
-  SERVICE: 0.05,         // 5%
-  GOVERNMENT: 0.06,      // 6%
-};
-
-function calculatePayoutFees(grossAmount: number) {
-  const payoutSafetyFee = Math.round(grossAmount * FEE_RATES.PAYOUT_SAFETY);
-  const serviceFee = Math.round(grossAmount * FEE_RATES.SERVICE);
-  const governmentFee = Math.round(grossAmount * FEE_RATES.GOVERNMENT);
-  const totalFees = payoutSafetyFee + serviceFee + governmentFee;
-  const netAmount = grossAmount - totalFees;
-
-  return {
-    grossAmount,
-    payoutSafetyFee,
-    serviceFee,
-    governmentFee,
-    totalFees,
-    netAmount,
-    feeAmount: serviceFee,           // For DB compatibility
-    commissionAmount: payoutSafetyFee + governmentFee, // For DB compatibility
-  };
-}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -159,11 +134,13 @@ serve(async (req) => {
           }
         }
 
-        // Calculate fees (11% total: 10% platform + 1% reserve)
-        const feeAmount = payout.amount * 0.11;
-        const platformFee = payout.amount * 0.10; // 10% for platform earnings
-        const reserveFee = payout.amount * 0.01;  // 1% for reserve wallet
-        const netPayout = payout.amount - feeAmount;
+        // Calculate PayFesa fees (12% total: 1% safety + 5% service + 6% government)
+        const feeBreakdown = calculatePayoutFees(payout.amount);
+        const feeAmount = feeBreakdown.totalFees; // Total percentage-based fees
+        const platformFee = feeBreakdown.serviceFee; // 5% service fee = platform revenue
+        const reserveFee = feeBreakdown.payoutSafetyFee + feeBreakdown.governmentFee; // 1% + 6% = reserve
+        const netPayout = feeBreakdown.netAmount;
+        console.log(`Scheduled payout ${payout.id}: Safety=${feeBreakdown.payoutSafetyFee}, Service=${platformFee}, Govt=${feeBreakdown.governmentFee}, Reserve=${reserveFee}, Total=${feeAmount}, Net=${netPayout}`);
 
         // Get user's primary payment method (mobile money or bank)
         const { data: mobileAccount } = await supabaseAdmin
@@ -362,24 +339,30 @@ serve(async (req) => {
               charge_id: chargeId,
               paychangu_ref_id: paychanguTxn.ref_id,
               paychangu_trace_id: paychanguTxn.trace_id,
-              payment_method_type: isMobileMoney ? 'mobile_money' : 'bank_transfer'
+              payment_method_type: isMobileMoney ? 'mobile_money' : 'bank_transfer',
+              fee_breakdown: {
+                payout_safety_fee: feeBreakdown.payoutSafetyFee,
+                service_fee: feeBreakdown.serviceFee,
+                government_fee: feeBreakdown.governmentFee,
+                total_fees: feeBreakdown.totalFees,
+              },
             }
           });
 
-        // Route 1% to reserve wallet
+        // Route 7% (1% payout safety + 6% government) to reserve wallet
         try {
           await supabaseAdmin.rpc('add_to_reserve_wallet', {
             p_amount: reserveFee,
             p_group_id: payout.group_id,
             p_user_id: payout.user_id,
-            p_reason: `Reserve contribution from scheduled payout ${payout.id}`
+            p_reason: `Reserve contribution (safety+govt fees) from scheduled payout ${payout.id}`
           });
-          console.log(`Added ${reserveFee} to reserve wallet from payout ${payout.id}`);
+          console.log(`Added ${reserveFee} MWK (${feeBreakdown.payoutSafetyFee} safety + ${feeBreakdown.governmentFee} govt) to reserve wallet from payout ${payout.id}`);
         } catch (reserveError) {
           console.error(`Error adding to reserve wallet for payout ${payout.id}:`, reserveError);
         }
 
-        // Create revenue transaction (10% platform fee only)
+        // Create revenue transaction (5% service fee only)
         await supabaseAdmin
           .from('revenue_transactions')
           .insert({
@@ -390,7 +373,7 @@ serve(async (req) => {
             amount: platformFee,
             original_payout_amount: payout.amount,
             net_payout: netPayout,
-            fee_percentage: 10
+            fee_percentage: 5
           });
 
         // Update trust score
