@@ -34,16 +34,29 @@ export default function AccountSettings() {
 
   const fetchUserData = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError || !user) {
+        navigate('/auth');
+        return;
+      }
 
       const { data, error } = await supabase
         .from('users')
         .select('name, phone_number, language')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching user data:', error);
+        toast.error('Failed to load account data');
+        return;
+      }
+
+      if (!data) {
+        toast.error('User profile not found');
+        return;
+      }
 
       setName(data.name || '');
       setPhoneNumber(data.phone_number || '');

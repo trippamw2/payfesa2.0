@@ -45,9 +45,18 @@ export const TrustScoreWidget = () => {
         .from('users')
         .select('trust_score, is_kyc_verified, total_messages_sent, created_at')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (userError) throw userError;
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+        return;
+      }
+      
+      if (!userData) {
+        console.error('User data not found');
+        return;
+      }
+      
       setTrustData(userData);
 
       // Fetch most recent change

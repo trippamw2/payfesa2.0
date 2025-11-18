@@ -29,19 +29,36 @@ const CreditScore = () => {
 
   const fetchCreditScore = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) {
+        console.error('Auth error:', authError);
+        navigate('/auth');
+        return;
+      }
+      
+      if (!user) {
+        navigate('/auth');
+        return;
+      }
 
       const { data, error } = await supabase
         .from('credit_scores')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching credit score:', error);
+        setCreditScore(null);
+        return;
+      }
+      
+      // data will be null if no credit score exists, which is fine
       setCreditScore(data);
     } catch (error) {
-      console.error('Error fetching credit score:', error);
+      console.error('Unexpected error fetching credit score:', error);
+      setCreditScore(null);
     } finally {
       setLoading(false);
     }

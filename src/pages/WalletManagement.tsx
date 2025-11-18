@@ -86,9 +86,19 @@ const WalletManagement = () => {
         .from('users')
         .select('wallet_balance, escrow_balance')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (userError) throw userError;
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+        toast.error('Failed to load wallet balances');
+        return;
+      }
+      
+      if (!userData) {
+        toast.error('User wallet not found');
+        return;
+      }
+      
       setBalances(userData);
 
       // Fetch recent transactions via edge function

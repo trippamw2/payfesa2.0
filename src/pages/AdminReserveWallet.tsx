@@ -115,10 +115,20 @@ const AdminReserveWallet = () => {
       const { data: wallet, error: walletError } = await supabase
         .from('reserve_wallet')
         .select('*')
-        .single();
+        .maybeSingle();
 
-      if (walletError) throw walletError;
-      setReserveWallet(wallet);
+      if (walletError) {
+        console.error('Error fetching reserve wallet:', walletError);
+        toast.error('Failed to load reserve wallet');
+        return;
+      }
+      
+      if (!wallet) {
+        // No reserve wallet exists yet - this is okay, show empty state
+        setReserveWallet(null);
+      } else {
+        setReserveWallet(wallet);
+      }
 
       // Fetch transactions (last 100)
       const { data: txns, error: txnsError } = await supabase
