@@ -17,7 +17,49 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     );
 
-    const webhookData = await req.json();
+    // Get webhook secret for signature verification
+    const { data: payConfig } = await supabaseClient
+      .from('api_configurations')
+      .select('webhook_secret')
+      .eq('provider', 'paychangu')
+      .eq('enabled', true)
+      .single();
+
+    // Read request body once
+    const rawBody = await req.text();
+    let webhookData;
+
+    // Verify webhook signature if secret is configured
+    if (payConfig?.webhook_secret) {
+      const signature = req.headers.get('Signature') || req.headers.get('X-Paychangu-Signature');
+      
+      // Compute expected signature using HMAC-SHA256
+      const encoder = new TextEncoder();
+      const key = await crypto.subtle.importKey(
+        'raw',
+        encoder.encode(payConfig.webhook_secret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      );
+      const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(rawBody));
+      const computedSignature = Array.from(new Uint8Array(signatureBuffer))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      if (signature && signature !== computedSignature) {
+        console.error('Webhook signature verification failed');
+        return new Response(
+          JSON.stringify({ error: 'Invalid signature' }),
+          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      console.log('Webhook signature verified successfully');
+    }
+
+    // Parse webhook data
+    webhookData = JSON.parse(rawBody);
     console.log('Paychangu webhook received:', webhookData);
 
     const { event_type, data } = webhookData;
