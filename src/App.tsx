@@ -32,6 +32,7 @@ import Achievements from "./pages/Achievements";
 import Leaderboard from "./pages/Leaderboard";
 import MobileMoneyManagement from "./pages/MobileMoneyManagement";
 import BankAccountManagement from "./pages/BankAccountManagement";
+import PaymentAccounts from "./pages/PaymentAccounts";
 import PayoutManagement from "./pages/PayoutManagement";
 import WalletManagement from "./pages/WalletManagement";
 import TrustScoreHistory from "./pages/TrustScoreHistory";
@@ -147,6 +148,7 @@ const AppContent = () => {
         <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
         <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
         <Route path="/mobile-money" element={<ProtectedRoute><MobileMoneyManagement /></ProtectedRoute>} />
+        <Route path="/payment-accounts" element={<ProtectedRoute><PaymentAccounts /></ProtectedRoute>} />
         <Route path="/bank-accounts" element={<ProtectedRoute><BankAccountManagement /></ProtectedRoute>} />
         <Route path="/payouts" element={<ProtectedRoute><PayoutManagement /></ProtectedRoute>} />
         <Route path="/wallet" element={<ProtectedRoute><WalletManagement /></ProtectedRoute>} />

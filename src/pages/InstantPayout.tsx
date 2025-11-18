@@ -70,7 +70,6 @@ const InstantPayout = () => {
   const [balance, setBalance] = useState<WalletBalance>({ wallet_balance: 0, escrow_balance: 0 });
   const [accounts, setAccounts] = useState<PaymentAccount[]>([]);
   const [selectedAccount, setSelectedAccount] = useState<string>('');
-  const [selectedAccountType, setSelectedAccountType] = useState<'mobile' | 'bank'>('mobile');
   const [pendingPayouts, setPendingPayouts] = useState<PendingPayout[]>([]);
   const [selectedPayout, setSelectedPayout] = useState<string>('');
   const [showPinDialog, setShowPinDialog] = useState(false);
@@ -111,38 +110,22 @@ const InstantPayout = () => {
       if (userError) throw userError;
       setBalance(userData);
 
-      // Fetch payment accounts (mobile money and bank)
-      const [mobileData, bankData] = await Promise.all([
-        supabase
-          .from('mobile_money_accounts')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('is_active', true)
-          .order('is_primary', { ascending: false }),
-        supabase
-          .from('bank_accounts')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('is_primary', { ascending: false })
-      ]);
+      // Fetch payment accounts (only mobile money for now)
+      const { data: mobileData, error: mobileError } = await supabase
+        .from('mobile_money_accounts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true)
+        .order('is_primary', { ascending: false });
 
-      if (mobileData.error) throw mobileData.error;
-      if (bankData.error) throw bankData.error;
+      if (mobileError) throw mobileError;
 
       const allAccounts: PaymentAccount[] = [
-        ...(mobileData.data || []).map(acc => ({
+        ...(mobileData || []).map(acc => ({
           id: acc.id,
           type: 'mobile' as const,
           provider: acc.provider,
           phone_number: acc.phone_number,
-          account_name: acc.account_name,
-          is_primary: acc.is_primary
-        })),
-        ...(bankData.data || []).map(acc => ({
-          id: acc.id,
-          type: 'bank' as const,
-          bank_name: acc.bank_name,
-          account_number: acc.account_number,
           account_name: acc.account_name,
           is_primary: acc.is_primary
         }))
@@ -154,10 +137,8 @@ const InstantPayout = () => {
       const primaryAccount = allAccounts.find(acc => acc.is_primary);
       if (primaryAccount) {
         setSelectedAccount(primaryAccount.id);
-        setSelectedAccountType(primaryAccount.type);
       } else if (allAccounts.length > 0) {
         setSelectedAccount(allAccounts[0].id);
-        setSelectedAccountType(allAccounts[0].type);
       }
 
       // Fetch pending payouts
@@ -408,8 +389,6 @@ const InstantPayout = () => {
                       value={selectedAccount} 
                       onValueChange={(value) => {
                         setSelectedAccount(value);
-                        const account = accounts.find(a => a.id === value);
-                        if (account) setSelectedAccountType(account.type);
                       }}
                     >
                       <SelectTrigger id="account">

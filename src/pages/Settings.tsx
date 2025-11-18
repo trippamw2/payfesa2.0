@@ -42,9 +42,9 @@ export default function Settings() {
     },
     {
       title: 'Payment Accounts',
-      description: 'Manage mobile money and bank accounts',
+      description: 'Manage mobile money accounts',
       icon: Smartphone,
-      path: '/mobile-money',
+      path: '/payment-accounts',
     },
     {
       title: 'Bank Accounts',
