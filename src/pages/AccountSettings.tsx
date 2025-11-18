@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBackNavigation } from '@/hooks/useBackNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, User, Phone, Globe } from 'lucide-react';
+import { User, Phone, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { LoadingSkeleton } from '@/components/loading/LoadingSkeleton';
+import { ErrorState } from '@/components/error/ErrorState';
 
 export default function AccountSettings() {
   const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   const [saving, setSaving] = useState(false);
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -34,6 +36,7 @@ export default function AccountSettings() {
 
   const fetchUserData = async () => {
     try {
+      setError(null);
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       
       if (authError || !user) {
@@ -47,11 +50,7 @@ export default function AccountSettings() {
         .eq('id', user.id)
         .maybeSingle();
 
-      if (error) {
-        console.error('Error fetching user data:', error);
-        toast.error('Failed to load account data');
-        return;
-      }
+      if (error) throw error;
 
       if (!data) {
         toast.error('User profile not found');
@@ -63,6 +62,7 @@ export default function AccountSettings() {
       setLanguage(data.language || 'en');
     } catch (error) {
       console.error('Error fetching user data:', error);
+      setError(error as Error);
       toast.error('Failed to load account data');
     } finally {
       setLoading(false);
@@ -96,26 +96,15 @@ export default function AccountSettings() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5 pb-16">
-      <div className="bg-gradient-to-r from-primary to-secondary text-white px-2 py-2 shadow-md">
-        <div className="max-w-3xl mx-auto flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goBack}
-            className="hover:bg-white/20 text-white hover:text-white h-7 w-7"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div>
-            <h1 className="text-sm font-semibold">Account Settings</h1>
-            <p className="text-[10px] text-white/80">Manage your info</p>
-          </div>
-        </div>
-      </div>
+  if (loading) return <LoadingSkeleton variant="form" />;
+  if (error) return <ErrorState error={error} onRetry={fetchUserData} />;
 
-      <div className="max-w-3xl mx-auto p-2 space-y-2">
+  return (
+    <PageLayout
+      title="Account Settings"
+      subtitle="Manage your info"
+      icon={<User className="h-4 w-4" />}
+    >
         <Card>
           <CardHeader className="p-3 pb-2">
             <CardTitle className="flex items-center gap-1.5 text-xs">
@@ -170,7 +159,7 @@ export default function AccountSettings() {
             </Button>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </Card>
+    </PageLayout>
   );
 }

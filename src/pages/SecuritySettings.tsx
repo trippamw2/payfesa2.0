@@ -1,18 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBackNavigation } from '@/hooks/useBackNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Lock, Shield } from 'lucide-react';
+import { Lock, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import bcrypt from 'bcryptjs';
+import { PageLayout } from '@/components/layout/PageLayout';
 
 export default function SecuritySettings() {
   const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   const [currentPin, setCurrentPin] = useState('');
   const [newPin, setNewPin] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -84,25 +83,11 @@ export default function SecuritySettings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="bg-gradient-to-r from-primary to-secondary text-white px-4 py-4 shadow-md">
-        <div className="max-w-3xl mx-auto flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={goBack}
-            className="hover:bg-white/20 text-white hover:text-white"
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-xl font-semibold">Security Settings</h1>
-            <p className="text-sm text-white/80">Manage your account security</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-3xl mx-auto p-4 space-y-4">
+    <PageLayout
+      title="Security Settings"
+      subtitle="Manage your account security"
+      icon={<Shield className="h-4 w-4" />}
+    >
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -186,7 +171,7 @@ export default function SecuritySettings() {
             <p>• Don't use obvious PINs like 123456 or your birthday</p>
           </CardContent>
         </Card>
-      </div>
-    </div>
+      </Card>
+    </PageLayout>
   );
 }

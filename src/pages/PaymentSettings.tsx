@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBackNavigation } from '@/hooks/useBackNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CreditCard, Smartphone, Building2, Check } from 'lucide-react';
+import { CreditCard, Smartphone, Building2, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { LoadingSkeleton } from '@/components/loading/LoadingSkeleton';
 
 interface PaymentMethod {
   id: string;
@@ -20,7 +21,6 @@ interface PaymentMethod {
 
 export default function PaymentSettings() {
   const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   const [loading, setLoading] = useState(true);
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
   const [primaryMethod, setPrimaryMethod] = useState('');
@@ -225,7 +225,7 @@ export default function PaymentSettings() {
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
+      </Card>
+    </PageLayout>
   );
 }

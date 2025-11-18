@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useBackNavigation } from "@/hooks/useBackNavigation";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BellOff, Trash2 } from "lucide-react";
+import { Bell, BellOff, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { LoadingSkeleton } from "@/components/loading/LoadingSkeleton";
 
 interface Notification {
   id: string;
@@ -21,7 +22,6 @@ interface Notification {
 
 export default function NotificationSettings() {
   const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   const { toast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
