@@ -36,10 +36,12 @@ export function PayoutRequestDialog({ open, onOpenChange, grossAmount, onSuccess
 
     setProcessing(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) throw sessionError;
       
       if (!session) {
-        toast.error('Please log in to request payout');
+        toast.error('Session expired. Please log in again.');
         return;
       }
 
@@ -50,18 +52,21 @@ export function PayoutRequestDialog({ open, onOpenChange, grossAmount, onSuccess
         body: { pin }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error?.message || 'Failed to connect to payment service');
+      }
 
       if (data?.success) {
-        toast.success('Payout initiated! You will receive your money shortly.');
+        toast.success(data?.message || 'Payout initiated! You will receive your money shortly.');
         onSuccess();
         onOpenChange(false);
       } else {
-        toast.error(data?.error || 'Failed to process payout');
+        throw new Error(data?.error || 'Failed to process payout. Please try again.');
       }
     } catch (error: any) {
       console.error('Error requesting payout:', error);
-      toast.error(error.message || 'Failed to process payout');
+      toast.error(error?.message || 'Failed to process payout. Please try again.');
     } finally {
       setProcessing(false);
     }

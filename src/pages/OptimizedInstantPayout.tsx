@@ -22,6 +22,8 @@ import { toast } from 'sonner';
 import bcrypt from 'bcryptjs';
 import { calculatePayoutFees, formatMWK, FEE_EXPLANATIONS } from '@/utils/feeCalculations';
 import { PaymentStatusTracker } from '@/components/payment/PaymentStatusTracker';
+import { CrashProofWrapper } from '@/components/payment/CrashProofWrapper';
+import { PaymentFallbackUI } from '@/components/payment/PaymentFallbackUI';
 import {
   Dialog,
   DialogContent,
@@ -78,6 +80,7 @@ const OptimizedInstantPayout = () => {
   const [status, setStatus] = useState<'idle' | 'pending' | 'processing' | 'completed' | 'failed'>('idle');
   const [statusMessage, setStatusMessage] = useState('');
   const [transactionId, setTransactionId] = useState('');
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -86,7 +89,11 @@ const OptimizedInstantPayout = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
+      setFetchError(false);
+      
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      
+      if (authError) throw authError;
       
       if (!user) {
         navigate('/auth');
@@ -103,6 +110,12 @@ const OptimizedInstantPayout = () => {
         supabase.from('mobile_money_accounts').select('*').eq('user_id', user.id).eq('is_active', true),
         supabase.from('bank_accounts').select('*').eq('user_id', user.id)
       ]);
+
+      // Check for errors
+      if (userData?.error) throw userData.error;
+      if (payoutData?.error) throw payoutData.error;
+      if (mobileData?.error) throw mobileData.error;
+      if (bankData?.error) throw bankData.error;
 
       setBalance({
         wallet_balance: userData?.data?.wallet_balance ?? 0,
@@ -148,61 +161,98 @@ const OptimizedInstantPayout = () => {
         setSelectedAccount(primaryAccount.id);
       }
 
-    } catch (error) {
+      setLoading(false);
+    } catch (error: any) {
       console.error('Error fetching data:', error);
-      toast.error('Failed to load payout information');
-    } finally {
+      setFetchError(true);
+      toast.error(error?.message || 'Failed to load payout information');
       setLoading(false);
     }
   };
 
   const handleInstantPayout = async () => {
-    if (!selectedPayout) {
-      toast.error('Please select a payout');
+    if (!selectedPayout || !selectedAccount) {
+      toast.error('Please select a payout and payment method');
       return;
     }
 
-    if (!pin) {
-      toast.error('Please enter your PIN');
+    if (!pin || pin.length !== 4) {
+      toast.error('Please enter your 4-digit PIN');
       return;
     }
 
     try {
       setRequesting(true);
-      setStatus('pending');
-      setStatusMessage('Verifying and processing payout...');
+      setStatus('processing');
+      setStatusMessage('Verifying PIN and processing payout...');
 
-      const { data, error } = await supabase.functions.invoke('process-instant-payout', {
-        body: { payoutId: selectedPayout, pin }
-      });
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError) throw authError;
+      if (!user) throw new Error('Not authenticated');
 
-      if (error) throw error;
+      // Verify PIN with optional chaining
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('security_pin_hash')
+        .eq('id', user.id)
+        .single();
 
-      if (!data?.success) {
-        throw new Error(data?.error || 'Payout failed');
+      if (userError) throw userError;
+
+      if (!userData?.security_pin_hash) {
+        throw new Error('Security PIN not set. Please set up your PIN first.');
       }
 
-      setStatus('completed');
-      setStatusMessage('Payout successful! Money sent to your account.');
-      setTransactionId(data?.payout?.payment_reference || data?.payout?.id || '');
-      
-      toast.success('Instant payout processed successfully!', {
-        description: `${formatMWK(data?.payout?.net_payout || 0)} sent to your account`
+      const pinValid = await bcrypt.compare(pin, userData.security_pin_hash);
+      if (!pinValid) {
+        throw new Error('Invalid PIN. Please try again.');
+      }
+
+      // Get session for authorization
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!session) throw new Error('Session expired. Please login again.');
+
+      // Process instant payout with proper error handling
+      const { data, error } = await supabase.functions.invoke('process-instant-payout', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        },
+        body: {
+          payout_id: selectedPayout,
+          account_id: selectedAccount,
+          pin: pin
+        }
       });
 
-      // Refresh data
-      setTimeout(() => {
-        fetchData();
-        setShowPinDialog(false);
-        setPin('');
-        setStatus('idle');
-      }, 3000);
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(error?.message || 'Failed to connect to payment service');
+      }
 
+      if (data?.success) {
+        setStatus('completed');
+        setStatusMessage(data?.message || 'Payout completed successfully!');
+        setTransactionId(data?.transaction_id || data?.transactionId || data?.payout?.payment_reference || 'N/A');
+        toast.success('Payout processed! Money sent to your account.');
+        
+        // Refresh data
+        setTimeout(() => {
+          fetchData();
+          setShowPinDialog(false);
+          setPin('');
+          setSelectedPayout('');
+          setSelectedAccount('');
+          setStatus('idle');
+        }, 2000);
+      } else {
+        throw new Error(data?.error || 'Payout processing failed. Please try again.');
+      }
     } catch (error: any) {
-      console.error('Instant payout error:', error);
+      console.error('Payout error:', error);
       setStatus('failed');
-      setStatusMessage(error?.message || 'Payout failed. Please try again.');
-      toast.error(error?.message || 'Failed to process instant payout');
+      setStatusMessage(error?.message || 'Failed to process payout. Please try again.');
+      toast.error(error?.message || 'Failed to process payout');
     } finally {
       setRequesting(false);
     }
@@ -210,19 +260,41 @@ const OptimizedInstantPayout = () => {
 
   const selectedPayoutData = pendingPayouts.find(p => p.id === selectedPayout);
   const selectedAccountData = accounts.find(acc => acc.id === selectedAccount);
-  const totalFees = selectedPayoutData ? calculatePayoutFees(selectedPayoutData.gross_amount).totalFees + INSTANT_PAYOUT_FEE : 0;
+  const fees = selectedPayoutData ? calculatePayoutFees(selectedPayoutData.gross_amount) : null;
+  const totalFees = fees ? fees.totalFees + INSTANT_PAYOUT_FEE : 0;
   const netAmount = selectedPayoutData ? selectedPayoutData.gross_amount - totalFees : 0;
 
+  // Loading State
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <Card className="p-6 text-center space-y-4">
+          <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
+          <p className="text-sm text-muted-foreground">Loading payout information...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  // Error State
+  if (fetchError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <PaymentFallbackUI 
+          message="Failed to load payout information. Please check your connection and try again."
+          onRetry={fetchData}
+          showSupport={true}
+        />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <CrashProofWrapper
+      fallbackMessage="Something went wrong with the payout page. Your funds are safe."
+      onRetry={fetchData}
+    >
+      <div className="min-h-screen bg-background pb-20">
       <div className="sticky top-0 z-10 bg-background border-b">
         <div className="max-w-2xl mx-auto p-4">
           <div className="flex items-center gap-3">
@@ -475,7 +547,8 @@ const OptimizedInstantPayout = () => {
           </DialogContent>
         </Dialog>
       </div>
-    </div>
+      </div>
+    </CrashProofWrapper>
   );
 };
 
