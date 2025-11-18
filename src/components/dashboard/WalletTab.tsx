@@ -406,12 +406,12 @@ const WalletTab = ({ user }: Props) => {
               {stats.transactions.map((tx) => (
                 <div key={tx.id} className="flex items-center gap-2 p-1.5 hover:bg-muted/50 rounded transition-colors">
                   <div className={`p-1 rounded-full ${
-                    tx.type === 'payout' ? 'bg-green-500/10' : 'bg-blue-500/10'
+                    tx.type === 'payout' ? 'bg-success/10' : 'bg-info/10'
                   }`}>
                     {tx.type === 'payout' ? (
-                      <ArrowUpRight className="h-3 w-3 text-green-600" />
+                      <ArrowUpRight className="h-3 w-3 text-success" />
                     ) : (
-                      <ArrowDownLeft className="h-3 w-3 text-blue-600" />
+                      <ArrowDownLeft className="h-3 w-3 text-info" />
                     )}
                   </div>
                   <div className="flex-1 min-w-0">
@@ -422,7 +422,7 @@ const WalletTab = ({ user }: Props) => {
                   </div>
                   <div className="text-right">
                     <p className={`font-semibold text-[10px] ${
-                      tx.type === 'payout' ? 'text-green-600' : 'text-blue-600'
+                      tx.type === 'payout' ? 'text-success' : 'text-info'
                     }`}>
                       {tx.type === 'payout' ? '+' : '-'}{tx.amount.toLocaleString()}
                     </p>

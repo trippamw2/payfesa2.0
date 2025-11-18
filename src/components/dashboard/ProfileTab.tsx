@@ -213,11 +213,11 @@ const ProfileTab = ({ user, profile }: Props) => {
 
   const getBadges = (score: number) => {
     const badges = [];
-    if (score === 100) badges.push({ icon: Crown, label: 'Platinum', color: 'text-purple-500' });
-    else if (score >= 80) badges.push({ icon: Trophy, label: 'Gold', color: 'text-yellow-500' });
-    else if (score >= 60) badges.push({ icon: Star, label: 'Silver', color: 'text-gray-400' });
-    else if (score >= 40) badges.push({ icon: Award, label: 'Bronze', color: 'text-orange-500' });
-    else if (score >= 20) badges.push({ icon: Zap, label: 'Perfect', color: 'text-blue-500' });
+    if (score === 100) badges.push({ icon: Crown, label: 'Platinum', color: 'text-primary' });
+    else if (score >= 80) badges.push({ icon: Trophy, label: 'Gold', color: 'text-warning' });
+    else if (score >= 60) badges.push({ icon: Star, label: 'Silver', color: 'text-muted-foreground' });
+    else if (score >= 40) badges.push({ icon: Award, label: 'Bronze', color: 'text-accent' });
+    else if (score >= 20) badges.push({ icon: Zap, label: 'Perfect', color: 'text-info' });
     return badges;
   };
 

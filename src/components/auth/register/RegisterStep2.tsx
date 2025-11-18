@@ -80,7 +80,7 @@ const RegisterStep2 = ({ formData, updateFormData, onNext, onBack }: Props) => {
         <Button 
           type="button"
           onClick={handleNext}
-          className="flex-1 bg-primary hover:bg-primary/90 text-white h-10"
+          className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground h-10"
         >
           {t('next')}
         </Button>

@@ -91,16 +91,16 @@ const NotificationsTab = ({ user }: Props) => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'contribution_success':
-        return <TrendingUp className="h-4 w-4 text-green-600" />;
+        return <TrendingUp className="h-4 w-4 text-success" />;
       case 'payout_approved':
       case 'instant_payout_success':
-        return <CheckCircle2 className="h-4 w-4 text-blue-600" />;
+        return <CheckCircle2 className="h-4 w-4 text-info" />;
       case 'payout_rejected':
-        return <Clock className="h-4 w-4 text-red-600" />;
+        return <Clock className="h-4 w-4 text-destructive" />;
       case 'member_join':
-        return <Users className="h-4 w-4 text-purple-600" />;
+        return <Users className="h-4 w-4 text-primary" />;
       case 'achievement':
-        return <Trophy className="h-4 w-4 text-yellow-600" />;
+        return <Trophy className="h-4 w-4 text-warning" />;
       default:
         return <Bell className="h-4 w-4 text-muted-foreground" />;
     }

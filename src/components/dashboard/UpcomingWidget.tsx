@@ -161,10 +161,10 @@ const UpcomingWidget = ({ userId }: Props) => {
   };
 
   const getUrgencyColor = (days: number) => {
-    if (days <= 1) return 'text-red-600 bg-red-50 border-red-200';
-    if (days <= 3) return 'text-orange-600 bg-orange-50 border-orange-200';
-    if (days <= 7) return 'text-yellow-600 bg-yellow-50 border-yellow-200';
-    return 'text-blue-600 bg-blue-50 border-blue-200';
+    if (days <= 1) return 'text-destructive bg-destructive/10 border-destructive/20';
+    if (days <= 3) return 'text-warning bg-warning/10 border-warning/20';
+    if (days <= 7) return 'text-warning bg-warning/10 border-warning/20';
+    return 'text-info bg-info/10 border-info/20';
   };
 
   if (loading) {

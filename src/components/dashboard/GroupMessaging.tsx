@@ -258,7 +258,7 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
             placeholder="Type a message..."
             className="flex-1 h-9 text-sm"
           />
-          <Button type="submit" size="icon" className="h-9 w-9 bg-primary text-white">
+          <Button type="submit" size="icon" className="h-9 w-9 bg-primary text-primary-foreground">
             <Send className="h-4 w-4" />
           </Button>
         </div>
