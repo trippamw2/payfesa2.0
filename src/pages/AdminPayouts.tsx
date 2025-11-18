@@ -295,7 +295,7 @@ const AdminPayouts = () => {
                     <span className="font-medium">MWK {payout.gross_amount.toLocaleString()}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Platform Fee (11%):</span>
+                    <span className="text-muted-foreground">Total Fees (12%):</span>
                     <span className="font-medium text-red-600">
                       -MWK {payout.fee_amount.toLocaleString()}
                     </span>

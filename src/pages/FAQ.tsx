@@ -19,7 +19,7 @@ const FAQ = () => {
     },
     {
       question: "How much does PayFesa cost?",
-      answer: "PayFesa charges an 11% platform maintenance fee on each payout. This fee covers the technology that keeps your money safe, tracks payments, and sends money automatically. There are no hidden fees. You only pay when you receive your payout.",
+      answer: "PayFesa has a transparent 12% fee structure: 1% Payout Safety Fee (protects your payout if someone pays late), 5% Service & Protection Fee (covers fraud detection, notifications, and support), and 6% Government Fees (mobile money, bank, and telecom charges - not charged by PayFesa). These fees are only deducted when you receive your payout. No hidden charges.",
     },
     {
       question: "Is my money safe with PayFesa?",
