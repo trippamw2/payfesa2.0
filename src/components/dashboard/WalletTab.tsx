@@ -274,7 +274,7 @@ const WalletTab = ({ user }: Props) => {
               variant="ghost"
               size="icon"
               className="h-6 w-6 text-primary-foreground hover:bg-primary-foreground/20"
-              onClick={() => navigate('/wallet-management')}
+              onClick={() => navigate('/payment-accounts')}
             >
               <Settings className="h-3 w-3" />
             </Button>
@@ -309,7 +309,7 @@ const WalletTab = ({ user }: Props) => {
           <Button
             variant="outline"
             className="flex-col h-auto py-2 gap-1"
-            onClick={() => navigate('/mobile-money')}
+            onClick={() => navigate('/payment-accounts')}
           >
             <CreditCard className="h-3.5 w-3.5" />
             <span className="text-[9px]">Methods</span>
@@ -327,7 +327,7 @@ const WalletTab = ({ user }: Props) => {
                 variant="ghost"
                 size="sm"
                 className="h-6 text-[10px]"
-                onClick={() => navigate('/mobile-money')}
+                onClick={() => navigate('/payment-accounts')}
               >
                 Change
               </Button>

@@ -93,17 +93,17 @@ const AddMobileMoneyDialog = ({ open, onOpenChange, onSuccess }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="p-4">
         <DialogHeader>
-          <DialogTitle>Add Mobile Money Account</DialogTitle>
+          <DialogTitle className="text-sm">Add Mobile Money Account</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t('selectProvider')}</Label>
-            <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-3 mt-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs">{t('selectProvider')}</Label>
+            <div className="grid grid-cols-2 gap-2">
               <Card
-                className={`p-3 cursor-pointer transition-all hover:scale-105 ${
+                className={`p-2 cursor-pointer transition-all hover:scale-105 ${
                   provider === 'airtel'
                     ? 'border-2 border-primary bg-primary/5'
                     : 'border'
@@ -111,51 +111,53 @@ const AddMobileMoneyDialog = ({ open, onOpenChange, onSuccess }: Props) => {
                 onClick={() => setProvider('airtel')}
               >
                 <div className="text-center">
-                  <img src={airtelLogo} alt="Airtel Money" className="w-20 h-20 mx-auto object-contain mb-2" />
-                  <p className="font-medium text-sm">{t('airtelMoney')}</p>
+                  <img src={airtelLogo} alt="Airtel Money" className="w-12 h-12 mx-auto object-contain mb-1" />
+                  <p className="text-[10px] font-semibold">{t('airtelMoney')}</p>
                 </div>
               </Card>
               
               <Card
-                className={`p-3 cursor-pointer transition-all hover:scale-105 ${
+                className={`p-2 cursor-pointer transition-all hover:scale-105 ${
                   provider === 'tnm'
-                    ? 'border-2 border-secondary bg-secondary/5'
+                    ? 'border-2 border-primary bg-primary/5'
                     : 'border'
                 }`}
                 onClick={() => setProvider('tnm')}
               >
                 <div className="text-center">
-                  <img src={tnmLogo} alt="TNM Mpamba" className="w-20 h-20 mx-auto object-contain mb-2" />
-                  <p className="font-medium text-sm">{t('tnmMpamba')}</p>
+                  <img src={tnmLogo} alt="TNM Mpamba" className="w-12 h-12 mx-auto object-contain mb-1" />
+                  <p className="text-[10px] font-semibold">{t('tnmMpamba')}</p>
                 </div>
               </Card>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber">{t('phoneNumber')}</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="phoneNumber" className="text-xs">{t('phoneNumber')}</Label>
             <Input
               id="phoneNumber"
               type="tel"
-              placeholder="+265..."
+              placeholder="+265 888 123 456"
               value={phoneNumber}
               onChange={(e) => handlePhoneChange(e.target.value)}
+              className="h-8 text-xs"
             />
             {provider && (
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[9px] text-muted-foreground">
                 {provider === 'airtel' ? t('airtelMoney') : t('tnmMpamba')} detected
               </p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="accountName">{t('accountName')}</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="accountName" className="text-xs">{t('accountName')}</Label>
             <Input
               id="accountName"
               type="text"
               placeholder="John Doe"
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
+              className="h-8 text-xs"
             />
           </div>
 
@@ -163,19 +165,19 @@ const AddMobileMoneyDialog = ({ open, onOpenChange, onSuccess }: Props) => {
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1"
+              className="flex-1 h-8 text-xs"
               disabled={loading}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
-              className="flex-1"
-              disabled={loading}
+              disabled={loading || !provider || !phoneNumber || !accountName}
+              className="flex-1 h-8 text-xs"
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                   Adding...
                 </>
               ) : (
