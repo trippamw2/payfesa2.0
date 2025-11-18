@@ -99,22 +99,23 @@ class PaymentService {
   async processContribution(
     groupId: string,
     amount: number,
-    accountId?: string
+    accountId?: string,
+    paymentMethod?: string,
+    phoneNumber?: string
   ): Promise<PaymentResult> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { success: false, error: 'User not authenticated' };
 
-      // Get account if not specified
-      if (!accountId) {
-        const primary = await this.getPrimaryAccount();
-        if (!primary) return { success: false, error: 'No payment account found' };
-        accountId = primary.id;
-      }
-
       // Call edge function to process contribution
       const { data, error } = await supabase.functions.invoke('process-contribution', {
-        body: { groupId, amount, accountId }
+        body: { 
+          groupId, 
+          amount, 
+          accountId,
+          paymentMethod,
+          phoneNumber
+        }
       });
 
       if (error) throw error;
