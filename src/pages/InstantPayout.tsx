@@ -287,30 +287,31 @@ const InstantPayout = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-4 max-w-2xl">
+      <div className="container mx-auto p-3 max-w-2xl">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-2 mb-4">
           <Button
             variant="ghost"
             size="icon"
+            className="h-8 w-8"
             onClick={goBack}
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Zap className="h-6 w-6 text-yellow-500" />
+            <h1 className="text-xl font-bold flex items-center gap-2">
+              <Zap className="h-5 w-5 text-yellow-500" />
               Instant Payout
             </h1>
-            <p className="text-sm text-muted-foreground">Get your payout immediately</p>
+            <p className="text-xs text-muted-foreground">Get your payout immediately</p>
           </div>
         </div>
 
         {/* Info Card */}
-        <Card className="p-4 mb-6 bg-yellow-50 border-yellow-200">
-          <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-            <div className="flex-1 text-sm">
+        <Card className="p-3 mb-4 bg-yellow-50 border-yellow-200">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="h-4 w-4 text-yellow-600 mt-0.5" />
+            <div className="flex-1 text-xs">
               <p className="font-medium text-yellow-900 mb-1">Instant Payout Fee: MWK {INSTANT_PAYOUT_FEE.toLocaleString()}</p>
               <p className="text-yellow-700">
                 Skip the waiting period and get your payout immediately. A processing fee of MWK {INSTANT_PAYOUT_FEE.toLocaleString()} will be deducted from your payout amount.
@@ -320,19 +321,19 @@ const InstantPayout = () => {
         </Card>
 
         {/* Current Balance */}
-        <Card className="p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <Wallet className="h-5 w-5" />
+        <Card className="p-4 mb-4">
+          <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
+            <Wallet className="h-4 w-4" />
             Your Balances
           </h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="p-4 bg-primary/10 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Wallet Balance</p>
-              <p className="text-2xl font-bold text-primary">MWK {balance.wallet_balance.toLocaleString()}</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 bg-primary/10 rounded-lg">
+              <p className="text-xs text-muted-foreground mb-1">Wallet Balance</p>
+              <p className="text-lg font-bold text-primary">MWK {balance.wallet_balance.toLocaleString()}</p>
             </div>
-            <div className="p-4 bg-secondary/10 rounded-lg">
-              <p className="text-sm text-muted-foreground mb-1">Escrow Balance</p>
-              <p className="text-2xl font-bold text-secondary">MWK {balance.escrow_balance.toLocaleString()}</p>
+            <div className="p-3 bg-secondary/10 rounded-lg">
+              <p className="text-xs text-muted-foreground mb-1">Escrow Balance</p>
+              <p className="text-lg font-bold text-secondary">MWK {balance.escrow_balance.toLocaleString()}</p>
             </div>
           </div>
         </Card>
@@ -340,18 +341,18 @@ const InstantPayout = () => {
         {/* Pending Payouts Selection */}
         {pendingPayouts.length > 0 ? (
           <>
-            <Card className="p-6 mb-6">
-              <h2 className="text-lg font-semibold mb-4">Select Payout</h2>
-              <div className="space-y-4">
+            <Card className="p-4 mb-4">
+              <h2 className="text-base font-semibold mb-3">Select Payout</h2>
+              <div className="space-y-3">
                 <div>
-                  <Label htmlFor="payout">Pending Payout</Label>
+                  <Label htmlFor="payout" className="text-xs">Pending Payout</Label>
                   <Select value={selectedPayout} onValueChange={setSelectedPayout}>
-                    <SelectTrigger id="payout">
+                    <SelectTrigger id="payout" className="h-9 text-sm">
                       <SelectValue placeholder="Select a payout" />
                     </SelectTrigger>
                     <SelectContent>
                       {pendingPayouts.map((payout) => (
-                        <SelectItem key={payout.id} value={payout.id}>
+                        <SelectItem key={payout.id} value={payout.id} className="text-sm">
                           {payout.rosca_groups?.name} - MWK {payout.amount.toLocaleString()} (Due: {new Date(payout.scheduled_date).toLocaleDateString()})
                         </SelectItem>
                       ))}
@@ -360,16 +361,16 @@ const InstantPayout = () => {
                 </div>
 
                 {selectedPayoutDetails && (
-                  <div className="p-4 bg-muted rounded-lg space-y-2">
-                    <div className="flex justify-between text-sm">
+                  <div className="p-3 bg-muted rounded-lg space-y-1.5">
+                    <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Original Amount:</span>
                       <span className="font-medium">MWK {selectedPayoutDetails.amount.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between text-xs">
                       <span className="text-muted-foreground">Instant Fee:</span>
                       <span className="font-medium text-red-600">- MWK {INSTANT_PAYOUT_FEE.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-base font-semibold pt-2 border-t">
+                    <div className="flex justify-between text-sm font-semibold pt-1.5 border-t">
                       <span>You'll Receive:</span>
                       <span className="text-green-600">MWK {netAmount.toLocaleString()}</span>
                     </div>
@@ -380,18 +381,18 @@ const InstantPayout = () => {
 
             {/* Payment Account Selection */}
             {accounts.length > 0 ? (
-              <Card className="p-6 mb-6">
-                <h2 className="text-lg font-semibold mb-4">Payout Destination</h2>
-                <div className="space-y-4">
+              <Card className="p-4 mb-4">
+                <h2 className="text-base font-semibold mb-3">Payout Destination</h2>
+                <div className="space-y-3">
                   <div>
-                    <Label htmlFor="account">Payment Account</Label>
+                    <Label htmlFor="account" className="text-xs">Payment Account</Label>
                     <Select 
                       value={selectedAccount} 
                       onValueChange={(value) => {
                         setSelectedAccount(value);
                       }}
                     >
-                      <SelectTrigger id="account">
+                      <SelectTrigger id="account" className="h-9">
                         <SelectValue placeholder="Select account" />
                       </SelectTrigger>
                       <SelectContent>
@@ -414,23 +415,23 @@ const InstantPayout = () => {
                           }
 
                           return (
-                            <SelectItem key={account.id} value={account.id}>
+                            <SelectItem key={account.id} value={account.id} className="text-sm">
                               <div className="flex items-center gap-2 w-full">
                                 {isMobile ? (
                                   <>
-                                    <Smartphone className="h-4 w-4" />
+                                    <Smartphone className="h-3.5 w-3.5" />
                                     <span>{account.provider === 'airtel' ? 'Airtel Money' : 'TNM Mpamba'}</span>
                                     <span className="text-muted-foreground">- {account.phone_number}</span>
                                   </>
                                 ) : (
                                   <>
-                                    <Wallet className="h-4 w-4" />
+                                    <Wallet className="h-3.5 w-3.5" />
                                     <span>{account.bank_name}</span>
                                     <span className="text-muted-foreground">- {account.account_number}</span>
                                   </>
                                 )}
                                 {!isComplete && (
-                                  <Badge variant="destructive" className="ml-auto text-xs">
+                                  <Badge variant="destructive" className="ml-auto text-[10px] px-1.5 py-0">
                                     Incomplete
                                   </Badge>
                                 )}
@@ -462,18 +463,18 @@ const InstantPayout = () => {
                     if (missingFields.length === 0) return null;
                     
                     return (
-                      <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
-                        <div className="flex items-start gap-3">
-                          <AlertCircle className="h-5 w-5 text-destructive mt-0.5" />
+                      <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                        <div className="flex items-start gap-2">
+                          <AlertCircle className="h-4 w-4 text-destructive mt-0.5" />
                           <div className="flex-1">
-                            <p className="font-medium text-destructive mb-1">Incomplete Account Details</p>
-                            <p className="text-sm text-destructive/80">
+                            <p className="font-medium text-xs text-destructive mb-1">Incomplete Account Details</p>
+                            <p className="text-xs text-destructive/80">
                               Missing fields: {missingFields.join(', ')}. Please update this account before requesting a payout.
                             </p>
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="mt-3"
+                              className="mt-2 h-7 text-xs"
                               onClick={() => navigate('/settings/payment')}
                             >
                               Update Account
@@ -486,25 +487,25 @@ const InstantPayout = () => {
                   
                   {/* Helper text when no account is selected */}
                   {!selectedAccount && (
-                    <div className="p-4 bg-muted rounded-lg">
-                      <p className="font-medium text-sm mb-2">Required Fields by Payment Method:</p>
-                      <div className="space-y-3 text-sm">
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="font-medium text-xs mb-2">Required Fields by Payment Method:</p>
+                      <div className="space-y-2 text-xs">
                         <div>
-                          <p className="font-medium flex items-center gap-2">
-                            <Smartphone className="h-4 w-4" />
+                          <p className="font-medium flex items-center gap-1.5">
+                            <Smartphone className="h-3.5 w-3.5" />
                             Payment Account
                           </p>
-                          <ul className="ml-6 mt-1 text-muted-foreground list-disc">
+                          <ul className="ml-5 mt-0.5 text-muted-foreground list-disc">
                             <li>Phone number (9 digits)</li>
                             <li>Provider (Airtel or TNM Mpamba)</li>
                           </ul>
                         </div>
                         <div>
-                          <p className="font-medium flex items-center gap-2">
-                            <Wallet className="h-4 w-4" />
+                          <p className="font-medium flex items-center gap-1.5">
+                            <Wallet className="h-3.5 w-3.5" />
                             Bank Account
                           </p>
-                          <ul className="ml-6 mt-1 text-muted-foreground list-disc">
+                          <ul className="ml-5 mt-0.5 text-muted-foreground list-disc">
                             <li>Bank name</li>
                             <li>Account number</li>
                             <li>Account name (full name as registered)</li>
@@ -516,13 +517,13 @@ const InstantPayout = () => {
                 </div>
               </Card>
             ) : (
-              <Card className="p-6 mb-6">
-                <div className="text-center py-8">
-                  <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground mb-4">
+              <Card className="p-4 mb-4">
+                <div className="text-center py-6">
+                  <AlertCircle className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground mb-3">
                     No payment accounts found. Add a mobile money account or bank account to receive payouts.
                   </p>
-                  <Button variant="outline" onClick={() => navigate('/settings/payment')}>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/settings/payment')}>
                     Add Payment Method
                   </Button>
                 </div>
@@ -534,22 +535,21 @@ const InstantPayout = () => {
               <Button
                 onClick={handleRequestInstantPayout}
                 disabled={!selectedAccount || !selectedPayout || requesting}
-                className="w-full gap-2"
-                size="lg"
+                className="w-full gap-2 h-9"
               >
-                <Zap className="h-5 w-5" />
+                <Zap className="h-4 w-4" />
                 Request Instant Payout
               </Button>
             )}
           </>
         ) : (
-          <Card className="p-12 text-center">
-            <Clock className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No Pending Payouts</h3>
-            <p className="text-muted-foreground mb-4">
+          <Card className="p-8 text-center">
+            <Clock className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+            <h3 className="text-base font-semibold mb-2">No Pending Payouts</h3>
+            <p className="text-sm text-muted-foreground mb-3">
               You don't have any pending payouts at the moment.
             </p>
-            <Button variant="outline" onClick={() => navigate('/groups')}>
+            <Button variant="outline" size="sm" onClick={() => navigate('/groups')}>
               View My Groups
             </Button>
           </Card>
@@ -564,9 +564,9 @@ const InstantPayout = () => {
                 Enter your 4-digit PIN to confirm the instant payout request.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-3 py-3">
               <div>
-                <Label htmlFor="pin">PIN</Label>
+                <Label htmlFor="pin" className="text-xs">PIN</Label>
                 <Input
                   id="pin"
                   type="password"
@@ -574,12 +574,13 @@ const InstantPayout = () => {
                   value={pin}
                   onChange={(e) => setPin(e.target.value)}
                   placeholder="Enter your 4-digit PIN"
+                  className="h-9 text-sm"
                 />
               </div>
               {selectedPayoutDetails && (
-                <div className="p-3 bg-muted rounded-lg text-sm">
+                <div className="p-2.5 bg-muted rounded-lg text-xs">
                   <p className="text-muted-foreground mb-1">Amount to receive:</p>
-                  <p className="text-xl font-bold text-green-600">MWK {netAmount.toLocaleString()}</p>
+                  <p className="text-lg font-bold text-green-600">MWK {netAmount.toLocaleString()}</p>
                 </div>
               )}
             </div>
