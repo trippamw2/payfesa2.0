@@ -11,6 +11,9 @@ const corsHeaders = {
 const PAYCHANGU_BASE_URL = 'https://api.paychangu.com';
 
 serve(async (req) => {
+  const requestId = crypto.randomUUID();
+  console.log(`[${requestId}] === NEW REQUEST ===`);
+  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -28,6 +31,8 @@ serve(async (req) => {
 
     // Rate limiting
     const clientIp = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
+    console.log(`[${requestId}] Client IP: ${clientIp}`);
+    
     const rateLimitResult = await checkRateLimit(
       supabaseClient,
       clientIp,
@@ -37,6 +42,7 @@ serve(async (req) => {
     );
     
     if (!rateLimitResult.allowed) {
+      console.warn(`[${requestId}] Rate limit exceeded for ${clientIp}`);
       return new Response(
         JSON.stringify({ 
           error: 'Rate limit exceeded', 
@@ -50,19 +56,25 @@ serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     const jwt = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : undefined;
 
+    console.log(`[${requestId}] Authenticating user...`);
     const { data: { user }, error: authError } = await supabaseClient.auth.getUser(jwt);
     if (authError || !user) {
-      console.error('Auth error:', authError);
+      console.error(`[${requestId}] Auth error:`, authError);
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    console.log(`[${requestId}] User authenticated: ${user.id}`);
 
     // Safely parse request body
-    const body = await req.json().catch(() => null);
+    const body = await req.json().catch((e) => {
+      console.error(`[${requestId}] JSON parse error:`, e);
+      return null;
+    });
     
     if (!body) {
+      console.error(`[${requestId}] Invalid request body`);
       return new Response(
         JSON.stringify({ error: 'Invalid request body' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -70,8 +82,13 @@ serve(async (req) => {
     }
 
     const { groupId, amount, paymentMethod, phoneNumber, pin, accountId } = body;
-
-    console.log('Processing contribution:', { groupId, amount, user: user.id, paymentMethod });
+    console.log(`[${requestId}] Request data:`, { 
+      groupId, 
+      amount, 
+      paymentMethod, 
+      phoneNumber: phoneNumber ? '***' + phoneNumber.slice(-4) : 'N/A',
+      accountId: accountId || 'N/A'
+    });
 
     // Fetch PayChangu configuration from api_configurations
     const { data: payConfig, error: configError } = await supabaseClient
@@ -111,12 +128,45 @@ serve(async (req) => {
 
     // Generate unique charge ID
     const chargeId = `PC${Date.now()}${Math.random().toString(36).substring(7).toUpperCase()}`;
+    console.log(`[${requestId}] Generated charge ID: ${chargeId}`);
 
     const paymentMethodLower = (paymentMethod || '').toString().toLowerCase().trim();
     const isMobileMoney = ['airtel', 'tnm', 'mpamba', 'airtel money', 'tnm mpamba', 'mobilemoney'].includes(paymentMethodLower);
     const isBankTransfer = ['bank', 'banktransfer', 'mobilebanktransfer'].includes(paymentMethodLower);
 
+    console.log(`[${requestId}] Payment type: ${isMobileMoney ? 'Mobile Money' : 'Bank Transfer'}`);
+
+    // Verify payment account if accountId provided
+    if (accountId) {
+      console.log(`[${requestId}] Verifying payment account: ${accountId}`);
+      const { data: account, error: accountError } = await supabaseClient
+        .from('mobile_money_accounts')
+        .select('*')
+        .eq('id', accountId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (accountError || !account) {
+        console.error(`[${requestId}] Payment account not found:`, accountError);
+        return new Response(
+          JSON.stringify({ error: 'Payment account not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      if (!account.is_verified) {
+        console.error(`[${requestId}] Payment account not verified`);
+        return new Response(
+          JSON.stringify({ error: 'Payment account not verified. Please verify your account first.' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      console.log(`[${requestId}] Using verified account: ${account.provider} - ${account.phone_number}`);
+    }
+
     // Process payment using unified service
+    console.log(`[${requestId}] Initiating payment with PayChangu...`);
     const paymentResult = await PaychanguService.processPayment(
       {
         secretKey: PAYCHANGU_SECRET_KEY,
@@ -134,7 +184,7 @@ serve(async (req) => {
     );
 
     if (!paymentResult.success) {
-      console.error('Payment failed:', paymentResult.error);
+      console.error(`[${requestId}] Payment failed:`, paymentResult.error);
       return new Response(
         JSON.stringify({ 
           error: paymentResult.error || 'Payment initialization failed'
@@ -145,12 +195,14 @@ serve(async (req) => {
 
     const paychanguTxn = paymentResult.transaction;
     const paymentAccountDetails = paymentResult.payment_account_details;
+    console.log(`[${requestId}] PayChangu response: ${paychanguTxn.status} - Ref: ${paychanguTxn.ref_id}`);
 
-    // Calculate fees (11%)
-    const feeAmount = amount * 0.11;
-    const netAmount = amount - feeAmount;
+    // Calculate fees using PaychanguService
+    const { feeAmount, netAmount } = PaychanguService.calculateFee(amount);
+    console.log(`[${requestId}] Fee calculation: Amount=${amount}, Fee=${feeAmount}, Net=${netAmount}`);
 
     // Create contribution record with pending status
+    console.log(`[${requestId}] Creating contribution record...`);
     const { data: contribution, error: contributionError } = await supabaseClient
       .from('contributions')
       .insert({
@@ -165,21 +217,23 @@ serve(async (req) => {
       .single();
 
     if (contributionError) {
-      console.error('Error creating contribution:', contributionError);
+      console.error(`[${requestId}] Error creating contribution:`, contributionError);
       return new Response(
-        JSON.stringify({ error: 'Failed to create contribution' }),
+        JSON.stringify({ error: 'Failed to create contribution', details: contributionError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+    console.log(`[${requestId}] Contribution created: ${contribution.id}`);
 
     // Create mobile money transaction record
+    console.log(`[${requestId}] Creating mobile money transaction record...`);
     const { error: mobileMoneyError } = await supabaseClient
-      .from('mobilemoney_transactions')
+      .from('mobile_money_transactions')
       .insert({
         transaction_id: chargeId,
         user_id: user.id,
         group_id: groupId,
-        phone_number: phoneNumber,
+        phone_number: phoneNumber || 'N/A',
         provider: paymentMethod,
         amount: amount,
         type: 'collection',
@@ -190,10 +244,13 @@ serve(async (req) => {
       });
 
     if (mobileMoneyError) {
-      console.error('Error creating mobile money transaction:', mobileMoneyError);
+      console.error(`[${requestId}] Error creating mobile money transaction:`, mobileMoneyError);
+    } else {
+      console.log(`[${requestId}] Mobile money transaction recorded`);
     }
 
     // Create transaction record
+    console.log(`[${requestId}] Creating transaction record...`);
     const { error: transactionError } = await supabaseClient
       .from('transactions')
       .insert({
@@ -215,25 +272,29 @@ serve(async (req) => {
       });
 
     if (transactionError) {
-      console.error('Error creating transaction:', transactionError);
+      console.error(`[${requestId}] Error creating transaction:`, transactionError);
+    } else {
+      console.log(`[${requestId}] Transaction record created`);
     }
 
-    console.log('Contribution created successfully:', contribution.id);
+    // Get group and user data for notifications
+    console.log(`[${requestId}] Preparing notifications...`);
+    const [groupResult, userResult] = await Promise.all([
+      supabaseClient.from('rosca_groups').select('name').eq('id', groupId).single(),
+      supabaseClient.from('users').select('name, trust_score').eq('id', user.id).single()
+    ]);
 
-    // Get group name for notification
-    const { data: groupData } = await supabaseClient
-      .from('rosca_groups')
-      .select('name')
-      .eq('id', groupId)
-      .single();
+    const groupName = groupResult.data?.name || 'group';
+    const userName = userResult.data?.name || 'Member';
 
     // Send push notification
     try {
+      console.log(`[${requestId}] Sending push notification...`);
       await supabaseClient.functions.invoke('send-push-notification', {
         body: {
           userIds: [user.id],
           title: 'Contribution Successful',
-          body: `Your contribution of MWK ${amount.toLocaleString()} to ${groupData?.name || 'group'} has been processed successfully.`,
+          body: `Your contribution of MWK ${amount.toLocaleString()} to ${groupName} has been processed successfully.`,
           data: {
             type: 'contribution_success',
             groupId,
@@ -242,35 +303,31 @@ serve(async (req) => {
           },
         },
       });
+      console.log(`[${requestId}] Push notification sent`);
     } catch (notifError) {
-      console.error('Failed to send notification:', notifError);
+      console.error(`[${requestId}] Failed to send notification:`, notifError);
     }
 
     // Send system message to group chat
     try {
-      const { data: userData } = await supabaseClient
-        .from('users')
-        .select('name, trust_score')
-        .eq('id', user.id)
-        .single();
-
-      if (userData) {
-        await supabaseClient.functions.invoke('send-system-message', {
-          body: {
-            groupId,
-            template: 'contribution_made',
-            data: {
-              userName: userData.name,
-              trustScoreChange: 5,
-              amount: amount.toLocaleString()
-            }
+      console.log(`[${requestId}] Sending system message to group...`);
+      await supabaseClient.functions.invoke('send-system-message', {
+        body: {
+          groupId,
+          template: 'contribution_made',
+          data: {
+            userName,
+            trustScoreChange: 5,
+            amount: amount.toLocaleString()
           }
-        });
-      }
+        }
+      });
+      console.log(`[${requestId}] System message sent`);
     } catch (msgError) {
-      console.error('Failed to send system message:', msgError);
+      console.error(`[${requestId}] Failed to send system message:`, msgError);
     }
 
+    console.log(`[${requestId}] === REQUEST COMPLETED SUCCESSFULLY ===`);
     return new Response(
       JSON.stringify({
         success: true,
@@ -288,10 +345,18 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
-    console.error('Error in process-contribution:', error);
+    console.error(`[${requestId}] === CRITICAL ERROR ===`);
+    console.error(`[${requestId}] Error type:`, error?.constructor?.name);
+    console.error(`[${requestId}] Error message:`, error instanceof Error ? error.message : 'Unknown');
+    console.error(`[${requestId}] Error stack:`, error instanceof Error ? error.stack : 'N/A');
+    
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ 
+        error: errorMessage,
+        requestId: requestId,
+        timestamp: new Date().toISOString()
+      }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
