@@ -190,8 +190,8 @@ const GroupDetails = () => {
                   <p className="font-semibold capitalize">{group.frequency}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] text-muted-foreground">Platform Fee</p>
-                  <p className="font-semibold">11%</p>
+                  <p className="text-[9px] text-muted-foreground">Total Fees</p>
+                  <p className="font-semibold">12%</p>
                 </div>
                 <div>
                   <p className="text-[9px] text-muted-foreground">Start Date</p>

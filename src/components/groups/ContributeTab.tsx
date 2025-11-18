@@ -552,9 +552,9 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
             </Button>
 
             {/* Fees Info */}
-            <Card className="p-3 bg-blue-50 border-blue-200">
-              <p className="text-xs text-blue-700">
-                <strong>Note:</strong> An 11% platform maintenance fee will be deducted from final payout amount.
+            <Card className="p-3 bg-primary/5 border-primary/20">
+              <p className="text-xs text-foreground">
+                <strong>Note:</strong> When you receive your payout, 12% in fees will be deducted: <strong>1% Payout Safety</strong> (protects you if someone pays late), <strong>5% Service & Protection</strong> (fraud detection, support), and <strong>6% Government Fees</strong> (mobile money/bank charges, not charged by PayFesa).
               </p>
             </Card>
           </>

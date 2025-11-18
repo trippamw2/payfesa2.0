@@ -52,10 +52,19 @@ const TermsOfService = () => {
                   <div>
                     <h2 className="text-2xl font-bold mb-4">Fees and Payments</h2>
                     <p className="text-charcoal leading-relaxed mb-4">
-                      PayFesa charges an 11% platform maintenance fee on each payout. This fee is deducted from your payout amount when you receive your money. For example, if your payout is MWK 100,000, you will receive MWK 89,000 and PayFesa keeps MWK 11,000 as the platform maintenance fee.
+                      PayFesa has a transparent 12% fee structure on each payout: <strong>1% Payout Safety Fee</strong> (protects your payout if someone in the group pays late), <strong>5% Service & Protection Fee</strong> (covers fraud detection, notifications, and support), and <strong>6% Government Fees</strong> (mobile money, bank, and telecom charges - these go directly to service providers, not PayFesa).
                     </p>
+                    <p className="text-charcoal leading-relaxed mb-4">
+                      For example, if your gross payout is MWK 100,000:
+                    </p>
+                    <ul className="list-disc ml-6 mb-4 text-charcoal">
+                      <li>Payout Safety (1%): MWK 1,000</li>
+                      <li>Service & Protection (5%): MWK 5,000</li>
+                      <li>Government Fees (6%): MWK 6,000</li>
+                      <li><strong>You receive: MWK 88,000</strong></li>
+                    </ul>
                     <p className="text-charcoal leading-relaxed">
-                      This fee covers the technology that keeps your money safe, tracks all payments, sends automatic reminders, and processes transactions. There are no other hidden fees. You only pay when you receive your payout.
+                      These fees are deducted when you receive your payout. There are no other hidden fees. You only pay when you receive your money.
                     </p>
                   </div>
 
