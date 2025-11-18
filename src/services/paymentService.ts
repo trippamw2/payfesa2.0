@@ -107,75 +107,57 @@ class PaymentService {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { success: false, error: 'User not authenticated' };
 
-      // Call edge function to process contribution
       const { data, error } = await supabase.functions.invoke('process-contribution', {
-        body: { 
-          groupId, 
-          amount, 
-          accountId,
-          paymentMethod,
-          phoneNumber
-        }
-      });
+        body: { groupId, amount, accountId, paymentMethod, phoneNumber }
+      }).catch((err) => ({
+        data: null,
+        error: { message: err?.message || 'Network error. Please try again.' }
+      }));
 
-      if (error) throw error;
+      if (error) {
+        return { success: false, error: error?.message || 'Payment service unavailable' };
+      }
 
       if (!data?.success) {
-        return {
-          success: false,
-          error: data?.error || data?.message || 'Payment failed'
-        };
+        return { success: false, error: data?.error || 'Payment failed' };
       }
 
       return {
         success: true,
-        transactionId: data.transactionId,
-        reference: data.reference,
+        transactionId: data.transactionId || data.contribution?.id,
+        reference: data.reference || data.contribution?.payment_reference,
         message: 'Contribution processed successfully'
       };
     } catch (error: any) {
-      console.error('Error processing contribution:', error);
-      return {
-        success: false,
-        error: error.message || 'Failed to process contribution'
-      };
+      console.error('Contribution error:', error);
+      return { success: false, error: error?.message || 'Unexpected error' };
     }
   }
 
   /**
    * Request instant payout
    */
-  async requestInstantPayout(
-    payoutId: string,
-    pin: string,
-    accountId?: string
-  ): Promise<PaymentResult> {
+  async requestInstantPayout(payoutId: string, pin: string, accountId?: string): Promise<PaymentResult> {
     try {
       const { data, error } = await supabase.functions.invoke('process-instant-payout', {
         body: { payoutId, pin, accountId }
-      });
+      }).catch((err) => ({
+        data: null,
+        error: { message: err?.message || 'Network error. Please try again.' }
+      }));
 
-      if (error) throw error;
-
-      if (!data?.success) {
-        return {
-          success: false,
-          error: data?.error || data?.message || 'Payout request failed'
-        };
-      }
+      if (error) return { success: false, error: error?.message || 'Payout service unavailable' };
+      if (!data?.success) return { success: false, error: data?.error || 'Payout failed' };
 
       return {
         success: true,
         transactionId: data.payout?.id,
-        reference: data.payout?.paychangu_ref,
-        message: 'Instant payout processed successfully'
+        reference: data.payout?.payment_reference,
+        message: 'Instant payout processed'
       };
     } catch (error: any) {
-      console.error('Error requesting instant payout:', error);
-      return {
-        success: false,
-        error: error.message || 'Failed to request instant payout'
-      };
+      console.error('Payout error:', error);
+      return { success: false, error: error?.message || 'Unexpected error' };
     }
   }
 

@@ -9,6 +9,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Badge } from '@/components/ui/badge';
 import { Wallet, Smartphone, CheckCircle2, Clock, XCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { OptimizedContributionForm } from '@/components/payment/OptimizedContributionForm';
+import { PaymentErrorBoundary } from '@/components/payment/ErrorBoundary';
 
 interface Props {
   groupId: string;
@@ -207,105 +209,62 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!pin) {
+      toast.error('Please enter your PIN');
+      return;
+    }
+
+    if (pin.length !== 4) {
+      toast.error('PIN must be 4 digits');
+      return;
+    }
+
     if (!selectedAccountId) {
       toast.error('Please select a payment method');
       return;
     }
 
-    if (!pin || pin.length !== 4) {
-      const isMobileAccount = mobileMoneyAccounts.some(acc => acc.id === selectedAccountId);
-      toast.error(isMobileAccount ? 'Please enter your 4-digit mobile money PIN' : 'Please enter your 4-digit security PIN');
-      return;
-    }
-
-    if (parseFloat(amount) < contributionAmount) {
-      toast.error(`Minimum contribution is MWK ${contributionAmount.toLocaleString()}`);
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount < contributionAmount) {
+      toast.error(`Minimum contribution is MWK ${contributionAmount}`);
       return;
     }
 
     setSubmitting(true);
+
     try {
-      let paymentMethod, phoneNumber, accountNumber, bankName;
-
-      // Determine if selected account is mobile money or bank
-      const isMobileAccount = mobileMoneyAccounts.some(acc => acc.id === selectedAccountId);
-      
-      if (isMobileAccount) {
-        const selectedAccount = mobileMoneyAccounts.find(acc => acc.id === selectedAccountId);
-        if (!selectedAccount) {
-          toast.error('Please select a mobile money account');
-          return;
-        }
-        paymentMethod = selectedAccount.provider;
-        phoneNumber = selectedAccount.phone_number;
-      } else {
-        const selectedAccount = bankAccounts.find(acc => acc.id === selectedAccountId);
-        if (!selectedAccount) {
-          toast.error('Please select a bank account');
-          return;
-        }
-        paymentMethod = 'bank';
-        accountNumber = selectedAccount.account_number;
-        bankName = selectedAccount.bank_name;
-      }
-      
-      // Get the current session to pass auth token
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast.error('Please log in to make a contribution');
-        return;
-      }
-      
+      // Process contribution via edge function
       const { data, error } = await supabase.functions.invoke('process-contribution', {
-        headers: {
-          Authorization: `Bearer ${session.access_token}`
-        },
         body: {
-          groupId: groupId,
-          amount: parseFloat(amount),
-          paymentMethod,
-          phoneNumber,
-          accountNumber,
-          bankName,
-          pin: pin,
-          accountId: selectedAccountId
+          groupId,
+          amount: numAmount,
+          paymentMethod: selectedAccountId,
+          accountId: selectedAccountId,
+          pin
         }
       });
 
-      if (error) throw error;
-      
-      if (data?.payment_account_details) {
-        // Bank transfer - show account details
-        const accountDetails = data.payment_account_details;
-        toast.success(
-          `Payment initiated! Transfer ${amount} MWK to:\n` +
-          `Bank: ${accountDetails.bank_name}\n` +
-          `Account: ${accountDetails.account_number}\n` +
-          `Name: ${accountDetails.account_name}`,
-          { duration: 10000 }
-        );
-      } else if (data?.status === 'pending') {
-        toast.success('Please approve the payment on your mobile money');
-      } else {
-        toast.success(data?.message || 'Contribution processed successfully');
+      if (error) {
+        throw new Error(error.message || 'Failed to process contribution');
       }
 
-      toast.success('Payment successful!', {
-        description: 'Downloading receipt...'
-      });
+      if (!data?.success) {
+        throw new Error(data?.error || 'Payment failed');
+      }
 
-      // Generate and download PDF receipt
-      await generateReceipt(data.contribution);
+      toast.success('Payment initiated!', {
+        description: 'Please approve the payment on your phone if prompted'
+      });
 
       // Reset form
       setPin('');
-      
-      // Refresh contribution history
-      fetchContributionHistory();
+      setTimeout(() => {
+        fetchContributionHistory();
+      }, 2000);
+
     } catch (error: any) {
-      console.error('Error submitting contribution:', error);
-      toast.error(error.message || 'Failed to process payment');
+      console.error('Contribution error:', error);
+      toast.error(error?.message || 'Failed to process payment');
     } finally {
       setSubmitting(false);
     }
@@ -395,8 +354,9 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
   };
 
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <PaymentErrorBoundary>
+      <div className="p-4 max-w-6xl mx-auto">
+        <form onSubmit={handleSubmit} className="space-y-4">
         {/* Group Info Card */}
         <Card className="p-4 bg-gradient-to-br from-primary/5 to-secondary/5 border-border/50">
           <div className="flex items-center gap-3">
@@ -609,6 +569,7 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
         </div>
       )}
     </div>
+    </PaymentErrorBoundary>
   );
 };
 

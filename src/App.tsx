@@ -54,7 +54,7 @@ import AdminCampaigns from "./pages/AdminCampaigns";
 import AdminReserveWallet from "./pages/AdminReserveWallet";
 import AdminDisputes from "./pages/AdminDisputes";
 import DisputeManagement from "./pages/DisputeManagement";
-import InstantPayout from "./pages/InstantPayout";
+import OptimizedInstantPayout from "./pages/OptimizedInstantPayout";
 import AccountSettings from "./pages/AccountSettings";
 import SecuritySettings from "./pages/SecuritySettings";
 import PaymentSettings from "./pages/PaymentSettings";
@@ -161,7 +161,7 @@ const AppContent = () => {
         <Route path="/settings/security" element={<ProtectedRoute><SecuritySettings /></ProtectedRoute>} />
         <Route path="/settings/payment" element={<ProtectedRoute><PaymentSettings /></ProtectedRoute>} />
         <Route path="/settings/notifications" element={<ProtectedRoute><PushNotificationSettings /></ProtectedRoute>} />
-        <Route path="/instant-payout" element={<ProtectedRoute><InstantPayout /></ProtectedRoute>} />
+        <Route path="/instant-payout" element={<ProtectedRoute><OptimizedInstantPayout /></ProtectedRoute>} />
         <Route path="/disputes" element={<ProtectedRoute><DisputeManagement /></ProtectedRoute>} />
         
         {/* Admin Routes */}
