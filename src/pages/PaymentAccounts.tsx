@@ -15,6 +15,7 @@ import AddBankAccountDialog from '@/components/banking/AddBankAccountDialog';
 import EditBankAccountDialog from '@/components/banking/EditBankAccountDialog';
 import airtelLogo from '@/assets/airtel-money-logo.png';
 import tnmLogo from '@/assets/tnm-mpamba-logo.jpg';
+import { getBankLogo } from '@/utils/bankLogos';
 
 interface MobileMoneyAccount {
   id: string;
@@ -286,9 +287,17 @@ const PaymentAccounts = () => {
           {bankAccounts.map((account) => (
             <Card key={account.id} className="p-2.5">
               <div className="flex items-center gap-2.5">
-                <div className="p-1.5 bg-primary/10 rounded">
-                  <Building2 className="h-4 w-4 text-primary" />
-                </div>
+                {getBankLogo(account.bank_name) ? (
+                  <img
+                    src={getBankLogo(account.bank_name)}
+                    alt={account.bank_name}
+                    className="h-8 w-8 object-contain rounded"
+                  />
+                ) : (
+                  <div className="p-1.5 bg-primary/10 rounded">
+                    <Building2 className="h-4 w-4 text-primary" />
+                  </div>
+                )}
 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5 mb-0.5">

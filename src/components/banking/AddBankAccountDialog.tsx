@@ -14,6 +14,7 @@ import nbsBankLogo from '@/assets/nbs-bank-logo.png';
 import cdhBankLogo from '@/assets/cdh-bank-logo.png';
 import ecobankLogo from '@/assets/ecobank-logo.png';
 import centenaryBankLogo from '@/assets/centenary-bank-logo.png';
+import { getBankLogo } from '@/utils/bankLogos';
 
 const MALAWI_BANKS = [
   { name: 'National Bank of Malawi', logo: natbankLogo },
@@ -25,10 +26,6 @@ const MALAWI_BANKS = [
   { name: 'Ecobank Malawi', logo: ecobankLogo },
   { name: 'Centenary Bank', logo: centenaryBankLogo }
 ];
-
-const getBankLogo = (bankName: string) => {
-  return MALAWI_BANKS.find(b => b.name === bankName)?.logo;
-};
 
 interface Props {
   open: boolean;
@@ -138,29 +135,32 @@ const AddBankAccountDialog = ({ open, onOpenChange, onSuccess }: Props) => {
           )}
 
           <div>
-            <Label>Account Number</Label>
+            <Label className="text-xs">Account Number</Label>
             <Input
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               placeholder="Enter account number"
               type="text"
+              className="h-9 text-xs"
             />
           </div>
 
           <div>
-            <Label>Account Name</Label>
+            <Label className="text-xs">Account Holder Name</Label>
             <Input
               value={accountName}
               onChange={(e) => setAccountName(e.target.value)}
               placeholder="Enter account holder name"
+              type="text"
+              className="h-9 text-xs"
             />
           </div>
 
-          <div className="flex gap-2 justify-end pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <div className="flex gap-2 justify-end pt-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)} size="sm" className="h-8 text-xs">
               Cancel
             </Button>
-            <Button onClick={handleSubmit} disabled={loading}>
+            <Button onClick={handleSubmit} disabled={loading} size="sm" className="h-8 text-xs">
               {loading ? 'Adding...' : 'Add Account'}
             </Button>
           </div>
