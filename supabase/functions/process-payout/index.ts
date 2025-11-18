@@ -97,7 +97,7 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    if (configError || !payConfig || !payConfig.api_key) {
+    if (configError || !payConfig || !payConfig.api_secret) {
       return new Response(
         JSON.stringify({ error: 'Payment gateway not configured. Contact support.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -113,7 +113,7 @@ serve(async (req) => {
     // Process payout using PayChangu
     const paymentResult = await PaychanguService.processPayment(
       {
-        secretKey: payConfig.api_key,
+        secretKey: payConfig.api_secret,
         baseUrl: PAYCHANGU_BASE_URL,
       },
       {

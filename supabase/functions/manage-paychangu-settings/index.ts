@@ -23,7 +23,7 @@ Deno.serve(async (req) => {
       provider: config.provider, 
       test_mode: config.test_mode,
       enabled: config.enabled,
-      has_api_key: !!config.api_key
+      has_api_secret: !!config.api_secret
     });
 
     // Validate required fields
@@ -33,8 +33,8 @@ Deno.serve(async (req) => {
       throw error;
     }
 
-    if (!config.api_key && config.enabled) {
-      const error = new Error('API key is required when enabled');
+    if (!config.api_secret && config.enabled) {
+      const error = new Error('API secret is required when enabled');
       console.error('Validation error:', error);
       throw error;
     }

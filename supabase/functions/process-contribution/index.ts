@@ -106,7 +106,7 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    if (configError || !payConfig || !payConfig.api_key) {
+    if (configError || !payConfig || !payConfig.api_secret) {
       console.error(`[${requestId}] PayChangu not configured:`, configError);
       return new Response(
         JSON.stringify({ error: 'Payment gateway not configured. Please contact support.' }),
@@ -114,7 +114,7 @@ serve(async (req) => {
       );
     }
 
-    const PAYCHANGU_SECRET_KEY = payConfig.api_key;
+    const PAYCHANGU_SECRET_KEY = payConfig.api_secret;
     console.log(`[${requestId}] Using PayChangu ${payConfig.test_mode ? 'TEST' : 'LIVE'} mode`);
 
     // Verify PIN
