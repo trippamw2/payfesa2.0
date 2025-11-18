@@ -383,6 +383,36 @@ export type Database = {
         }
         Relationships: []
       }
+      app_settings: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -998,6 +1028,41 @@ export type Database = {
         }
         Relationships: []
       }
+      group_settings: {
+        Row: {
+          created_at: string | null
+          group_id: string
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          group_id: string
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          group_id?: string
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_settings_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "rosca_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message_read_receipts: {
         Row: {
           id: string
@@ -1374,6 +1439,114 @@ export type Database = {
           },
           {
             foreignKeyName: "payment_disputes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      payment_gateway_status: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          id: string
+          last_checked_at: string | null
+          provider: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          last_checked_at?: string | null
+          provider: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          last_checked_at?: string | null
+          provider?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      payment_transactions: {
+        Row: {
+          account_id: string | null
+          amount: number
+          created_at: string | null
+          error_message: string | null
+          external_reference: string | null
+          fee_amount: number | null
+          group_id: string | null
+          id: string
+          metadata: Json | null
+          method: string
+          net_amount: number
+          processed_at: string | null
+          provider: string | null
+          reference: string | null
+          status: string
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          created_at?: string | null
+          error_message?: string | null
+          external_reference?: string | null
+          fee_amount?: number | null
+          group_id?: string | null
+          id?: string
+          metadata?: Json | null
+          method: string
+          net_amount: number
+          processed_at?: string | null
+          provider?: string | null
+          reference?: string | null
+          status?: string
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          created_at?: string | null
+          error_message?: string | null
+          external_reference?: string | null
+          fee_amount?: number | null
+          group_id?: string | null
+          id?: string
+          metadata?: Json | null
+          method?: string
+          net_amount?: number
+          processed_at?: string | null
+          provider?: string | null
+          reference?: string | null
+          status?: string
+          type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_transactions_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "rosca_groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -1807,6 +1980,8 @@ export type Database = {
       rosca_groups: {
         Row: {
           amount: number
+          auto_payout: boolean | null
+          chat_enabled: boolean | null
           contribution_amount: number | null
           created_at: string | null
           created_by: string | null
@@ -1819,12 +1994,15 @@ export type Database = {
           max_members: number
           name: string
           next_contribution_date: string | null
+          payout_method: string | null
           start_date: string | null
           status: string | null
           updated_at: string | null
         }
         Insert: {
           amount: number
+          auto_payout?: boolean | null
+          chat_enabled?: boolean | null
           contribution_amount?: number | null
           created_at?: string | null
           created_by?: string | null
@@ -1837,12 +2015,15 @@ export type Database = {
           max_members: number
           name: string
           next_contribution_date?: string | null
+          payout_method?: string | null
           start_date?: string | null
           status?: string | null
           updated_at?: string | null
         }
         Update: {
           amount?: number
+          auto_payout?: boolean | null
+          chat_enabled?: boolean | null
           contribution_amount?: number | null
           created_at?: string | null
           created_by?: string | null
@@ -1855,6 +2036,7 @@ export type Database = {
           max_members?: number
           name?: string
           next_contribution_date?: string | null
+          payout_method?: string | null
           start_date?: string | null
           status?: string | null
           updated_at?: string | null
@@ -2163,6 +2345,7 @@ export type Database = {
       }
       users: {
         Row: {
+          account_status: string | null
           active_referrals: number | null
           avatar_url: string | null
           chat_messages_this_cycle: number | null
@@ -2171,15 +2354,18 @@ export type Database = {
           created_at: string | null
           elite_since: string | null
           elite_status: boolean | null
+          email_verified: boolean | null
           escrow_balance: number | null
           fast_contributions: number | null
           frozen: boolean | null
           full_name: string | null
           id: string
           is_kyc_verified: boolean | null
+          kyc_status: string | null
           language: string | null
           name: string
           phone_number: string
+          phone_verified: boolean | null
           pin_hash: string
           pin_salt: string
           points: number | null
@@ -2191,6 +2377,7 @@ export type Database = {
           wallet_balance: number | null
         }
         Insert: {
+          account_status?: string | null
           active_referrals?: number | null
           avatar_url?: string | null
           chat_messages_this_cycle?: number | null
@@ -2199,15 +2386,18 @@ export type Database = {
           created_at?: string | null
           elite_since?: string | null
           elite_status?: boolean | null
+          email_verified?: boolean | null
           escrow_balance?: number | null
           fast_contributions?: number | null
           frozen?: boolean | null
           full_name?: string | null
           id?: string
           is_kyc_verified?: boolean | null
+          kyc_status?: string | null
           language?: string | null
           name: string
           phone_number: string
+          phone_verified?: boolean | null
           pin_hash: string
           pin_salt: string
           points?: number | null
@@ -2219,6 +2409,7 @@ export type Database = {
           wallet_balance?: number | null
         }
         Update: {
+          account_status?: string | null
           active_referrals?: number | null
           avatar_url?: string | null
           chat_messages_this_cycle?: number | null
@@ -2227,15 +2418,18 @@ export type Database = {
           created_at?: string | null
           elite_since?: string | null
           elite_status?: boolean | null
+          email_verified?: boolean | null
           escrow_balance?: number | null
           fast_contributions?: number | null
           frozen?: boolean | null
           full_name?: string | null
           id?: string
           is_kyc_verified?: boolean | null
+          kyc_status?: string | null
           language?: string | null
           name?: string
           phone_number?: string
+          phone_verified?: boolean | null
           pin_hash?: string
           pin_salt?: string
           points?: number | null
