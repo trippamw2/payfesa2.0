@@ -167,21 +167,21 @@ const AppContent = () => {
         <Route path="/instant-payout" element={<ProtectedRoute><OptimizedInstantPayout /></ProtectedRoute>} />
         <Route path="/disputes" element={<ProtectedRoute><DisputeManagement /></ProtectedRoute>} />
         
-        {/* Admin Routes */}
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-        <Route path="/admin/marketing" element={<ProtectedRoute><AdminMarketing /></ProtectedRoute>} />
-        <Route path="/admin/finance" element={<ProtectedRoute><AdminFinance /></ProtectedRoute>} />
-        <Route path="/admin/reserve" element={<ProtectedRoute><AdminReserveWallet /></ProtectedRoute>} />
-        <Route path="/admin/operations" element={<ProtectedRoute><AdminOperations /></ProtectedRoute>} />
-        <Route path="/admin/payouts" element={<ProtectedRoute><AdminPayouts /></ProtectedRoute>} />
-        <Route path="/admin/scheduled-payouts" element={<ProtectedRoute><AdminScheduledPayouts /></ProtectedRoute>} />
-        <Route path="/admin/campaigns" element={<ProtectedRoute><AdminCampaigns /></ProtectedRoute>} />
-        <Route path="/admin/users" element={<ProtectedRoute><AdminUserManagement /></ProtectedRoute>} />
-        <Route path="/admin/paychangu-settings" element={<ProtectedRoute><AdminPaychanguSettings /></ProtectedRoute>} />
-        <Route path="/admin/api-settings" element={<ProtectedRoute><AdminPaychanguSettings /></ProtectedRoute>} />
-        <Route path="/admin/disputes" element={<ProtectedRoute><AdminDisputes /></ProtectedRoute>} />
+          {/* Admin Routes */}
+          <Route path="/admin/login" element={<ErrorBoundary><AdminLogin /></ErrorBoundary>} />
+          <Route path="/admin" element={<ProtectedRoute><ErrorBoundary><AdminDashboard /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute><ErrorBoundary><AdminDashboard /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/marketing" element={<ProtectedRoute><ErrorBoundary><AdminMarketing /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/finance" element={<ProtectedRoute><ErrorBoundary><AdminFinance /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/reserve" element={<ProtectedRoute><ErrorBoundary><AdminReserveWallet /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/operations" element={<ProtectedRoute><ErrorBoundary><AdminOperations /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/payouts" element={<ProtectedRoute><ErrorBoundary><AdminPayouts /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/scheduled-payouts" element={<ProtectedRoute><ErrorBoundary><AdminScheduledPayouts /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/campaigns" element={<ProtectedRoute><ErrorBoundary><AdminCampaigns /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute><ErrorBoundary><AdminUserManagement /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/paychangu-settings" element={<ProtectedRoute><ErrorBoundary><AdminPaychanguSettings /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/api-settings" element={<ProtectedRoute><ErrorBoundary><AdminPaychanguSettings /></ErrorBoundary></ProtectedRoute>} />
+          <Route path="/admin/disputes" element={<ProtectedRoute><ErrorBoundary><AdminDisputes /></ErrorBoundary></ProtectedRoute>} />
         
         {/* Catch-all redirect based on auth status */}
         <Route path="*" element={<Navigate to={session ? "/dashboard" : "/"} replace />} />
