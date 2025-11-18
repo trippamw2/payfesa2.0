@@ -39,14 +39,20 @@ export default function SecuritySettings() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: userData } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('pin_hash')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (!userData) {
-        toast.error('User not found');
+      if (userError) {
+        console.error('Error fetching user data:', userError);
+        toast.error('Failed to verify current PIN');
+        return;
+      }
+
+      if (!userData || !userData.pin_hash) {
+        toast.error('User security data not found. Please contact support.');
         return;
       }
 
