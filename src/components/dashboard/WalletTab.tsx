@@ -9,6 +9,15 @@ import { toast } from 'sonner';
 import { celebrateSmall } from '@/lib/confetti';
 import airtelLogo from '@/assets/airtel-money-logo.png';
 import tnmLogo from '@/assets/tnm-mpamba-logo.jpg';
+import AddPaymentMethodDialog from '@/components/wallet/AddPaymentMethodDialog';
+import natbankLogo from '@/assets/natbank-logo.png';
+import standardBankLogo from '@/assets/standard-bank-logo.png';
+import fdhBankLogo from '@/assets/fdh-bank-logo.png';
+import fcbLogo from '@/assets/fcb-logo.png';
+import nbsBankLogo from '@/assets/nbs-bank-logo.png';
+import cdhBankLogo from '@/assets/cdh-bank-logo.png';
+import ecobankLogo from '@/assets/ecobank-logo.png';
+import centenaryBankLogo from '@/assets/centenary-bank-logo.png';
 
 interface Props {
   user: any;
@@ -44,6 +53,7 @@ interface PaymentMethod {
 const WalletTab = ({ user }: Props) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const [showAddPaymentDialog, setShowAddPaymentDialog] = useState(false);
   const [primaryMethod, setPrimaryMethod] = useState<PaymentMethod | null>(null);
   const [stats, setStats] = useState<WalletStats>({
     total_received: 0,
@@ -315,8 +325,8 @@ const WalletTab = ({ user }: Props) => {
       </div>
 
       {/* Payment Method */}
-      {primaryMethod && (
-        <Card className="mx-3">
+      <Card className="mx-3">
+        {primaryMethod ? (
           <div className="p-2">
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-xs font-semibold">Primary</h3>

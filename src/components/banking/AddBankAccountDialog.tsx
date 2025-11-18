@@ -6,17 +6,29 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import natbankLogo from '@/assets/natbank-logo.png';
+import standardBankLogo from '@/assets/standard-bank-logo.png';
+import fdhBankLogo from '@/assets/fdh-bank-logo.png';
+import fcbLogo from '@/assets/fcb-logo.png';
+import nbsBankLogo from '@/assets/nbs-bank-logo.png';
+import cdhBankLogo from '@/assets/cdh-bank-logo.png';
+import ecobankLogo from '@/assets/ecobank-logo.png';
+import centenaryBankLogo from '@/assets/centenary-bank-logo.png';
 
 const MALAWI_BANKS = [
-  'National Bank of Malawi',
-  'Standard Bank Malawi',
-  'FDH Bank',
-  'First Capital Bank',
-  'NBS Bank',
-  'CDH Investment Bank',
-  'Ecobank Malawi',
-  'Centenary Bank'
+  { name: 'National Bank of Malawi', logo: natbankLogo },
+  { name: 'Standard Bank Malawi', logo: standardBankLogo },
+  { name: 'FDH Bank', logo: fdhBankLogo },
+  { name: 'First Capital Bank', logo: fcbLogo },
+  { name: 'NBS Bank', logo: nbsBankLogo },
+  { name: 'CDH Investment Bank', logo: cdhBankLogo },
+  { name: 'Ecobank Malawi', logo: ecobankLogo },
+  { name: 'Centenary Bank', logo: centenaryBankLogo }
 ];
+
+const getBankLogo = (bankName: string) => {
+  return MALAWI_BANKS.find(b => b.name === bankName)?.logo;
+};
 
 interface Props {
   open: boolean;
@@ -94,26 +106,36 @@ const AddBankAccountDialog = ({ open, onOpenChange, onSuccess }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="p-4">
         <DialogHeader>
-          <DialogTitle>Add Bank Account</DialogTitle>
+          <DialogTitle className="text-sm">Add Bank Account</DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="space-y-3 mt-2">
           <div>
-            <Label>Bank Name</Label>
+            <Label className="text-xs">Bank Name</Label>
             <Select value={bankName} onValueChange={setBankName}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9">
                 <SelectValue placeholder="Select your bank" />
               </SelectTrigger>
               <SelectContent>
                 {MALAWI_BANKS.map((bank) => (
-                  <SelectItem key={bank} value={bank}>
-                    {bank}
+                  <SelectItem key={bank.name} value={bank.name}>
+                    <div className="flex items-center gap-2">
+                      <img src={bank.logo} alt={bank.name} className="w-5 h-5 object-contain" />
+                      <span className="text-xs">{bank.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
+          {bankName && (
+            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded">
+              <img src={getBankLogo(bankName)} alt={bankName} className="w-6 h-6 object-contain" />
+              <span className="text-xs text-muted-foreground">Selected: {bankName}</span>
+            </div>
+          )}
 
           <div>
             <Label>Account Number</Label>
