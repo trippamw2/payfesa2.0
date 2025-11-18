@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useBackNavigation } from '@/hooks/useBackNavigation';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, TrendingUp, Award, Calendar } from 'lucide-react';
+import { TrendingUp, Award, Calendar, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { PageLayout } from '@/components/layout/PageLayout';
+import { LoadingSkeleton } from '@/components/common/LoadingSkeleton';
+import { EmptyState } from '@/components/common/EmptyState';
 
 interface CreditScore {
   base_score: number;
@@ -19,7 +20,6 @@ interface CreditScore {
 
 const CreditScore = () => {
   const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   const [creditScore, setCreditScore] = useState<CreditScore | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -48,10 +48,10 @@ const CreditScore = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 750) return 'text-green-500';
-    if (score >= 650) return 'text-blue-500';
-    if (score >= 550) return 'text-yellow-500';
-    return 'text-red-500';
+    if (score >= 750) return 'text-primary';
+    if (score >= 650) return 'text-primary';
+    if (score >= 550) return 'text-accent';
+    return 'text-destructive';
   };
 
   const getScoreRating = (score: number) => {
@@ -62,34 +62,24 @@ const CreditScore = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-20">
-      {/* Header */}
-      <div className="mb-6 bg-gradient-to-r from-primary to-secondary text-white p-6 rounded-lg">
-        <Button
-          variant="ghost"
-          onClick={goBack}
-          className="mb-4 text-white hover:bg-white/20"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
-
-        <div className="flex items-center gap-3">
-          <div className="p-3 bg-white/20 rounded-full">
-            <TrendingUp className="h-6 w-6" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold">Credit Score</h1>
-            <p className="text-sm opacity-90">Your financial health rating</p>
-          </div>
-        </div>
-      </div>
-
+    <PageLayout
+      title="Credit Score"
+      subtitle="Your financial health rating"
+      icon={<TrendingUp className="h-4 w-4" />}
+    >
       {loading ? (
-        <Card className="p-6 text-center">
-          <p className="text-muted-foreground">Loading credit score...</p>
-        </Card>
-      ) : creditScore ? (
+        <LoadingSkeleton variant="full" />
+      ) : !creditScore ? (
+        <EmptyState
+          icon={<AlertCircle className="h-8 w-8 text-muted-foreground" />}
+          title="No Credit Score Yet"
+          description="Your credit score will appear here once you've made contributions and completed cycles."
+          action={{
+            label: "Join a Group",
+            onClick: () => navigate('/groups')
+          }}
+        />
+      ) : (
         <div className="space-y-4">
           {/* Main Score Card */}
           <Card className="p-6">
@@ -130,14 +120,14 @@ const CreditScore = () => {
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Late Payments</span>
-                <span className={`font-semibold ${creditScore.late_payments > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                <span className={`font-semibold ${creditScore.late_payments > 0 ? 'text-destructive' : 'text-primary'}`}>
                   {creditScore.late_payments}
                 </span>
               </div>
               
               <div className="flex justify-between items-center">
                 <span className="text-sm text-muted-foreground">Status</span>
-                <span className={`font-semibold ${creditScore.flagged_fraud ? 'text-red-500' : 'text-green-500'}`}>
+                <span className={`font-semibold ${creditScore.flagged_fraud ? 'text-destructive' : 'text-primary'}`}>
                   {creditScore.flagged_fraud ? 'Flagged' : 'Good Standing'}
                 </span>
               </div>
@@ -166,19 +156,8 @@ const CreditScore = () => {
             </ul>
           </Card>
         </div>
-      ) : (
-        <Card className="p-8 text-center">
-          <TrendingUp className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-          <h3 className="text-lg font-semibold mb-2">No Credit Score Yet</h3>
-          <p className="text-muted-foreground mb-4">
-            Start contributing to groups to build your credit score
-          </p>
-          <Button onClick={() => navigate('/groups')}>
-            Browse Groups
-          </Button>
-        </Card>
       )}
-    </div>
+    </PageLayout>
   );
 };
 
