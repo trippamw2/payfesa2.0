@@ -90,8 +90,14 @@ serve(async (req) => {
       accountId: accountId || 'N/A'
     });
 
-    // Fetch PayChangu configuration from api_configurations
-    const { data: payConfig, error: configError } = await supabaseClient
+    // Fetch PayChangu configuration from api_configurations using service role
+    // (RLS policies restrict access to admins only, but payment processing needs this config)
+    const supabaseServiceClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { data: payConfig, error: configError } = await supabaseServiceClient
       .from('api_configurations')
       .select('*')
       .eq('provider', 'paychangu')
@@ -101,7 +107,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (configError || !payConfig || !payConfig.api_key) {
-      console.error('PayChangu not configured:', configError);
+      console.error(`[${requestId}] PayChangu not configured:`, configError);
       return new Response(
         JSON.stringify({ error: 'Payment gateway not configured. Please contact support.' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -109,7 +115,7 @@ serve(async (req) => {
     }
 
     const PAYCHANGU_SECRET_KEY = payConfig.api_key;
-    console.log(`Using PayChangu ${payConfig.test_mode ? 'TEST' : 'LIVE'} mode`);
+    console.log(`[${requestId}] Using PayChangu ${payConfig.test_mode ? 'TEST' : 'LIVE'} mode`);
 
     // Verify PIN
     const { data: userData, error: userError } = await supabaseClient
