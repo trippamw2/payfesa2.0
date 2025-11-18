@@ -8,6 +8,8 @@ import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import PullToRefresh from "@/components/PullToRefresh";
 import BackToTop from "@/components/BackToTop";
+import { FeesSection } from "@/components/landing/FeesSection";
+import { FeesFAQ } from "@/components/fees/FeesFAQ";
 import { toast } from "sonner";
 
 const Index = () => {
@@ -30,6 +32,8 @@ const Index = () => {
           <Stats />
           <Features />
           <HowItWorks />
+          <FeesSection />
+          <FeesFAQ />
           <Testimonials />
           <CTA />
         </main>
