@@ -7,6 +7,32 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// PayFesa Fee Structure
+const FEE_RATES = {
+  PAYOUT_SAFETY: 0.01,   // 1%
+  SERVICE: 0.05,         // 5%
+  GOVERNMENT: 0.06,      // 6%
+};
+
+function calculatePayoutFees(grossAmount: number) {
+  const payoutSafetyFee = Math.round(grossAmount * FEE_RATES.PAYOUT_SAFETY);
+  const serviceFee = Math.round(grossAmount * FEE_RATES.SERVICE);
+  const governmentFee = Math.round(grossAmount * FEE_RATES.GOVERNMENT);
+  const totalFees = payoutSafetyFee + serviceFee + governmentFee;
+  const netAmount = grossAmount - totalFees;
+
+  return {
+    grossAmount,
+    payoutSafetyFee,
+    serviceFee,
+    governmentFee,
+    totalFees,
+    netAmount,
+    feeAmount: serviceFee,           // For DB compatibility
+    commissionAmount: payoutSafetyFee + governmentFee, // For DB compatibility
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });

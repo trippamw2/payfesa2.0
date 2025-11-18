@@ -3,6 +3,9 @@ project_id = "fisljlameaewzwndwpsq"
 [functions.admin-login]
 verify_jwt = false
 
+[functions.calculate-wallet-stats]
+verify_jwt = true
+
 [functions.paychangu-webhook]
 verify_jwt = false
 
@@ -56,3 +59,12 @@ verify_jwt = true
 
 [functions.create-payment-dispute]
 verify_jwt = true
+
+[functions.process-contribution]
+verify_jwt = true
+
+[functions.process-instant-payout]
+verify_jwt = true
+
+[functions.admin-manual-payout]
+verify_jwt = false
