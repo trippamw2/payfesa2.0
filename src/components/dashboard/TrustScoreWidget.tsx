@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { TrendingUp, TrendingDown, Award, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import {
   Tooltip,
   TooltipContent,
@@ -72,6 +73,7 @@ export const TrustScoreWidget = () => {
       setRecentChange(history);
     } catch (error) {
       console.error('Error fetching trust score:', error);
+      toast.error('Failed to load trust score');
     } finally {
       setLoading(false);
     }

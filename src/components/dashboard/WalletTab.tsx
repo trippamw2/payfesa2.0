@@ -206,6 +206,7 @@ const WalletTab = ({ user }: Props) => {
       }
     } catch (error) {
       console.error('Error fetching primary account:', error);
+      toast.error('Failed to load payment accounts');
     }
   };
 
