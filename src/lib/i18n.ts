@@ -270,9 +270,26 @@ export const translations = {
   }
 };
 
-export const useTranslation = (lang: Language) => {
-  return {
-    t: (key: keyof typeof translations.en) => translations[lang][key],
-    lang
-  };
+export const useTranslation = (lang: Language = 'en') => {
+  try {
+    // Safe fallback if language not found
+    const selectedLang = translations[lang] ? lang : 'en';
+    return {
+      t: (key: keyof typeof translations.en) => {
+        try {
+          return translations[selectedLang][key] || translations['en'][key];
+        } catch (error) {
+          console.error('Translation key error:', key, error);
+          return key;
+        }
+      },
+      lang: selectedLang
+    };
+  } catch (error) {
+    console.error('Translation system error, using fallback:', error);
+    return {
+      t: (key: keyof typeof translations.en) => translations['en'][key] || key,
+      lang: 'en' as Language
+    };
+  }
 };

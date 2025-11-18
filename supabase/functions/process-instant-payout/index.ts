@@ -85,8 +85,12 @@ serve(async (req) => {
     if (configError || !payConfig || !payConfig.api_key) {
       console.error('PayChangu not configured:', configError);
       return new Response(
-        JSON.stringify({ error: 'Payment gateway not configured. Please contact support.' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          success: false,
+          error: 'Payment setup missing. Contact support.',
+          message: 'Payment gateway is not configured. Please contact support to enable instant payouts.'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

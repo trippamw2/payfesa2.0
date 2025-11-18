@@ -10,7 +10,7 @@ export function FeesSection() {
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold mb-4">Simple, Transparent Fees</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Know exactly what you pay, and why. Every fee protects your money.
+            Payfesa uses an easy 12% fee. 6% goes to government fees (these are telco and bank charges, not Payfesa). 5% is Payfesa's service and protection fee. And 1% is saved to guarantee your payout. This keeps your money safe—always.
           </p>
         </div>
 

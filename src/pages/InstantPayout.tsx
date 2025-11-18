@@ -58,7 +58,7 @@ interface PendingPayout {
   id: string;
   amount: number;
   group_id: string;
-  scheduled_date: string;
+  payout_date: string;
   rosca_groups: {
     name: string;
   };
@@ -98,6 +98,131 @@ const InstantPayout = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         navigate('/auth');
+        return;
+      }
+
+      // Fetch balance with safe defaults
+      const { data: userData } = await supabase
+        .from('users')
+        .select('wallet_balance, escrow_balance')
+        .eq('id', user.id)
+        .single();
+
+      setBalance({
+        wallet_balance: userData?.wallet_balance || 0,
+        escrow_balance: userData?.escrow_balance || 0
+      });
+
+      // Fetch pending payouts with safe defaults
+      const { data: payoutData } = await supabase
+        .from('payouts')
+        .select(`
+          id, 
+          amount, 
+          group_id, 
+          payout_date,
+          rosca_groups (
+            name
+          )
+        `)
+        .eq('recipient_id', user.id)
+        .eq('status', 'pending')
+        .order('payout_date', { ascending: true });
+
+      const formattedPayouts: PendingPayout[] = (payoutData || []).map((p: any) => ({
+        id: p.id,
+        amount: p.amount,
+        group_id: p.group_id,
+        payout_date: p.payout_date,
+        rosca_groups: {
+          name: p.rosca_groups?.name || 'Unknown Group'
+        }
+      }));
+
+      setPendingPayouts(formattedPayouts);
+
+      // Fetch payment accounts with safe defaults
+      const [mobileData, bankData] = await Promise.all([
+        supabase
+          .from('mobile_money_accounts')
+          .select('*')
+          .eq('user_id', user.id)
+          .eq('is_active', true),
+        supabase
+          .from('bank_accounts')
+          .select('*')
+          .eq('user_id', user.id)
+      ]);
+
+      const mobileAccounts: PaymentAccount[] = (mobileData.data || []).map(acc => ({
+        id: acc.id,
+        type: 'mobile' as const,
+        provider: acc.provider,
+        phone_number: acc.phone_number,
+        account_name: acc.account_name,
+        is_primary: acc.is_primary
+      }));
+
+      const bankAccounts: PaymentAccount[] = (bankData.data || []).map(acc => ({
+        id: acc.id,
+        type: 'bank' as const,
+        bank_name: acc.bank_name,
+        account_number: acc.account_number,
+        account_name: acc.account_name,
+        is_primary: acc.is_primary
+      }));
+
+      const allAccounts = [...mobileAccounts, ...bankAccounts];
+      setAccounts(allAccounts);
+
+      // Set default selected account to primary
+      const primary = allAccounts.find(acc => acc.is_primary);
+      if (primary && !selectedAccount) {
+        setSelectedAccount(primary.id);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast.error('Failed to load payout information');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRequestPayout = () => {
+    if (!selectedPayout) {
+      toast.error('Please select a payout');
+      return;
+    }
+    if (!selectedAccount) {
+      toast.error('Please select a payment account');
+      return;
+    }
+    setShowPinDialog(true);
+  };
+
+  const handleConfirmPayout = async () => {
+    if (!pin || pin.length !== 6) {
+      toast.error('Please enter your 6-digit PIN');
+      return;
+    }
+
+    setRequesting(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Authentication required');
+        navigate('/auth');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('process-instant-payout', {
+        body: { payoutId: selectedPayout, pin }
+      });
+
+      if (error) throw error;
+
+      if (!data || !data.success) {
+        toast.error(data?.error || data?.message || 'Payout request failed');
         return;
       }
 
@@ -412,7 +537,7 @@ const InstantPayout = () => {
                       <div className="flex-1">
                         <p className="text-[10px] font-semibold">{payout.rosca_groups.name}</p>
                         <p className="text-[9px] text-muted-foreground">
-                          Due: {new Date(payout.scheduled_date).toLocaleDateString()}
+                          Due: {new Date(payout.payout_date).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="text-right">

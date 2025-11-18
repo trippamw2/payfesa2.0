@@ -39,9 +39,28 @@ Deno.serve(async (req) => {
 
     const body: CreateGroupRequest = await req.json();
 
-    // Validate input
-    if (!body.name || !body.amount || !body.max_members || !body.frequency) {
-      throw new Error('Missing required fields: name, amount, max_members, frequency');
+    // Validate input - name is required
+    if (!body.name || body.name.trim() === '') {
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Group name is required.',
+          message: 'Please provide a name for your group.'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate other required fields
+    if (!body.amount || !body.max_members || !body.frequency) {
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: 'Missing required fields.',
+          message: 'Please provide amount, max members, and frequency.'
+        }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     if (body.max_members < 2 || body.max_members > 50) {
