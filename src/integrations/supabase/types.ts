@@ -664,9 +664,15 @@ export type Database = {
           amount: number
           completed_at: string | null
           created_at: string
+          fee_amount: number | null
           group_id: string
           id: string
+          metadata: Json | null
+          net_amount: number | null
           payment_method: string | null
+          payment_provider: string | null
+          payment_reference: string | null
+          receipt_url: string | null
           status: string
           transaction_id: string | null
           updated_at: string
@@ -676,9 +682,15 @@ export type Database = {
           amount: number
           completed_at?: string | null
           created_at?: string
+          fee_amount?: number | null
           group_id: string
           id?: string
+          metadata?: Json | null
+          net_amount?: number | null
           payment_method?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
+          receipt_url?: string | null
           status?: string
           transaction_id?: string | null
           updated_at?: string
@@ -688,9 +700,15 @@ export type Database = {
           amount?: number
           completed_at?: string | null
           created_at?: string
+          fee_amount?: number | null
           group_id?: string
           id?: string
+          metadata?: Json | null
+          net_amount?: number | null
           payment_method?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
+          receipt_url?: string | null
           status?: string
           transaction_id?: string | null
           updated_at?: string
@@ -898,6 +916,59 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "vw_admin_users_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_balance: {
+        Row: {
+          created_at: string | null
+          current_balance: number
+          escrow_balance: number
+          group_id: string
+          id: string
+          last_contribution_at: string | null
+          last_payout_at: string | null
+          reserve_balance: number
+          total_contributions: number
+          total_fees_paid: number
+          total_payouts: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_balance?: number
+          escrow_balance?: number
+          group_id: string
+          id?: string
+          last_contribution_at?: string | null
+          last_payout_at?: string | null
+          reserve_balance?: number
+          total_contributions?: number
+          total_fees_paid?: number
+          total_payouts?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_balance?: number
+          escrow_balance?: number
+          group_id?: string
+          id?: string
+          last_contribution_at?: string | null
+          last_payout_at?: string | null
+          reserve_balance?: number
+          total_contributions?: number
+          total_fees_paid?: number
+          total_payouts?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_balance_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: true
+            referencedRelation: "rosca_groups"
             referencedColumns: ["id"]
           },
         ]
@@ -1607,6 +1678,7 @@ export type Database = {
       }
       payouts: {
         Row: {
+          account_id: string | null
           amount: number
           commission_amount: number
           created_at: string
@@ -1616,14 +1688,20 @@ export type Database = {
           gross_amount: number
           group_id: string
           id: string
+          metadata: Json | null
           mobile_money_reference: string | null
+          payment_method: string | null
+          payment_provider: string | null
+          payment_reference: string | null
           payout_date: string
           processed_at: string | null
+          receipt_url: string | null
           recipient_id: string
           status: string
           updated_at: string
         }
         Insert: {
+          account_id?: string | null
           amount: number
           commission_amount?: number
           created_at?: string
@@ -1633,14 +1711,20 @@ export type Database = {
           gross_amount: number
           group_id: string
           id?: string
+          metadata?: Json | null
           mobile_money_reference?: string | null
+          payment_method?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
           payout_date?: string
           processed_at?: string | null
+          receipt_url?: string | null
           recipient_id: string
           status?: string
           updated_at?: string
         }
         Update: {
+          account_id?: string | null
           amount?: number
           commission_amount?: number
           created_at?: string
@@ -1650,14 +1734,26 @@ export type Database = {
           gross_amount?: number
           group_id?: string
           id?: string
+          metadata?: Json | null
           mobile_money_reference?: string | null
+          payment_method?: string | null
+          payment_provider?: string | null
+          payment_reference?: string | null
           payout_date?: string
           processed_at?: string | null
+          receipt_url?: string | null
           recipient_id?: string
           status?: string
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "payouts_account_mobile_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "mobile_money_accounts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "payouts_group_id_fkey"
             columns: ["group_id"]
@@ -2234,6 +2330,53 @@ export type Database = {
           },
           {
             foreignKeyName: "trust_scores_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_balance_history: {
+        Row: {
+          balance_type: string
+          change_amount: number
+          created_at: string | null
+          id: string
+          new_balance: number
+          previous_balance: number
+          reason: string | null
+          transaction_id: string | null
+          transaction_type: string | null
+          user_id: string
+        }
+        Insert: {
+          balance_type: string
+          change_amount: number
+          created_at?: string | null
+          id?: string
+          new_balance: number
+          previous_balance: number
+          reason?: string | null
+          transaction_id?: string | null
+          transaction_type?: string | null
+          user_id: string
+        }
+        Update: {
+          balance_type?: string
+          change_amount?: number
+          created_at?: string | null
+          id?: string
+          new_balance?: number
+          previous_balance?: number
+          reason?: string | null
+          transaction_id?: string | null
+          transaction_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_balance_history_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"

@@ -95,8 +95,16 @@ export interface Contribution {
   amount: number;
   status: string;
   transaction_id?: string;
+  payment_method?: string;
+  payment_provider?: string;
+  payment_reference?: string;
+  fee_amount?: number;
+  net_amount?: number;
+  receipt_url?: string;
+  metadata?: any;
   created_at: string;
   completed_at?: string;
+  updated_at?: string;
 }
 
 export interface Achievement {
@@ -174,4 +182,56 @@ export interface PayoutSchedule {
   status: string;
   created_at: string;
   processed_at?: string;
+}
+
+export interface Payout {
+  id: string;
+  recipient_id: string;
+  group_id: string;
+  amount: number;
+  gross_amount: number;
+  fee_amount: number;
+  commission_amount: number;
+  status: string;
+  payment_method?: string;
+  payment_provider?: string;
+  payment_reference?: string;
+  account_id?: string;
+  receipt_url?: string;
+  mobile_money_reference?: string;
+  failure_reason?: string;
+  metadata?: any;
+  payout_date: string;
+  cycle_number: number;
+  created_at: string;
+  updated_at: string;
+  processed_at?: string;
+}
+
+export interface GroupBalance {
+  id: string;
+  group_id: string;
+  total_contributions: number;
+  total_payouts: number;
+  current_balance: number;
+  escrow_balance: number;
+  reserve_balance: number;
+  total_fees_paid: number;
+  last_contribution_at?: string;
+  last_payout_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserBalanceHistory {
+  id: string;
+  user_id: string;
+  balance_type: 'wallet' | 'escrow';
+  previous_balance: number;
+  new_balance: number;
+  change_amount: number;
+  transaction_id?: string;
+  transaction_type?: string;
+  reason?: string;
+  created_at: string;
 }
