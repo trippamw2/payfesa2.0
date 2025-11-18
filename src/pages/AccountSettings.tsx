@@ -159,7 +159,7 @@ export default function AccountSettings() {
             </Button>
           </CardContent>
         </Card>
-      </Card>
+        </Card>
     </PageLayout>
   );
 }

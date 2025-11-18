@@ -171,7 +171,7 @@ export default function SecuritySettings() {
             <p>• Don't use obvious PINs like 123456 or your birthday</p>
           </CardContent>
         </Card>
-      </Card>
+        </Card>
     </PageLayout>
   );
 }
