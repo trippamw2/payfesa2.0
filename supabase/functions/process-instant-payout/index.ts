@@ -82,7 +82,7 @@ serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    if (configError || !payConfig || !payConfig.api_key) {
+    if (configError || !payConfig || !payConfig.api_secret) {
       console.error('PayChangu not configured:', configError);
       return new Response(
         JSON.stringify({ 
@@ -206,7 +206,7 @@ serve(async (req) => {
     // Process payment via unified service
     const paymentResult = await PaychanguService.processPayment(
       {
-        secretKey: payConfig.api_key,
+        secretKey: payConfig.api_secret,
         baseUrl: 'https://api.paychangu.com',
       },
       paymentRequest
