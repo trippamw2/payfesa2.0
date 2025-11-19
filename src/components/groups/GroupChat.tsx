@@ -3,8 +3,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Send, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { ArrowLeft, Send, Image as ImageIcon, Loader2, Smile } from 'lucide-react';
 import { toast } from 'sonner';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 
 interface Message {
   id: string;
@@ -30,6 +31,7 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
   const [groupName, setGroupName] = useState('');
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -197,6 +199,11 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setNewMessage(prev => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -306,7 +313,7 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
 
         {/* Input */}
         <form onSubmit={handleSendMessage} className="p-4 bg-background border-t">
-          <div className="flex gap-2 items-center">
+          <div className="flex gap-2 items-center relative">
             <input
               ref={fileInputRef}
               type="file"
@@ -320,6 +327,7 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
               size="icon"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
+              className="flex-shrink-0"
             >
               {uploading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
@@ -327,17 +335,41 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
                 <ImageIcon className="h-5 w-5" />
               )}
             </Button>
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type a message..."
-              className="flex-1"
-              disabled={sending || uploading}
-            />
+            <div className="relative flex-1">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type a message... 💬"
+                className="flex-1 pr-12"
+                disabled={sending || uploading}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+              >
+                <Smile className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors" />
+              </Button>
+              
+              {/* Emoji Picker Popup */}
+              {showEmojiPicker && (
+                <div className="absolute bottom-full right-0 mb-2 z-50">
+                  <EmojiPicker 
+                    onEmojiClick={handleEmojiClick}
+                    width={320}
+                    height={400}
+                    previewConfig={{ showPreview: false }}
+                  />
+                </div>
+              )}
+            </div>
             <Button 
               type="submit" 
               size="icon"
               disabled={!newMessage.trim() || sending || uploading}
+              className="flex-shrink-0"
             >
               {sending ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
