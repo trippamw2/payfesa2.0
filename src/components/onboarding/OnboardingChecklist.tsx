@@ -25,7 +25,7 @@ export const OnboardingChecklist = ({ userId }: { userId: string }) => {
       description: 'Connect mobile money or bank account',
       completed: false,
       action: 'Add Now',
-      route: '/mobile-money',
+      route: '/payment-accounts',
       icon: CreditCard
     },
     {
