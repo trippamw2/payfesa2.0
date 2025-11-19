@@ -291,6 +291,253 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_decisions: {
+        Row: {
+          admin_action: string | null
+          admin_id: string | null
+          admin_notes: string | null
+          ai_decision: string
+          auto_executed: boolean | null
+          confidence_score: number
+          created_at: string | null
+          decision_type: string
+          entity_id: string
+          entity_type: string
+          executed_at: string | null
+          id: string
+          reasoning: string | null
+          risk_assessment: Json | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_action?: string | null
+          admin_id?: string | null
+          admin_notes?: string | null
+          ai_decision: string
+          auto_executed?: boolean | null
+          confidence_score: number
+          created_at?: string | null
+          decision_type: string
+          entity_id: string
+          entity_type: string
+          executed_at?: string | null
+          id?: string
+          reasoning?: string | null
+          risk_assessment?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_action?: string | null
+          admin_id?: string | null
+          admin_notes?: string | null
+          ai_decision?: string
+          auto_executed?: boolean | null
+          confidence_score?: number
+          created_at?: string | null
+          decision_type?: string
+          entity_id?: string
+          entity_type?: string
+          executed_at?: string | null
+          id?: string
+          reasoning?: string | null
+          risk_assessment?: Json | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_decisions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_decisions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "vw_admin_users_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_fraud_detections: {
+        Row: {
+          admin_notes: string | null
+          ai_analysis: string | null
+          confidence_score: number
+          created_at: string | null
+          detected_patterns: Json | null
+          detection_type: string
+          evidence: Json | null
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          risk_level: string
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          ai_analysis?: string | null
+          confidence_score: number
+          created_at?: string | null
+          detected_patterns?: Json | null
+          detection_type: string
+          evidence?: Json | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_level: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          ai_analysis?: string | null
+          confidence_score?: number
+          created_at?: string | null
+          detected_patterns?: Json | null
+          detection_type?: string
+          evidence?: Json | null
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          risk_level?: string
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_fraud_detections_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_fraud_detections_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "vw_admin_users_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_fraud_detections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_fraud_patterns: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          detection_count: number | null
+          detection_criteria: Json
+          id: string
+          is_active: boolean | null
+          last_detected_at: string | null
+          pattern_name: string
+          pattern_type: string
+          severity: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          detection_count?: number | null
+          detection_criteria: Json
+          id?: string
+          is_active?: boolean | null
+          last_detected_at?: string | null
+          pattern_name: string
+          pattern_type: string
+          severity?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          detection_count?: number | null
+          detection_criteria?: Json
+          id?: string
+          is_active?: boolean | null
+          last_detected_at?: string | null
+          pattern_name?: string
+          pattern_type?: string
+          severity?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_fraud_patterns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_fraud_patterns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "vw_admin_users_safe"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_risk_scores: {
+        Row: {
+          ai_recommendation: string | null
+          confidence_level: string | null
+          created_at: string | null
+          entity_id: string
+          entity_type: string
+          expires_at: string | null
+          id: string
+          risk_category: string
+          risk_factors: Json | null
+          risk_score: number
+          updated_at: string | null
+        }
+        Insert: {
+          ai_recommendation?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          entity_id: string
+          entity_type: string
+          expires_at?: string | null
+          id?: string
+          risk_category: string
+          risk_factors?: Json | null
+          risk_score: number
+          updated_at?: string | null
+        }
+        Update: {
+          ai_recommendation?: string | null
+          confidence_level?: string | null
+          created_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          expires_at?: string | null
+          id?: string
+          risk_category?: string
+          risk_factors?: Json | null
+          risk_score?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           event_data: Json | null

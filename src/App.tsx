@@ -53,6 +53,7 @@ import AdminFinance from "./pages/AdminFinance";
 import AdminOperations from "./pages/AdminOperations";
 import AdminCampaigns from "./pages/AdminCampaigns";
 import AdminReserveWallet from "./pages/AdminReserveWallet";
+import AdminAIAutomation from "./pages/AdminAIAutomation";
 import AdminDisputes from "./pages/AdminDisputes";
 import DisputeManagement from "./pages/DisputeManagement";
 import OptimizedInstantPayout from "./pages/OptimizedInstantPayout";
@@ -182,6 +183,7 @@ const AppContent = () => {
         <Route path="/admin/marketing" element={<ProtectedRoute><AdminMarketing /></ProtectedRoute>} />
         <Route path="/admin/finance" element={<ProtectedRoute><AdminFinance /></ProtectedRoute>} />
         <Route path="/admin/reserve" element={<ProtectedRoute><AdminReserveWallet /></ProtectedRoute>} />
+        <Route path="/admin/ai-automation" element={<ProtectedRoute><AdminAIAutomation /></ProtectedRoute>} />
         <Route path="/admin/operations" element={<ProtectedRoute><AdminOperations /></ProtectedRoute>} />
         <Route path="/admin/payouts" element={<ProtectedRoute><AdminPayouts /></ProtectedRoute>} />
         <Route path="/admin/scheduled-payouts" element={<ProtectedRoute><AdminScheduledPayouts /></ProtectedRoute>} />

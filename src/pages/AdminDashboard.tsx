@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { 
   ArrowLeft, Users, Briefcase, TrendingUp, DollarSign, 
   Award, AlertCircle, CheckCircle2, Clock, XCircle,
-  Activity, MessageSquare, Wallet, BarChart3, Download, FileText, Calendar, Key, Shield, AlertTriangle
+  Activity, MessageSquare, Wallet, BarChart3, Download, FileText, Calendar, Key, Shield, AlertTriangle, Bot
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { 
@@ -340,6 +340,13 @@ const AdminDashboard = () => {
               <Shield className="mr-2 h-4 w-4" />
               Reserve Wallet
             </Button>
+            <Button
+              variant="default"
+              onClick={() => navigate('/admin/ai-automation')}
+            >
+              <Bot className="mr-2 h-4 w-4" />
+              AI Automation
+            </Button>
           </div>
         </div>
 
@@ -430,6 +437,19 @@ const AdminDashboard = () => {
             <div>
               <h3 className="font-semibold">Users</h3>
               <p className="text-sm text-muted-foreground">User management</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow border-primary/20 bg-primary/5"
+          onClick={() => navigate('/admin/ai-automation')}
+        >
+          <CardContent className="flex items-center gap-3 p-4">
+            <Bot className="h-8 w-8 text-primary" />
+            <div>
+              <h3 className="font-semibold">AI Automation</h3>
+              <p className="text-sm text-muted-foreground">Fraud & decisions</p>
             </div>
           </CardContent>
         </Card>
