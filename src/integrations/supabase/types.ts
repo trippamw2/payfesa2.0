@@ -2892,6 +2892,21 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      notification_type:
+        | "reminder"
+        | "education"
+        | "promotion"
+        | "update"
+        | "system"
+        | "payment"
+        | "group"
+        | "achievement"
+        | "contribution_success"
+        | "payout_approved"
+        | "instant_payout_success"
+        | "payout_rejected"
+        | "member_join"
+        | "group_message"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3020,6 +3035,22 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      notification_type: [
+        "reminder",
+        "education",
+        "promotion",
+        "update",
+        "system",
+        "payment",
+        "group",
+        "achievement",
+        "contribution_success",
+        "payout_approved",
+        "instant_payout_success",
+        "payout_rejected",
+        "member_join",
+        "group_message",
+      ],
     },
   },
 } as const
