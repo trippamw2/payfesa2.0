@@ -137,48 +137,46 @@ serve(async (req) => {
     const chargeId = `PC${Date.now()}${Math.random().toString(36).substring(7).toUpperCase()}`;
     console.log(`[${requestId}] Generated charge ID: ${chargeId}`);
 
-    const paymentMethodLower = (paymentMethod || '').toString().toLowerCase().trim();
-    const isMobileMoney = ['airtel', 'tnm', 'mpamba', 'airtel money', 'tnm mpamba', 'mobilemoney'].includes(paymentMethodLower);
-    const isBankTransfer = ['bank', 'banktransfer', 'mobilebanktransfer'].includes(paymentMethodLower);
-
-    console.log(`[${requestId}] Payment type: ${isMobileMoney ? 'Mobile Money' : 'Bank Transfer'}`);
-
-    // Verify payment account if accountId provided
+    // Verify payment account if accountId provided and determine payment type
+    let isMobileMoney = false;
+    let isBankTransfer = false;
+    let account: any = null;
+    
     if (accountId) {
       console.log(`[${requestId}] Verifying payment account: ${accountId}`);
       
-      // Check which table to query based on payment type
-      let account: any = null;
-      let accountError: any = null;
+      // Try bank account first
+      const bankResult = await supabaseClient
+        .from('bank_accounts')
+        .select('*')
+        .eq('id', accountId)
+        .eq('user_id', user.id)
+        .maybeSingle();
       
-      if (isBankTransfer) {
-        // Query bank_accounts table
-        const result = await supabaseClient
-          .from('bank_accounts')
-          .select('*')
-          .eq('id', accountId)
-          .eq('user_id', user.id)
-          .maybeSingle();
-        
-        account = result.data;
-        accountError = result.error;
-        console.log(`[${requestId}] Bank account lookup:`, account ? 'Found' : 'Not found');
+      if (bankResult.data) {
+        account = bankResult.data;
+        isBankTransfer = true;
+        console.log(`[${requestId}] Bank account lookup: Found`);
       } else {
-        // Query mobile_money_accounts table
-        const result = await supabaseClient
+        // Try mobile money account
+        const mobileResult = await supabaseClient
           .from('mobile_money_accounts')
           .select('*')
           .eq('id', accountId)
           .eq('user_id', user.id)
           .maybeSingle();
         
-        account = result.data;
-        accountError = result.error;
-        console.log(`[${requestId}] Mobile money account lookup:`, account ? 'Found' : 'Not found');
+        if (mobileResult.data) {
+          account = mobileResult.data;
+          isMobileMoney = true;
+          console.log(`[${requestId}] Mobile money account lookup: Found`);
+        } else {
+          console.log(`[${requestId}] Mobile money account lookup: Not found`);
+        }
       }
 
-      if (accountError || !account) {
-        console.error(`[${requestId}] Payment account not found:`, accountError);
+      if (!account) {
+        console.error(`[${requestId}] Payment account not found`);
         return new Response(
           JSON.stringify({ error: 'Payment account not found' }),
           { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -194,7 +192,15 @@ serve(async (req) => {
       }
 
       console.log(`[${requestId}] Using verified account: ${isBankTransfer ? account.bank_name : account.provider}`);
+    } else {
+      // If no accountId provided, try to determine from paymentMethod string
+      const paymentMethodLower = (paymentMethod || '').toString().toLowerCase().trim();
+      isMobileMoney = ['airtel', 'tnm', 'mpamba', 'airtel money', 'tnm mpamba', 'mobilemoney'].includes(paymentMethodLower);
+      isBankTransfer = ['bank', 'banktransfer', 'mobilebanktransfer'].includes(paymentMethodLower);
     }
+    
+    console.log(`[${requestId}] Payment type: ${isMobileMoney ? 'Mobile Money' : isBankTransfer ? 'Bank Transfer' : 'Unknown'}`);
+
 
     // Process payment using unified service
     console.log(`[${requestId}] Initiating payment with PayChangu...`);
