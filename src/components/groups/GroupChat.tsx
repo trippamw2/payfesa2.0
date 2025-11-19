@@ -3,13 +3,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Message {
   id: string;
-  user_id: string;
+  sender_id: string | null;
   message: string;
+  image_url?: string;
+  message_type: string;
   created_at: string;
   profiles: {
     full_name: string;
@@ -26,7 +28,10 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [user, setUser] = useState<any>(null);
   const [groupName, setGroupName] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     checkUser();
@@ -87,6 +92,71 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
     setMessages(messagesWithProfiles as any);
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat-images')
+        .getPublicUrl(fileName);
+
+      // Send message with image
+      await sendImageMessage(publicUrl);
+      
+      toast.success('Image sent!');
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const sendImageMessage = async (imageUrl: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('messages')
+      .insert({
+        group_id: groupId,
+        sender_id: user.id,
+        message: '📷 Image',
+        image_url: imageUrl,
+        message_type: 'user'
+      });
+
+    if (error) {
+      console.error('Error sending image:', error);
+      throw error;
+    }
+  };
+
   const subscribeToMessages = () => {
     const channel = supabase
       .channel(`group_${groupId}`)
@@ -99,7 +169,21 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
           filter: `group_id=eq.${groupId}`
         },
         async (payload) => {
-          setMessages(prev => [...prev, payload.new as any]);
+          const newMsg = payload.new as any;
+          
+          // Fetch sender profile for new message
+          let profile = { full_name: 'System' };
+          if (newMsg.sender_id) {
+            const { data } = await supabase
+              .from('users')
+              .select('name')
+              .eq('id', newMsg.sender_id)
+              .single();
+            
+            profile = { full_name: data?.name || 'Unknown' };
+          }
+          
+          setMessages(prev => [...prev, { ...newMsg, profiles: profile }]);
         }
       )
       .subscribe();
@@ -116,28 +200,27 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !user) return;
+    if (!newMessage.trim() || !user || sending) return;
 
+    setSending(true);
     try {
-      const { data: insertedMessage, error } = await supabase
+      const { error } = await supabase
         .from('messages')
         .insert({
           group_id: groupId,
           sender_id: user.id,
           message: newMessage.trim(),
           message_type: 'user'
-        })
-        .select('id')
-        .single();
+        });
 
       if (error) throw error;
-
-      // Note: send-chat-notifications function not implemented yet
 
       setNewMessage('');
     } catch (error: any) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -153,46 +236,104 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.user_id === user?.id ? 'justify-end' : 'justify-start'}`}
-            >
-              <Card
-                className={`max-w-[70%] p-3 ${
-                  msg.user_id === user?.id
-                    ? 'bg-primary text-white'
-                    : 'bg-secondary'
-                }`}
+        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          {messages.map((msg) => {
+            const isOwn = msg.sender_id === user?.id;
+            const isSystem = msg.message_type === 'system';
+            
+            if (isSystem) {
+              return (
+                <div key={msg.id} className="flex justify-center">
+                  <div className="bg-muted px-4 py-2 rounded-full text-xs text-muted-foreground max-w-[80%] text-center">
+                    {msg.message}
+                  </div>
+                </div>
+              );
+            }
+
+            return (
+              <div
+                key={msg.id}
+                className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
               >
-                <p className="text-xs font-semibold mb-1 opacity-80">
-                  {msg.profiles.full_name}
-                </p>
-                <p className="text-sm">{msg.message}</p>
-                <p className="text-xs mt-1 opacity-70">
-                  {new Date(msg.created_at).toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
-                </p>
-              </Card>
-            </div>
-          ))}
+                <div className={`max-w-[75%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+                  {!isOwn && (
+                    <span className="text-xs font-medium text-muted-foreground px-2">
+                      {msg.profiles.full_name}
+                    </span>
+                  )}
+                  <Card
+                    className={`p-3 ${
+                      isOwn
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    {msg.image_url && (
+                      <img 
+                        src={msg.image_url} 
+                        alt="Shared image" 
+                        className="rounded-lg max-w-full h-auto mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => window.open(msg.image_url, '_blank')}
+                      />
+                    )}
+                    {msg.message && msg.message !== '📷 Image' && (
+                      <p className="text-sm break-words">{msg.message}</p>
+                    )}
+                    <p className={`text-xs mt-1 ${isOwn ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
+                      {new Date(msg.created_at).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </p>
+                  </Card>
+                </div>
+              </div>
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
 
         {/* Input */}
         <form onSubmit={handleSendMessage} className="p-4 bg-background border-t">
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageUpload}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+            >
+              {uploading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <ImageIcon className="h-5 w-5" />
+              )}
+            </Button>
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type a message..."
               className="flex-1"
+              disabled={sending || uploading}
             />
-            <Button type="submit" className="bg-primary text-white">
-              <Send className="h-4 w-4" />
+            <Button 
+              type="submit" 
+              size="icon"
+              disabled={!newMessage.trim() || sending || uploading}
+            >
+              {sending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </form>
