@@ -107,6 +107,31 @@ class PaymentService {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return { success: false, error: 'User not authenticated' };
 
+      // Check if PayChangu is configured
+      const { data: config } = await supabase
+        .from('api_configurations')
+        .select('api_secret, enabled')
+        .eq('provider', 'paychangu')
+        .single();
+
+      // Use mock payment if PayChangu not configured (development mode)
+      if (!config?.api_secret) {
+        console.warn('⚠️ PayChangu not configured, using development mode');
+        const { mockPaymentService } = await import('./mockPaymentService');
+        const result = await mockPaymentService.simulateContribution(groupId, amount, user.id);
+        
+        if (result.success) {
+          return {
+            success: true,
+            transactionId: result.transactionId,
+            reference: `DEV-${result.transactionId}`,
+            message: '✅ Payment processed (Development Mode)'
+          };
+        }
+        return { success: false, error: result.error || 'Payment simulation failed' };
+      }
+
+      // Use real PayChangu API
       const { data, error } = await supabase.functions.invoke('process-contribution', {
         body: { groupId, amount, accountId, paymentMethod, phoneNumber }
       }).catch((err) => ({

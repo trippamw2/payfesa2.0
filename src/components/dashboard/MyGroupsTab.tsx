@@ -13,6 +13,7 @@ import UpcomingWidget from '@/components/dashboard/UpcomingWidget';
 import { TrustScoreWidget } from '@/components/dashboard/TrustScoreWidget';
 import { BonusesWidget } from '@/components/dashboard/BonusesWidget';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
+import { DevelopmentModeBanner } from '@/components/dev/DevelopmentModeBanner';
 import { User, Profile } from '@/types';
 
 interface Group {
@@ -133,6 +134,9 @@ const MyGroupsTab = ({ user, profile }: Props) => {
 
   return (
     <div className="p-2 space-y-2 max-w-6xl mx-auto">
+      {/* Development Mode Banner */}
+      <DevelopmentModeBanner />
+      
       {/* Onboarding Checklist */}
       <OnboardingChecklist userId={user.id} />
 
