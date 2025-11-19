@@ -22,10 +22,10 @@ export function QuickActions() {
           </Button>
         </Link>
 
-        <Link to="/dashboard?tab=wallet">
+        <Link to="/create-group">
           <Button variant="outline" className="w-full h-auto flex-col gap-2 py-4">
-            <TrendingUp className="h-5 w-5" />
-            <span className="text-xs">View Wallet</span>
+            <Plus className="h-5 w-5" />
+            <span className="text-xs">Create New Group</span>
           </Button>
         </Link>
 

@@ -4,9 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, TrendingUp, Users, Target, MessageSquare, Send, Calendar } from 'lucide-react';
+import { TrendingUp, Users, Target, MessageSquare, Send, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 
 const AdminMarketing = () => {
   const navigate = useNavigate();
@@ -91,23 +92,11 @@ const AdminMarketing = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')} className="h-9 w-9">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-primary/10 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Marketing Analytics</h1>
-                <p className="text-sm text-muted-foreground">User acquisition, engagement, and campaigns</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <AdminHeader
+          title="Marketing Analytics"
+          description="User acquisition, engagement, and campaigns"
+          icon={<TrendingUp className="h-5 w-5 text-primary" />}
+        />
 
         {/* Key Metrics */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

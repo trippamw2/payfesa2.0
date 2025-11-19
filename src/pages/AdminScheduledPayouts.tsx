@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { 
-  ArrowLeft, 
+  AlertTriangle, 
   RefreshCw,
   Calendar,
   CheckCircle2, 
@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 
 interface ScheduledPayout {
   id: string;
@@ -259,35 +260,25 @@ const AdminScheduledPayouts = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')} className="h-9 w-9">
-              <ArrowLeft className="h-4 w-4" />
+        <AdminHeader
+          title="Scheduled Payouts"
+          description="Monitor and manage automated payout scheduling"
+          icon={<Calendar className="h-5 w-5 text-primary" />}
+          actions={
+            <Button
+              onClick={triggerManualPayout}
+              disabled={processing}
+              className="gap-2"
+            >
+              {processing ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              Trigger Manual Processing
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-primary/10 rounded-lg">
-                <Calendar className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold">Scheduled Payouts</h1>
-                <p className="text-sm text-muted-foreground">Monitor and manage automated payout processing</p>
-              </div>
-            </div>
-          </div>
-          <Button
-            onClick={triggerManualPayout}
-            disabled={processing}
-            className="gap-2"
-          >
-            {processing ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
-            Trigger Manual Processing
-          </Button>
-        </div>
+          }
+        />
 
         {/* Stats Cards */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
