@@ -25,7 +25,7 @@ const NotificationsTab = ({ user }: Props) => {
     if (user) {
       fetchNotifications();
       
-      // Set up realtime subscription (only for INSERT to avoid duplicate triggers)
+      // Set up realtime subscription for new notifications
       const channel = supabase
         .channel(`user-notifications-${user.id}`)
         .on('postgres_changes',
@@ -35,10 +35,14 @@ const NotificationsTab = ({ user }: Props) => {
             setNotifications(prev => [notification, ...prev]);
             setUnreadCount(prev => prev + 1);
             
-            toast.info(notification.title);
+            // Show toast with better formatting
+            toast.success(notification.title, {
+              description: notification.message,
+              duration: 5000,
+            });
             
-            // Celebrate achievements
-            if (notification.type === 'achievement') {
+            // Celebrate achievements and milestones
+            if (notification.type === 'achievement' || notification.type === 'contribution_success') {
               setTimeout(() => {
                 celebrateSmall();
               }, 300);
