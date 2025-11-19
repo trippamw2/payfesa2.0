@@ -10,6 +10,7 @@ import { paymentService } from '@/services/paymentService';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useContributionRealtime } from '@/hooks/useContributionRealtime';
+import { PaymentErrorFallback } from '@/components/error/PaymentErrorFallback';
 
 interface ContributionFlowProps {
   groupId: string;
@@ -134,10 +135,13 @@ export const ContributionFlow = ({
     } catch (error) {
       console.error('Contribution error:', error);
       setTransactionStatus('failed');
-      setStatusMessage(error instanceof Error ? error.message : 'Payment failed');
+      
+      const errorMessage = error instanceof Error ? error.message : 'Payment failed';
+      setStatusMessage(errorMessage);
+      
       toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to process payment',
+        title: "Payment Error",
+        description: errorMessage,
         variant: "destructive"
       });
       setProcessing(false);
@@ -203,29 +207,44 @@ export const ContributionFlow = ({
     return (
       <Card>
         <CardContent className="pt-6">
-          <div className="flex flex-col items-center justify-center space-y-4 py-8">
-            {getStatusIcon()}
-            <h3 className="text-lg font-semibold">
-              {transactionStatus === 'completed' && 'Payment Successful!'}
-              {transactionStatus === 'failed' && 'Payment Failed'}
-              {transactionStatus === 'pending' && 'Processing Payment'}
-            </h3>
-            <p className="text-center text-muted-foreground max-w-md">
-              {statusMessage}
-            </p>
-            {processing && (
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            )}
-            {transactionStatus === 'failed' && (
-              <Button onClick={() => {
+          {transactionStatus === 'failed' && (
+            statusMessage.includes('not configured') || 
+            statusMessage.includes('Network error') ||
+            statusMessage.includes('service unavailable')
+          ) ? (
+            <PaymentErrorFallback 
+              message={statusMessage}
+              resetError={() => {
                 setTransactionStatus('idle');
-                setContributionId(null);
                 setStatusMessage('');
-              }}>
-                Try Again
-              </Button>
-            )}
-          </div>
+                setProcessing(false);
+              }}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center space-y-4 py-8">
+              {getStatusIcon()}
+              <h3 className="text-lg font-semibold">
+                {transactionStatus === 'completed' && 'Payment Successful!'}
+                {transactionStatus === 'failed' && 'Payment Failed'}
+                {transactionStatus === 'pending' && 'Processing Payment'}
+              </h3>
+              <p className="text-center text-muted-foreground max-w-md">
+                {statusMessage}
+              </p>
+              {processing && (
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              )}
+              {transactionStatus === 'failed' && (
+                <Button onClick={() => {
+                  setTransactionStatus('idle');
+                  setContributionId(null);
+                  setStatusMessage('');
+                }}>
+                  Try Again
+                </Button>
+              )}
+            </div>
+          )}
         </CardContent>
       </Card>
     );
