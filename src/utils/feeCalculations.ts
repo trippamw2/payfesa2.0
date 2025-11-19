@@ -13,19 +13,18 @@ export interface FeeBreakdown {
 }
 
 export const FEE_RATES = {
-  PAYOUT_SAFETY: 0.01,   // 1%
-  SERVICE: 0.05,         // 5%
-  GOVERNMENT: 0.06,      // 6%
+  RESERVE_GUARANTEE: 0.01,   // 1% - Goes to reserve wallet
+  PLATFORM_FEES: 0.07,       // 7% - Combined service & processing fees
 } as const;
 
 /**
  * Calculate fee breakdown for a payout amount
  */
 export function calculatePayoutFees(grossAmount: number): FeeBreakdown {
-  const payoutSafetyFee = Math.round(grossAmount * FEE_RATES.PAYOUT_SAFETY);
-  const serviceFee = Math.round(grossAmount * FEE_RATES.SERVICE);
-  const governmentFee = Math.round(grossAmount * FEE_RATES.GOVERNMENT);
-  const totalFees = payoutSafetyFee + serviceFee + governmentFee;
+  const payoutSafetyFee = Math.round(grossAmount * FEE_RATES.RESERVE_GUARANTEE);
+  const serviceFee = 0; // No longer shown separately
+  const governmentFee = Math.round(grossAmount * FEE_RATES.PLATFORM_FEES);
+  const totalFees = payoutSafetyFee + governmentFee;
   const netAmount = grossAmount - totalFees;
 
   return {
@@ -42,7 +41,7 @@ export function calculatePayoutFees(grossAmount: number): FeeBreakdown {
  * Calculate gross amount needed to receive a specific net amount
  */
 export function calculateGrossFromNet(netAmount: number): FeeBreakdown {
-  const totalFeeRate = FEE_RATES.PAYOUT_SAFETY + FEE_RATES.SERVICE + FEE_RATES.GOVERNMENT;
+  const totalFeeRate = FEE_RATES.RESERVE_GUARANTEE + FEE_RATES.PLATFORM_FEES;
   const grossAmount = Math.round(netAmount / (1 - totalFeeRate));
   
   return calculatePayoutFees(grossAmount);

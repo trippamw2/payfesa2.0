@@ -92,7 +92,7 @@ export function PayoutRequestDialog({ open, onOpenChange, grossAmount, onSuccess
             <div className="text-sm">
               <p className="font-semibold mb-1">Your Payout is Protected</p>
               <p className="text-muted-foreground">
-                The 1% safety fee ensures you receive your money on time, even if other members pay late.
+                The platform fee includes a 1% reserve guarantee to ensure you receive your money on time, even if other members pay late.
               </p>
             </div>
           </div>

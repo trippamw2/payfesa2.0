@@ -7,11 +7,10 @@ describe('Fee Calculations', () => {
       const result = calculatePayoutFees(100000);
       
       expect(result.grossAmount).toBe(100000);
-      expect(result.payoutSafetyFee).toBe(1000); // 1%
-      expect(result.serviceFee).toBe(5000); // 5%
-      expect(result.governmentFee).toBe(6000); // 6%
-      expect(result.totalFees).toBe(12000);
-      expect(result.netAmount).toBe(88000);
+      expect(result.payoutSafetyFee).toBe(1000); // 1% reserve guarantee
+      expect(result.governmentFee).toBe(7000); // 7% platform fees
+      expect(result.totalFees).toBe(8000); // 8% total
+      expect(result.netAmount).toBe(92000); // 92% payout
     });
 
     it('should handle zero amount', () => {
@@ -22,7 +21,7 @@ describe('Fee Calculations', () => {
 
     it('should round to 2 decimal places', () => {
       const result = calculatePayoutFees(100.555);
-      expect(result.netAmount).toBeCloseTo(88.49, 2);
+      expect(result.netAmount).toBeCloseTo(92.51, 2);
     });
   });
 
