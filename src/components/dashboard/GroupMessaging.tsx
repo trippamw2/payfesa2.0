@@ -102,7 +102,7 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
     if (!selectedGroup) return;
 
     const channel = supabase
-      .channel(`group_${selectedGroup.id}`)
+      .channel(`group_${selectedGroup.id}_messages`)
       .on(
         'postgres_changes',
         {
@@ -112,19 +112,29 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
           filter: `group_id=eq.${selectedGroup.id}`
         },
         async (payload) => {
-          const { data: userProfile } = await supabase
-            .from('users')
-            .select('name')
-            .eq('id', payload.new.sender_id)
-            .single();
+          // Fetch user profile for sender_id (can be null for system messages)
+          let userName = 'System';
+          if (payload.new.sender_id) {
+            const { data: userProfile } = await supabase
+              .from('users')
+              .select('name')
+              .eq('id', payload.new.sender_id)
+              .single();
+            userName = userProfile?.name || 'Unknown';
+          }
 
           const newMessage = {
             ...payload.new,
-            user_id: payload.new.sender_id,
-            profiles: { full_name: userProfile?.name || 'Unknown' }
+            user_id: payload.new.sender_id || 'system',
+            profiles: { full_name: userName }
           } as Message;
 
           setMessages(prev => [...prev, newMessage]);
+          
+          // Show toast for system messages
+          if (payload.new.message_type === 'system' && payload.new.sender_id !== user.id) {
+            toast.info(payload.new.message);
+          }
         }
       )
       .subscribe();

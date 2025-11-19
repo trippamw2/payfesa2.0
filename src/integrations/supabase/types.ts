@@ -2843,6 +2843,15 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: boolean
       }
+      send_group_notification: {
+        Args: {
+          p_group_id: string
+          p_message: string
+          p_metadata?: Json
+          p_notification_type?: string
+        }
+        Returns: undefined
+      }
       send_system_message: {
         Args: {
           p_group_id: string
