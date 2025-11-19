@@ -183,28 +183,30 @@ export const translations = {
     // Groups
     groups: "Magulu",
     myGroups: "Magulu Anga",
-    availableGroups: "Magulu Pano",
-    createGroup: "Panga Gulu",
-    groupName: "Dzina La Gulu",
-    description: "Fotokoza",
-    contributionAmount: "Ndalama",
-    frequency: "Kuchuluka",
-    maxMembers: "Anthu",
-    startDate: "Tsiku",
-    noGroupsYet: "Palibe magulu",
-    noAvailableGroups: "Palibe magulu",
-    logout: "Tuluka",
+    availableGroups: "Magulu Omwe Alipo",
+    createGroup: "Pangani Gulu Latsopano",
+    groupName: "Dzina la Gulu",
+    description: "Kufotokoza",
+    contributionAmount: "Ndalama Zopereka",
+    frequency: "Nthawi Zonse",
+    maxMembers: "Chiwerengero cha Anthu",
+    startDate: "Tsiku Loyamba",
+    noGroupsYet: "Simunalowe m'gulu lililonse",
+    noAvailableGroups: "Palibe magulu omwe angalowemo",
+    logout: "Tulukani",
+    groupDetails: "Zambiri za Gulu",
+    viewGroup: "Onani Gulu",
     
     // Onboarding
-    onboardingTitle1: "Sungani Ndalama",
-    onboardingText1: "Lowani m'magulu ndipo sungani ndalama limodzi ndi anzanu.",
-    onboardingTip1: "Kukonza kwamsanga mphindi 2",
+    onboardingTitle1: "Sungani Ndalama Pamodzi",
+    onboardingText1: "Lowani m'magulu osunga ndalama ndi anzanu, abale ndi anthu ammudzi mwanu",
+    onboardingTip1: "Kukonza mwamsanga mphindi 2",
     onboardingTitle2: "Gawanani Ndi Anzanu",
-    onboardingText2: "Pangani kapena lowani gulu. Gawanani code yanu ndi anzanu.",
-    onboardingTip2: "Kwezani gulu lanu",
-    onboardingTitle3: "Landirani Ndalama",
-    onboardingText3: "Aliyense amasunga limodzi. Aliyense amalandira ndalama zonse pa nthawi yake.",
-    onboardingTip3: "Ndalama zotetezeka zokha",
+    onboardingText2: "Pangani kapena lowani m'gulu. Itanani anzanu ndi code yophweka",
+    onboardingTip2: "Pangani gulu lanu losunga ndalama",
+    onboardingTitle3: "Landirani Ndalama Zanu",
+    onboardingText3: "Aliyense apereka ndalama zake. Membala aliyense amalandira ndalama zonse potsatira",
+    onboardingTip3: "Ndalama zotetezeka komanso zokha",
     getStarted: "Yambani",
     skip: "Dulani",
     
@@ -224,49 +226,117 @@ export const translations = {
     codeCopied: "Code yakopedwa!",
     
     // Common
-    next: "Pita",
-    back: "Bwerera",
-    submit: "Tumiza",
-    cancel: "Leka",
-    save: "Sunga",
-    createGroupBtn: "Panga",
-    creating: "Kupanga...",
+    next: "Pita Kutsogolo",
+    back: "Bwerera Kumbuyo",
+    submit: "Tumizani",
+    cancel: "Lekani",
+    save: "Sungani",
+    createGroupBtn: "Pangani Gulu",
+    creating: "Kukupanga...",
+    loading: "Kulodera...",
+    pleaseWait: "Chonde dikira...",
     
     // Dashboard
     dashboard: "Dashibodi",
     wallet: "Chikwama",
-    profile: "Mbiri",
+    profile: "Mbiri Yanu",
     notifications: "Mauthenga",
     settings: "Makonzedwe",
+    home: "Kunyumba",
     
     // Wallet
-    balance: "Ndalama",
-    deposit: "Yika",
-    withdraw: "Tengani",
-    transactions: "Zochita",
+    balance: "Ndalama Zilipo",
+    deposit: "Ikani Ndalama",
+    withdraw: "Tengani Ndalama",
+    transactions: "Zochitika",
+    recentTransactions: "Zochitika Zaposachedwa",
+    noTransactions: "Palibe zochitika",
     
     // Group Details
     members: "Mamembala",
-    chat: "Lankhula",
+    chat: "Kulankhulana",
     contribute: "Perekani",
     admin: "Woyendetsa",
     payouts: "Malipiro",
+    totalMembers: "Mamembala Onse",
+    nextPayout: "Lipiro Lotsatira",
+    
+    // Chat
+    typeMessage: "Lembani uthenga...",
+    sendMessage: "Tumizani",
+    imageShared: "Chithunzi chagawidwa",
     
     // Actions
-    send: "Tumiza",
-    share: "Gawana",
+    send: "Tumizani",
+    share: "Gawanani",
     invite: "Itanani",
-    leave: "Tuluka",
-    delete: "Fufuta",
+    leave: "Chokani",
+    delete: "Chotsani",
     edit: "Sinthani",
     view: "Onani",
-    confirm: "Vomereza",
+    confirm: "Vomerezani",
+    retry: "Yesaninso",
+    close: "Tsekani",
     
-    // Validation
-    required: "Gawo ili ndi lofunikira",
+    // Trust Score
+    trustScore: "Chiwerengero cha Kukhulupirira",
+    trustLevel: "Mulingo wa Kukhulupirira",
+    viewHistory: "Onani Mbiri",
+    diamondTrust: "Kukhulupirira Kwakukulu",
+    highlyTrusted: "Wokhulupiririka Kwambiri",
+    trustedMember: "Membala Wokhulupiririka",
+    goodStanding: "Muli Bwino",
+    fairStanding: "Muli Bwinobwino",
+    needsImprovement: "Mufuna Kuwonjezera",
+    
+    // Bonuses
+    bonuses: "Maphiri",
+    bonusEarned: "Mphiri Lopezeka",
+    totalEarned: "Zonse Zopezeka",
+    noBonusesYet: "Palibe maphiri pano",
+    earnBonuses: "Pezani maphiri popereka nthawi yake!",
+    
+    // Setup Progress
+    setupProgress: "Kukonza",
+    completeSetup: "Malizani Kukonza",
+    addPaymentMethod: "Onjezani Njira Yolipira",
+    joinCreateGroup: "Lowani kapena Pangani Gulu",
+    makeFirstContribution: "Perekani Koyamba",
+    addNow: "Onjezani Tsopano",
+    getStartedBtn: "Yambani",
+    viewGroupsBtn: "Onani Magulu",
+    
+    // AI Assistant
+    aiAssistant: "Mothandizi wa AI",
+    askAnything: "Funsani chilichonse za PayFesa...",
+    aiThinking: "Ndikulingalira...",
+    aiCanMakeMistakes: "AI imatha kulakwitsa. Tsimikizani zinthu zofunikira.",
+    
+    // Payment Methods
+    paymentMethod: "Njira Yolipira",
+    linkPaymentMethod: "Lumikizani Njira Yolipira",
+    
+    // Validation & Errors
+    required: "Gawo ili ndi lofunika",
     invalidPhone: "Nambala ya foni sizili bwino",
     pinMismatch: "Ma PIN sagwirizana",
     pinLength: "PIN iyenera kukhala manambala 4",
+    errorOccurred: "Chholakwika china chachitika",
+    tryAgain: "Chonde yesaninso",
+    connectionError: "Vuto la kulumikizana. Yangʼanani intaneti yanu",
+    
+    // Success Messages
+    success: "Zachitika Bwino",
+    savedSuccessfully: "Zasungidwa bwino",
+    contributionSuccess: "Kupereka kwachitika bwino",
+    paymentSuccess: "Kulipira kwachitika bwino",
+    
+    // Status
+    active: "Yogwira Ntchito",
+    pending: "Kuyembekezera",
+    completed: "Zamalizidwa",
+    failed: "Sizinachitike",
+    processing: "Zikulingalira",
   }
 };
 
