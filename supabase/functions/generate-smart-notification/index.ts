@@ -56,23 +56,23 @@ serve(async (req) => {
 
     switch (notificationType) {
       case 'reminder':
-        systemPrompt = `You are a trusted financial advisor for PayFesa, deeply understanding Malawi's culture and economy. You combine traditional Malawian wisdom about money (like chilimba principles) with modern fintech. Generate warm, culturally-relevant reminders that inspire action. Use local context when appropriate. Keep under 150 characters.`;
-        userPrompt = `${user?.name} has saved MWK ${totalSaved.toLocaleString()} across ${groups?.length || 0} groups with ${recentContributions?.length || 0} recent contributions. Remind them to contribute while acknowledging their progress. Consider Malawian values of community and mutual support.`;
+        systemPrompt = `You are a friendly neighbor helping ${user?.name} save money. Write like you're talking to a friend using simple Grade 6 English. Use Donald Miller's StoryBrand style: make them the hero of their money story. Be warm, personal, and encouraging. NO asterisks, dashes, or special characters. Write in plain sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${user?.name} saved MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} groups. They made ${recentContributions?.length || 0} contributions. Write a personal reminder that makes them feel proud of their progress and gently reminds them their group needs their next contribution. Talk like you're their friend who believes in them.`;
         break;
 
       case 'education':
-        systemPrompt = `You are a financial literacy expert specializing in Malawian economic realities. You understand local challenges: forex, inflation, agricultural cycles, and the informal economy. Provide practical, actionable financial advice rooted in both global best practices and Malawian context. Teach wealth-building principles. Limit to 200 characters.`;
-        userPrompt = `${user?.name} has saved MWK ${totalSaved.toLocaleString()} (avg: MWK ${avgContribution.toFixed(0)}/contribution) in ${groups?.length || 0} groups. ${totalSaved > 50000 ? 'They are building wealth - suggest investment opportunities (SMEs, agriculture, bonds).' : 'They are starting their journey - teach basic money management and compound savings benefits.'} Make it relevant to Malawi's economy.`;
+        systemPrompt = `You are a trusted friend teaching ${user?.name} about money using Grade 6 English. Use Donald Miller's style: make the lesson clear, simple, and about how it helps them win. One simple money tip they can use today. NO lists, asterisks, or dashes. Just friendly advice in plain sentences. Keep under 120 characters for title and under 250 for message.`;
+        userPrompt = `${user?.name} has MWK ${totalSaved.toLocaleString()} saved (average MWK ${avgContribution.toFixed(0)} per time). ${totalSaved > 50000 ? 'Teach them one simple way to grow this money further - maybe starting a small business, buying goods to resell, or investing with trusted people.' : 'Teach them why saving small amounts regularly is powerful - how MWK 1,000 today becomes MWK 50,000 over time.'} Make it feel like advice from a caring friend.`;
         break;
 
       case 'promotion':
-        systemPrompt = `You are a fintech growth strategist who understands Malawian consumer behavior and mobile money culture. Create engaging messages that show how PayFesa helps users achieve financial freedom, start businesses, and support families. Highlight real benefits like group accountability and emergency funds. Be inspiring and authentic. Keep under 150 characters.`;
-        userPrompt = `${user?.name}: ${groups?.length || 0} groups, MWK ${totalSaved.toLocaleString()} saved, ${recentContributions?.length || 0} recent contributions. ${totalSaved > 100000 ? 'Promote business funding capabilities and investment features.' : totalSaved > 30000 ? 'Highlight how they can invite friends and grow their savings faster.' : 'Show how regular saving leads to financial security.'} Frame around Malawian dreams (business, education, property).`;
+        systemPrompt = `You are telling ${user?.name} about how PayFesa helps them win with money. Use Grade 6 English and Donald Miller's style: show the problem they face, then how PayFesa helps them overcome it. Make it personal and real. NO asterisks or special formatting. Plain friendly sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${user?.name} has ${groups?.length || 0} groups and saved MWK ${totalSaved.toLocaleString()}. ${totalSaved > 100000 ? 'Show how they can use this money to start something big - a business, property, or helping family with school fees.' : totalSaved > 30000 ? 'Show how inviting friends to save together makes everyone reach their goals faster.' : 'Show how saving with friends they trust makes reaching money goals easier than saving alone.'} Write like you're sharing good news with a friend.`;
         break;
 
       case 'update':
-        systemPrompt = `You are PayFesa's community manager, speaking to Malawians about platform improvements. Be clear, positive, and show how updates solve real problems they face (like payout delays, trust issues, or contribution tracking). Keep under 150 characters.`;
-        userPrompt = `Tell ${user?.name} (${groups?.length || 0} groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'improved security features, faster payouts, and better group management tools'}. Connect it to their financial goals and peace of mind.`;
+        systemPrompt = `You are sharing good news with ${user?.name} about PayFesa improvements. Use Grade 6 English and Donald Miller's style: tell them what problem is now solved and how it makes their life easier. Be clear and positive. NO special characters or formatting. Plain sentences only. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `Tell ${user?.name} (${groups?.length || 0} groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'faster payouts, better security, and easier group management'}. Explain how this one improvement makes saving money with their groups safer and easier. Write like a friend sharing good news.`;
         break;
 
       default:
@@ -104,7 +104,18 @@ serve(async (req) => {
     }
 
     const aiData = await aiResponse.json();
-    const generatedMessage = aiData.choices[0]?.message?.content || '';
+    let generatedMessage = aiData.choices[0]?.message?.content || '';
+    
+    // Remove all markdown formatting: asterisks, dashes, hashtags, etc.
+    generatedMessage = generatedMessage
+      .replace(/\*\*/g, '')  // Remove bold
+      .replace(/\*/g, '')    // Remove italic
+      .replace(/^- /gm, '')  // Remove list dashes
+      .replace(/^• /gm, '')  // Remove bullet points
+      .replace(/^# /gm, '')  // Remove headers
+      .replace(/\n\n+/g, ' ')  // Replace multiple newlines with space
+      .replace(/\n/g, ' ')   // Replace single newlines with space
+      .trim();
 
     // Generate title based on type
     const titles: Record<string, string> = {

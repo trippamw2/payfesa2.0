@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Bell, MessageSquare, CheckCircle2, TrendingUp, Users, Clock, Settings, Trophy, Lightbulb, BookOpen, Gift, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -20,6 +21,8 @@ const NotificationsTab = ({ user }: Props) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -127,11 +130,14 @@ const NotificationsTab = ({ user }: Props) => {
     
     // Navigate to Messages tab if it's a group message
     if (notification.type === 'group_message' && notification.metadata?.groupId) {
-      // The parent dashboard will handle tab switching
       const event = new CustomEvent('switch-to-messages', { 
         detail: { groupId: notification.metadata.groupId } 
       });
       window.dispatchEvent(event);
+    } else {
+      // Show full message in dialog for other notifications
+      setSelectedNotification(notification);
+      setIsDialogOpen(true);
     }
   };
 
@@ -211,7 +217,8 @@ const NotificationsTab = ({ user }: Props) => {
                           {new Date(notification.created_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <p className="text-[9px] text-muted-foreground line-clamp-2">{notification.message}</p>
+                       <p className="text-[9px] text-muted-foreground line-clamp-2">{notification.message}</p>
+                       <span className="text-[8px] text-primary mt-0.5 inline-block">Tap to read more</span>
                     </div>
                   </div>
                 </Card>
@@ -224,6 +231,27 @@ const NotificationsTab = ({ user }: Props) => {
           <GroupMessaging user={user} />
         </TabsContent>
       </Tabs>
+
+      {/* Full Notification Dialog */}
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <div className="flex items-center gap-2 mb-2">
+              {selectedNotification && getNotificationIcon(selectedNotification.type)}
+              <DialogTitle className="text-base">{selectedNotification?.title}</DialogTitle>
+            </div>
+            <DialogDescription className="text-sm leading-relaxed">
+              {selectedNotification?.message}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="text-xs text-muted-foreground">
+            {selectedNotification && new Date(selectedNotification.created_at).toLocaleString()}
+          </div>
+          <Button onClick={() => setIsDialogOpen(false)} className="w-full">
+            Close
+          </Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
