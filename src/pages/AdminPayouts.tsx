@@ -5,8 +5,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, CheckCircle2, XCircle, Clock, Shield, AlertCircle } from 'lucide-react';
+import { CheckCircle2, XCircle, Clock, Shield, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import {
   Dialog,
   DialogContent,
@@ -198,42 +199,27 @@ const AdminPayouts = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 pb-20">
-      {/* Header */}
-      <div className="mb-6">
-        <Button
-          variant="ghost"
-          onClick={goBack}
-          className="mb-4"
-        >
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back
-        </Button>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
+        <AdminHeader
+          title="Payout Management"
+          description="Review and approve pending payouts"
+          icon={<Shield className="h-5 w-5 text-primary" />}
+        />
 
-        <div className="flex items-center gap-3 mb-2">
-          <div className="p-3 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full">
-            <Shield className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold">Admin: Payout Approvals</h1>
-            <p className="text-muted-foreground">Review and approve pending payouts</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Pending Count */}
-      <Card className="p-4 mb-6 bg-gradient-to-br from-amber-50 to-orange-50">
-        <div className="flex items-center justify-between">
+        {/* Pending Count */}
+        <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+          <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium mb-1">Pending Approvals</p>
             <p className="text-3xl font-bold text-amber-600">{payouts.length}</p>
           </div>
           <Clock className="h-10 w-10 text-amber-600" />
-        </div>
-      </Card>
+          </div>
+        </Card>
 
-      {/* Payouts List */}
-      <div className="space-y-4">
+        {/* Payouts List */}
+        <div className="space-y-4">
         {payouts.length === 0 ? (
           <Card className="p-8 text-center">
             <CheckCircle2 className="h-12 w-12 mx-auto mb-4 text-green-500" />
@@ -379,8 +365,9 @@ const AdminPayouts = () => {
               {processing ? 'Processing...' : `Confirm ${dialogAction === 'approve' ? 'Approval' : 'Rejection'}`}
             </Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 };

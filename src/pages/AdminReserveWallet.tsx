@@ -24,10 +24,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowLeft, Shield, TrendingUp, TrendingDown, AlertTriangle, Plus, Minus, Download, Activity } from 'lucide-react';
+import { Shield, TrendingUp, TrendingDown, AlertTriangle, Plus, Minus, Download, Activity } from 'lucide-react';
 import { toast } from 'sonner';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { useReserveWalletRealtime } from '@/hooks/useReserveWalletRealtime';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 
 interface ReserveWallet {
   id: string;
@@ -244,32 +245,20 @@ const AdminReserveWallet = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')}>
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
-          <div>
-            <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-              Reserve Wallet
-              <Badge variant="outline" className="gap-1">
-                <Activity className="h-3 w-3" />
-                Live Updates
-              </Badge>
-            </h1>
-            <p className="text-muted-foreground">Guaranteed payout recovery system with real-time monitoring</p>
-          </div>
-        </div>
-          <Dialog open={adjustmentOpen} onOpenChange={setAdjustmentOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Manual Adjustment
-              </Button>
-            </DialogTrigger>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
+        <AdminHeader
+          title="Reserve Wallet"
+          description="Manage reserve funds and monitor usage"
+          icon={<Shield className="h-5 w-5 text-primary" />}
+          actions={
+            <Dialog open={adjustmentOpen} onOpenChange={setAdjustmentOpen}>
+              <DialogTrigger asChild>
+                <Button size="sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Manual Adjustment
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Manual Reserve Adjustment</DialogTitle>
@@ -330,7 +319,8 @@ const AdminReserveWallet = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
-        </div>
+          }
+        />
 
         {/* Threshold Alert */}
         {isLowReserve && (

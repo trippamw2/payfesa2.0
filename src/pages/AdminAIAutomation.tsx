@@ -1,11 +1,9 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useBackNavigation } from '@/hooks/useBackNavigation';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Bot, Shield, TrendingDown, Sparkles } from 'lucide-react';
+import { Bot, Shield, TrendingDown, Sparkles } from 'lucide-react';
 import { AIFraudDetectionPanel } from '@/components/admin/AIFraudDetectionPanel';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 import { AIRiskScoresPanel } from '@/components/admin/AIRiskScoresPanel';
 import { AIDecisionsPanel } from '@/components/admin/AIDecisionsPanel';
 import { AISystemMonitorPanel } from '@/components/admin/AISystemMonitorPanel';
@@ -14,36 +12,17 @@ import { AIGroupHealthPanel } from '@/components/admin/AIGroupHealthPanel';
 import { AISupportPanel } from '@/components/admin/AISupportPanel';
 
 const AdminAIAutomation = () => {
-  const navigate = useNavigate();
-  const { goBack } = useBackNavigation();
   const [activeTab, setActiveTab] = useState('fraud');
 
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Header */}
         <div className="mb-6">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={goBack}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back
-          </Button>
-
-          <div className="flex items-center gap-3 mb-4">
-            <div className="p-3 bg-gradient-to-br from-primary to-primary/80 rounded-full">
-              <Bot className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold">AI Automation Center</h1>
-              <p className="text-muted-foreground">
-                AI-powered fraud detection, risk scoring, and automated decisions
-              </p>
-            </div>
-          </div>
+          <AdminHeader
+            title="AI Automation Center"
+            description="AI-powered fraud detection, risk scoring, and automated decisions"
+            icon={<Bot className="h-5 w-5 text-primary" />}
+          />
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">

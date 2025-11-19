@@ -34,6 +34,18 @@ export const LazyGroupDetails = lazyLoad(() => import('@/pages/GroupDetails'));
 export const LazyInviteFriends = lazyLoad(() => import('@/pages/InviteFriends'));
 export const LazySettings = lazyLoad(() => import('@/pages/Settings'));
 
+// Lazy loaded admin routes
+export const LazyAdminFinance = lazyLoad(() => import('@/pages/AdminFinance'));
+export const LazyAdminOperations = lazyLoad(() => import('@/pages/AdminOperations'));
+export const LazyAdminMarketing = lazyLoad(() => import('@/pages/AdminMarketing'));
+export const LazyAdminUserManagement = lazyLoad(() => import('@/pages/AdminUserManagement'));
+export const LazyAdminPayouts = lazyLoad(() => import('@/pages/AdminPayouts'));
+export const LazyAdminDisputes = lazyLoad(() => import('@/pages/AdminDisputes'));
+export const LazyAdminReserveWallet = lazyLoad(() => import('@/pages/AdminReserveWallet'));
+export const LazyAdminAIAutomation = lazyLoad(() => import('@/pages/AdminAIAutomation'));
+export const LazyAdminPaychanguSettings = lazyLoad(() => import('@/pages/AdminPaychanguSettings'));
+export const LazyAdminScheduledPayouts = lazyLoad(() => import('@/pages/AdminScheduledPayouts'));
+
 // Image optimization component
 export const OptimizedImage = ({
   src,

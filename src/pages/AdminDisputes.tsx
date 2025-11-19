@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/select';
 import { ArrowLeft, AlertTriangle, CheckCircle2, XCircle, Clock, Eye } from 'lucide-react';
 import { toast } from 'sonner';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 
 interface Dispute {
   id: string;
@@ -214,34 +215,29 @@ const AdminDisputes = () => {
   const filteredDisputes = disputes;
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">Payment Disputes</h1>
-              <p className="text-muted-foreground">Manage and resolve user payment disputes</p>
-            </div>
-          </div>
-
-          <Select value={filterStatus} onValueChange={(value) => {
-            setFilterStatus(value);
-            fetchDisputes();
-          }}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Disputes</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-              <SelectItem value="approved">Approved</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
+        <AdminHeader
+          title="Payment Disputes"
+          description="Manage and resolve user payment disputes"
+          icon={<AlertTriangle className="h-5 w-5 text-primary" />}
+          actions={
+            <Select value={filterStatus} onValueChange={(value) => {
+              setFilterStatus(value);
+              fetchDisputes();
+            }}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Disputes</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+              </SelectContent>
+            </Select>
+          }
+        />
 
         <Card>
           <CardHeader>

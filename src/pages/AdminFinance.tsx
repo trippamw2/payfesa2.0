@@ -3,9 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, DollarSign, TrendingUp, Wallet, CreditCard, Download } from 'lucide-react';
+import { DollarSign, TrendingUp, Wallet, CreditCard, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { AdminHeader } from '@/components/admin/AdminHeader';
 
 const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
@@ -99,27 +100,17 @@ const AdminFinance = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')} className="h-9 w-9">
-              <ArrowLeft className="h-4 w-4" />
+        <AdminHeader
+          title="Finance Dashboard"
+          description="Revenue, payouts, and financial analytics"
+          icon={<DollarSign className="h-5 w-5 text-primary" />}
+          actions={
+            <Button>
+              <Download className="h-4 w-4 mr-2" />
+              Export Report
             </Button>
-            <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-primary/10 rounded-lg">
-                <DollarSign className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Financial Dashboard</h1>
-                <p className="text-sm text-muted-foreground">Revenue, expenses, and financial health</p>
-              </div>
-            </div>
-          </div>
-          <Button>
-            <Download className="h-4 w-4 mr-2" />
-            Export Report
-          </Button>
-        </div>
+          }
+        />
 
         {/* Financial Overview */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
