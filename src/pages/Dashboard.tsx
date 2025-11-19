@@ -13,6 +13,7 @@ import MyGroupsTab from '@/components/dashboard/MyGroupsTab';
 import WalletTab from '@/components/dashboard/WalletTab';
 import NotificationsTab from '@/components/dashboard/NotificationsTab';
 import ProfileTab from '@/components/dashboard/ProfileTab';
+import { AIAssistantButton } from '@/components/ai/AIAssistantButton';
 import { toast } from 'sonner';
 
 
@@ -312,6 +313,9 @@ const DashboardTabs = () => {
           </TabsList>
         </div>
       </Tabs>
+
+      {/* AI Assistant Floating Button */}
+      {user && <AIAssistantButton userId={user.id} />}
     </div>
   );
 };
