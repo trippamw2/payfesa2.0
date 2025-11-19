@@ -22,7 +22,6 @@ interface Props {
 const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }: Props) => {
   const navigate = useNavigate();
   const [amount, setAmount] = useState(contributionAmount.toString());
-  const [pin, setPin] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [currentCycle, setCurrentCycle] = useState(1);
   const [contributions, setContributions] = useState<any[]>([]);
@@ -208,16 +207,6 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!pin) {
-      toast.error('Please enter your PIN');
-      return;
-    }
-
-    if (pin.length !== 4) {
-      toast.error('PIN must be 4 digits');
-      return;
-    }
 
     if (!selectedAccountId) {
       toast.error('Please select a payment method');
@@ -239,8 +228,7 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
           groupId,
           amount: numAmount,
           paymentMethod: selectedAccountId,
-          accountId: selectedAccountId,
-          pin
+          accountId: selectedAccountId
         }
       });
 
@@ -253,11 +241,10 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
       }
 
       toast.success('Payment initiated!', {
-        description: 'Please approve the payment on your phone if prompted'
+        description: 'Please complete the payment with your provider'
       });
 
-      // Reset form
-      setPin('');
+      // Refresh history
       setTimeout(() => {
         fetchContributionHistory();
       }, 2000);
@@ -466,48 +453,6 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
                 <span className="font-semibold">MWK {parseFloat(amount).toLocaleString()}</span>
               </div>
             </Card>
-
-            {/* PIN Entry - Only for Mobile Money */}
-            {mobileMoneyAccounts.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="pin">Mobile Money PIN</Label>
-                <Input
-                  id="pin"
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={4}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Enter your 4-digit PIN"
-                  required
-                  className="text-center text-lg tracking-widest"
-                />
-                <p className="text-xs text-muted-foreground text-center">
-                  Enter your mobile money PIN to confirm payment
-                </p>
-              </div>
-            )}
-            
-            {/* Security PIN - Only for Bank Accounts */}
-            {bankAccounts.length > 0 && (
-              <div className="space-y-2">
-                <Label htmlFor="pin">Security PIN</Label>
-                <Input
-                  id="pin"
-                  type="password"
-                  inputMode="numeric"
-                  maxLength={4}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
-                  placeholder="Enter your 4-digit security PIN"
-                  required
-                  className="text-center text-lg tracking-widest"
-                />
-                <p className="text-xs text-muted-foreground text-center">
-                  Enter your security PIN to confirm transaction
-                </p>
-              </div>
-            )}
 
             {/* Submit Button */}
             <Button
