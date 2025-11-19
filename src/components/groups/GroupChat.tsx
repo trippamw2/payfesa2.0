@@ -240,12 +240,24 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
           {messages.map((msg) => {
             const isOwn = msg.sender_id === user?.id;
             const isSystem = msg.message_type === 'system';
+            const senderName = isSystem ? 'PayFesa' : msg.profiles.full_name;
             
             if (isSystem) {
               return (
                 <div key={msg.id} className="flex justify-center">
-                  <div className="bg-muted px-4 py-2 rounded-full text-xs text-muted-foreground max-w-[80%] text-center">
-                    {msg.message}
+                  <div className="flex flex-col items-center gap-1 max-w-[80%]">
+                    <span className="text-xs font-semibold text-primary">
+                      PayFesa
+                    </span>
+                    <div className="bg-primary/10 border border-primary/20 px-4 py-2 rounded-lg text-xs text-foreground text-center">
+                      {msg.message}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(msg.created_at).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </span>
                   </div>
                 </div>
               );
@@ -257,11 +269,9 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
                 className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
               >
                 <div className={`max-w-[75%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
-                  {!isOwn && (
-                    <span className="text-xs font-medium text-muted-foreground px-2">
-                      {msg.profiles.full_name}
-                    </span>
-                  )}
+                  <span className="text-xs font-medium text-muted-foreground px-2">
+                    {senderName}
+                  </span>
                   <Card
                     className={`p-3 ${
                       isOwn
