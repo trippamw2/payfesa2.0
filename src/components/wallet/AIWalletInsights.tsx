@@ -68,11 +68,15 @@ export const AIWalletInsights = ({ userId }: AIWalletInsightsProps) => {
             depositsCount: deposits.length,
             withdrawalsCount: withdrawals.length,
             contributionFrequency: contributions?.length || 0
-          }
+          },
+          timeOfDay: new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
 
       if (data?.notification) {
         setInsight({
@@ -80,9 +84,23 @@ export const AIWalletInsights = ({ userId }: AIWalletInsightsProps) => {
           message: data.notification.message,
           trend: determineTrend(contributions || [])
         });
+      } else {
+        console.error('No notification in response:', data);
+        // Set a fallback insight
+        setInsight({
+          title: '💡 Wallet Insights',
+          message: 'Keep contributing regularly to build your savings and improve your trust score!',
+          trend: determineTrend(contributions || [])
+        });
       }
     } catch (error) {
       console.error('Error generating wallet insight:', error);
+      // Set a fallback insight on error
+      setInsight({
+        title: '💡 Wallet Insights',
+        message: 'Keep contributing regularly to build your savings and improve your trust score!',
+        trend: 'stable'
+      });
     } finally {
       setIsLoading(false);
     }
