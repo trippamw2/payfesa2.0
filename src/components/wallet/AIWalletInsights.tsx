@@ -122,24 +122,32 @@ export const AIWalletInsights = ({ userId }: AIWalletInsightsProps) => {
 
   if (isLoading) {
     return (
-      <Card className="p-4 mb-4">
-        <div className="flex items-center gap-2 mb-3">
-          <Lightbulb className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">Wallet Insights</h3>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">Analyzing your wallet...</span>
+          </div>
         </div>
-        <Skeleton className="h-20 w-full" />
-      </Card>
+        <Skeleton className="h-16 w-full" />
+      </div>
     );
   }
 
-  if (!insight) return null;
+  if (!insight) {
+    return (
+      <div className="text-center py-4 text-sm text-muted-foreground">
+        No insights available yet. Keep saving to see personalized insights!
+      </div>
+    );
+  }
 
   return (
-    <Card className="p-4 mb-4 bg-gradient-to-br from-primary/5 to-secondary/5">
-      <div className="flex items-start justify-between mb-2">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Lightbulb className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">Wallet Insights</h3>
+          <Lightbulb className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium">Your Wallet Insights</span>
         </div>
         <Button
           variant="ghost"
@@ -151,8 +159,8 @@ export const AIWalletInsights = ({ userId }: AIWalletInsightsProps) => {
         </Button>
       </div>
 
-      <div className="space-y-2">
-        <div className="flex items-center gap-2">
+      <div className="p-3 bg-muted/30 rounded-lg border border-border/50">
+        <div className="flex items-center gap-2 mb-2">
           <TrendingUp 
             className={`h-4 w-4 ${
               insight.trend === 'up' ? 'text-success' : 
@@ -162,10 +170,10 @@ export const AIWalletInsights = ({ userId }: AIWalletInsightsProps) => {
           />
           <h4 className="font-medium text-sm">{insight.title}</h4>
         </div>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           {insight.message}
         </p>
       </div>
-    </Card>
+    </div>
   );
 };

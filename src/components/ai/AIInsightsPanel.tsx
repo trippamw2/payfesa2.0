@@ -1,7 +1,7 @@
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, TrendingUp, AlertTriangle, Award, RefreshCw } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAIInsights } from '@/hooks/useAIInsights';
 
 interface AIInsightsPanelProps {
@@ -14,13 +14,13 @@ export const AIInsightsPanel = ({ userId }: AIInsightsPanelProps) => {
   const getIcon = (type: string) => {
     switch (type) {
       case 'prediction':
-        return <TrendingUp className="h-5 w-5 text-primary" />;
+        return <TrendingUp className="h-4 w-4 text-primary" />;
       case 'warning':
-        return <AlertTriangle className="h-5 w-5 text-warning" />;
+        return <AlertTriangle className="h-4 w-4 text-warning" />;
       case 'celebration':
-        return <Award className="h-5 w-5 text-success" />;
+        return <Award className="h-4 w-4 text-success" />;
       default:
-        return <Sparkles className="h-5 w-5 text-primary" />;
+        return <Sparkles className="h-4 w-4 text-primary" />;
     }
   };
 
@@ -35,30 +35,45 @@ export const AIInsightsPanel = ({ userId }: AIInsightsPanelProps) => {
     }
   };
 
-  if (insights.length === 0 && !isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="space-y-2">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium">Loading insights...</span>
+        </div>
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-16 w-full" />
+      </div>
+    );
+  }
+
+  if (insights.length === 0) {
+    return (
+      <div className="text-center py-4 text-sm text-muted-foreground">
+        No insights available yet. Keep contributing to see personalized insights!
+      </div>
+    );
+  }
 
   return (
-    <Card className="p-4 mb-4">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">AI Insights</h3>
-        </div>
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium">Your Group Insights</span>
         <Button
           variant="ghost"
           size="sm"
           onClick={refreshInsights}
           disabled={isLoading}
         >
-          <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-3 w-3 ${isLoading ? 'animate-spin' : ''}`} />
         </Button>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {insights.slice(0, 3).map((insight, index) => (
           <div
             key={index}
-            className="flex items-start gap-3 p-3 rounded-lg bg-muted/50"
+            className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 border border-border/50"
           >
             {getIcon(insight.type)}
             <div className="flex-1">
@@ -80,7 +95,6 @@ export const AIInsightsPanel = ({ userId }: AIInsightsPanelProps) => {
           size="sm"
           className="w-full mt-2"
           onClick={() => {
-            // Switch to notifications tab
             window.dispatchEvent(
               new CustomEvent('switch-to-tab', { detail: { tab: 'notifications' } })
             );
@@ -89,6 +103,6 @@ export const AIInsightsPanel = ({ userId }: AIInsightsPanelProps) => {
           View all {insights.length} insights
         </Button>
       )}
-    </Card>
+    </div>
   );
 };

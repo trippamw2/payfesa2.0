@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Users as UsersIcon, TrendingUp, Calendar, Award, UserPlus, CheckCircle2, Clock } from 'lucide-react';
+import { Plus, Users as UsersIcon, TrendingUp, Calendar, Award, UserPlus, CheckCircle2, Clock, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/i18n';
@@ -14,6 +14,7 @@ import { TrustScoreWidget } from '@/components/dashboard/TrustScoreWidget';
 import { BonusesWidget } from '@/components/dashboard/BonusesWidget';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { AIInsightsPanel } from '@/components/ai/AIInsightsPanel';
+import { CollapsibleAIInsights } from '@/components/ai/CollapsibleAIInsights';
 
 import { User, Profile } from '@/types';
 
@@ -138,8 +139,13 @@ const MyGroupsTab = ({ user, profile }: Props) => {
       {/* Onboarding Checklist */}
       <OnboardingChecklist userId={user.id} />
 
-      {/* AI Insights Panel */}
-      <AIInsightsPanel userId={user.id} />
+      {/* AI Insights Panel - Collapsible */}
+      <CollapsibleAIInsights
+        title="AI Group Insights"
+        icon={<Sparkles className="h-4 w-4 text-primary" />}
+      >
+        <AIInsightsPanel userId={user.id} />
+      </CollapsibleAIInsights>
 
       {/* Stats Overview */}
       <div className="grid grid-cols-3 gap-1.5">
