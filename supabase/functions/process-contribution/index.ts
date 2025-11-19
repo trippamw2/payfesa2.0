@@ -116,7 +116,8 @@ serve(async (req) => {
     }
 
     const PAYCHANGU_SECRET_KEY = payConfig.api_secret;
-    console.log(`[${requestId}] Using PayChangu ${payConfig.test_mode ? 'TEST' : 'LIVE'} mode`);
+    const isTestMode = payConfig.test_mode;
+    console.log(`[${requestId}] Using PayChangu ${isTestMode ? 'TEST' : 'LIVE'} mode`);
 
     // Verify PIN
     const { data: userData, error: userError } = await supabaseClient
@@ -183,7 +184,8 @@ serve(async (req) => {
         );
       }
 
-      if (!account.is_verified) {
+      // Skip verification check in test mode
+      if (!isTestMode && !account.is_verified) {
         console.error(`[${requestId}] Payment account not verified`);
         return new Response(
           JSON.stringify({ error: 'Payment account not verified. Please verify your account first.' }),
@@ -191,7 +193,7 @@ serve(async (req) => {
         );
       }
 
-      console.log(`[${requestId}] Using verified account: ${isBankTransfer ? account.bank_name : account.provider}`);
+      console.log(`[${requestId}] Using ${account.is_verified ? 'verified' : 'unverified'} account: ${isBankTransfer ? account.bank_name : account.provider}`);
     } else {
       // If no accountId provided, try to determine from paymentMethod string
       const paymentMethodLower = (paymentMethod || '').toString().toLowerCase().trim();
