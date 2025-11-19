@@ -120,8 +120,7 @@ serve(async (req) => {
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.8,
-        max_tokens: 200,
+        max_completion_tokens: 200,
       }),
     });
 
@@ -152,8 +151,9 @@ serve(async (req) => {
       education: '📚 Money Wisdom',
       milestone: '🎉 You\'re Winning!',
       growth: '🌱 Grow Together',
-      trust: '🔒 Safe & Secure',
-      update: '✨ Good News'
+      trust: '🔒 Trust Score Update',
+      update: '✨ Good News',
+      insight: '💡 Wallet Insights'
     };
 
     // Create notification in database
