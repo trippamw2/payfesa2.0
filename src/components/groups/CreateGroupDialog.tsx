@@ -120,7 +120,7 @@ const CreateGroupDialog = ({ open, onOpenChange, onSuccess }: CreateGroupDialogP
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[425px] p-4">
+      <DialogContent className="max-w-md p-4">
         <DialogHeader className="pb-2">
           <DialogTitle className="text-base">
             {createdGroupCode ? 'Group Created!' : t('createGroup') || 'Create New Group'}
@@ -129,30 +129,30 @@ const CreateGroupDialog = ({ open, onOpenChange, onSuccess }: CreateGroupDialogP
 
         {createdGroupCode ? (
           <div className="space-y-3 py-2">
-            <div className="flex flex-col items-center justify-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
-                <Check className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="flex flex-col items-center justify-center space-y-2">
+              <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center">
+                <Check className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
               <div className="text-center w-full">
-                <p className="text-sm font-semibold mb-2">{t('shareGroupCode') || 'Your Group Code'}</p>
+                <p className="text-xs font-semibold mb-1.5">{t('shareGroupCode') || 'Your Group Code'}</p>
                 <div className="relative">
-                  <code className="text-xl font-mono bg-muted px-4 py-2 rounded-lg block">
+                  <code className="text-lg font-mono bg-muted px-3 py-1.5 rounded-lg block">
                     {createdGroupCode}
                   </code>
                   <Button
                     onClick={handleCopyCode}
                     variant="ghost"
                     size="sm"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6 p-0"
                   >
-                    {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-3">
+                <p className="text-[10px] text-muted-foreground mt-2">
                   Share this code to invite others
                 </p>
               </div>
-              <Button onClick={handleClose} className="w-full h-8 text-xs">
+              <Button onClick={handleClose} className="w-full h-8 text-xs mt-2">
                 {t('continue') || 'Done'}
               </Button>
             </div>
@@ -210,6 +210,7 @@ const CreateGroupDialog = ({ open, onOpenChange, onSuccess }: CreateGroupDialogP
                   <SelectContent>
                     <SelectItem value="daily" className="text-xs">Daily</SelectItem>
                     <SelectItem value="weekly" className="text-xs">Weekly</SelectItem>
+                    <SelectItem value="bi-weekly" className="text-xs">Bi-Weekly</SelectItem>
                     <SelectItem value="monthly" className="text-xs">Monthly</SelectItem>
                   </SelectContent>
                 </Select>
@@ -224,11 +225,10 @@ const CreateGroupDialog = ({ open, onOpenChange, onSuccess }: CreateGroupDialogP
                   type="number"
                   value={formData.max_members}
                   onChange={(e) => setFormData({ ...formData, max_members: e.target.value })}
-                  placeholder="10"
                   className="h-8 text-xs"
                   required
-                  min="2"
-                  max="100"
+                  min="5"
+                  max="20"
                 />
               </div>
 
@@ -239,9 +239,9 @@ const CreateGroupDialog = ({ open, onOpenChange, onSuccess }: CreateGroupDialogP
                   type="date"
                   value={formData.start_date}
                   onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                  min={new Date().toISOString().split('T')[0]}
                   className="h-8 text-xs"
                   required
-                  min={new Date().toISOString().split('T')[0]}
                 />
               </div>
             </div>
@@ -254,7 +254,7 @@ const CreateGroupDialog = ({ open, onOpenChange, onSuccess }: CreateGroupDialogP
                 className="flex-1 h-8 text-xs"
                 disabled={loading}
               >
-                Cancel
+                {t('cancel')}
               </Button>
               <Button
                 type="submit"
@@ -263,11 +263,11 @@ const CreateGroupDialog = ({ open, onOpenChange, onSuccess }: CreateGroupDialogP
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                    Creating...
+                    <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
+                    {t('createGroup')}...
                   </>
                 ) : (
-                  t('createGroup') || 'Create Group'
+                  t('createGroup')
                 )}
               </Button>
             </div>
