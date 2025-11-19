@@ -18,15 +18,17 @@ serve(async (req) => {
 
     console.log('Starting smart alerts generation...');
 
-    // Get all active users
-    const { data: users } = await supabase
+    // Get all users (for testing, remove active filter)
+    const { data: users, error: usersError } = await supabase
       .from('users')
       .select('id, name, created_at')
-      .eq('is_active', true);
+      .limit(20);
+
+    console.log('Users found:', users?.length, 'Error:', usersError);
 
     if (!users || users.length === 0) {
       return new Response(
-        JSON.stringify({ message: 'No active users found' }),
+        JSON.stringify({ message: 'No users found', error: usersError }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -46,14 +48,18 @@ serve(async (req) => {
       
       await Promise.all(batch.map(async (user) => {
         try {
-          // Check user's last notification
-          const { data: lastNotification } = await supabase
+          // Check user's last AI-generated notification
+          const { data: notifications } = await supabase
             .from('user_notifications')
             .select('created_at, type, metadata')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
-            .limit(1)
-            .single();
+            .limit(10);  // Get last 10 to find AI-generated ones
+
+          // Find the last AI-generated notification
+          const lastNotification = notifications?.find(n => n.metadata?.ai_generated === true) || null;
+          
+          console.log(`User ${user.name} last AI notification:`, lastNotification?.type || 'none');
 
           const now = new Date();
           const lastNotificationTime = lastNotification 
@@ -69,24 +75,29 @@ serve(async (req) => {
             .eq('user_id', user.id)
             .eq('has_contributed', false);
 
-          // Determine which notification to send
+          // For immediate testing: always send a notification cycling through types
           let notificationType = null;
-
-          // Send reminder if user has pending contributions and hasn't been notified in 12 hours
-          if (groups && groups.length > 0 && hoursSinceLastNotification > 12) {
+          
+          // Cycle through notification types based on last sent
+          if (!lastNotification) {
             notificationType = 'reminder';
-          } 
-          // Send education tip every 48 hours
-          else if (hoursSinceLastNotification > 48 && (!lastNotification || lastNotification.type !== 'education')) {
-            notificationType = 'education';
-          }
-          // Send promotion every 72 hours
-          else if (hoursSinceLastNotification > 72 && (!lastNotification || lastNotification.type !== 'promotion')) {
-            notificationType = 'promotion';
-          }
-          // Send updates every 96 hours
-          else if (hoursSinceLastNotification > 96 && (!lastNotification || lastNotification.type !== 'update')) {
-            notificationType = 'update';
+          } else {
+            switch (lastNotification.type) {
+              case 'reminder':
+                notificationType = 'education';
+                break;
+              case 'education':
+                notificationType = 'promotion';
+                break;
+              case 'promotion':
+                notificationType = 'update';
+                break;
+              case 'update':
+                notificationType = 'reminder';
+                break;
+              default:
+                notificationType = 'reminder';
+            }
           }
 
           if (notificationType) {
@@ -105,7 +116,21 @@ serve(async (req) => {
               console.error(`Error for user ${user.id}:`, response.error);
               results.errors++;
             } else {
-              results[`${notificationType}s` as keyof typeof results]++;
+              // Increment the correct counter based on type
+              switch (notificationType) {
+                case 'reminder':
+                  results.reminders++;
+                  break;
+                case 'education':
+                  results.education++;
+                  break;
+                case 'promotion':
+                  results.promotions++;
+                  break;
+                case 'update':
+                  results.updates++;
+                  break;
+              }
             }
           }
 
