@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bell, MessageSquare, CheckCircle2, TrendingUp, Users, Clock, Settings, Trophy } from 'lucide-react';
+import { Bell, MessageSquare, CheckCircle2, TrendingUp, Users, Clock, Settings, Trophy, Lightbulb, BookOpen, Gift, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -109,6 +109,14 @@ const NotificationsTab = ({ user }: Props) => {
         return <Trophy className="h-4 w-4 text-warning" />;
       case 'group_message':
         return <MessageSquare className="h-4 w-4 text-primary" />;
+      case 'reminder':
+        return <Bell className="h-4 w-4 text-info animate-pulse" />;
+      case 'education':
+        return <BookOpen className="h-4 w-4 text-purple-500" />;
+      case 'promotion':
+        return <Gift className="h-4 w-4 text-success" />;
+      case 'update':
+        return <Sparkles className="h-4 w-4 text-primary" />;
       default:
         return <Bell className="h-4 w-4 text-muted-foreground" />;
     }
