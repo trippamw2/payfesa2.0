@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.send-smart-alerts]
 verify_jwt = false
+
+[functions.send-scheduled-alerts]
+verify_jwt = false
