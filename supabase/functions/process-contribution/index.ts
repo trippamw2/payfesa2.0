@@ -146,12 +146,36 @@ serve(async (req) => {
     // Verify payment account if accountId provided
     if (accountId) {
       console.log(`[${requestId}] Verifying payment account: ${accountId}`);
-      const { data: account, error: accountError } = await supabaseClient
-        .from('mobile_money_accounts')
-        .select('*')
-        .eq('id', accountId)
-        .eq('user_id', user.id)
-        .single();
+      
+      // Check which table to query based on payment type
+      let account: any = null;
+      let accountError: any = null;
+      
+      if (isBankTransfer) {
+        // Query bank_accounts table
+        const result = await supabaseClient
+          .from('bank_accounts')
+          .select('*')
+          .eq('id', accountId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        account = result.data;
+        accountError = result.error;
+        console.log(`[${requestId}] Bank account lookup:`, account ? 'Found' : 'Not found');
+      } else {
+        // Query mobile_money_accounts table
+        const result = await supabaseClient
+          .from('mobile_money_accounts')
+          .select('*')
+          .eq('id', accountId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+        
+        account = result.data;
+        accountError = result.error;
+        console.log(`[${requestId}] Mobile money account lookup:`, account ? 'Found' : 'Not found');
+      }
 
       if (accountError || !account) {
         console.error(`[${requestId}] Payment account not found:`, accountError);
@@ -169,7 +193,7 @@ serve(async (req) => {
         );
       }
 
-      console.log(`[${requestId}] Using verified account: ${account.provider} - ${account.phone_number}`);
+      console.log(`[${requestId}] Using verified account: ${isBankTransfer ? account.bank_name : account.provider}`);
     }
 
     // Process payment using unified service
