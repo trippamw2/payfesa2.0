@@ -258,20 +258,21 @@ const AdminScheduledPayouts = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto p-4 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/admin')}
-            >
-              <ArrowLeft className="h-5 w-5" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')} className="h-9 w-9">
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <h1 className="text-2xl font-bold">Scheduled Payouts</h1>
-              <p className="text-sm text-muted-foreground">Monitor and manage automated payout processing</p>
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/10 rounded-lg">
+                <Calendar className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold">Scheduled Payouts</h1>
+                <p className="text-sm text-muted-foreground">Monitor and manage automated payout processing</p>
+              </div>
             </div>
           </div>
           <Button
@@ -289,14 +290,18 @@ const AdminScheduledPayouts = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-          <Card className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Total Scheduled</p>
-                <p className="text-2xl font-bold">{stats.total_scheduled}</p>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-primary/20">
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Total Scheduled</p>
+                  <p className="text-2xl font-bold">{stats.total_scheduled}</p>
+                </div>
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Calendar className="h-4 w-4 text-primary" />
+                </div>
               </div>
-              <Calendar className="h-8 w-8 text-muted-foreground" />
             </div>
           </Card>
 

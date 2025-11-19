@@ -97,17 +97,22 @@ const AdminFinance = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')}>
-              <ArrowLeft className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')} className="h-9 w-9">
+              <ArrowLeft className="h-4 w-4" />
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Financial Dashboard</h1>
-              <p className="text-muted-foreground">Revenue, expenses, and financial health</p>
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 bg-primary/10 rounded-lg">
+                <DollarSign className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Financial Dashboard</h1>
+                <p className="text-sm text-muted-foreground">Revenue, expenses, and financial health</p>
+              </div>
             </div>
           </div>
           <Button>
@@ -117,11 +122,13 @@ const AdminFinance = () => {
         </div>
 
         {/* Financial Overview */}
-        <div className="grid gap-4 md:grid-cols-4">
-          <Card>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="border-primary/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <DollarSign className="h-4 w-4 text-primary" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">MWK {(analytics?.financial?.totalRevenue || 0).toLocaleString()}</div>
@@ -129,10 +136,12 @@ const AdminFinance = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-orange-500/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Payouts</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Payouts</CardTitle>
+              <div className="p-2 bg-orange-500/10 rounded-lg">
+                <TrendingUp className="h-4 w-4 text-orange-500" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">MWK {(analytics?.financial?.totalPayouts || 0).toLocaleString()}</div>
@@ -140,10 +149,12 @@ const AdminFinance = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-blue-500/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Escrow Balance</CardTitle>
-              <Wallet className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Escrow Balance</CardTitle>
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Wallet className="h-4 w-4 text-blue-500" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">MWK {(analytics?.financial?.escrowBalance || 0).toLocaleString()}</div>
@@ -151,10 +162,12 @@ const AdminFinance = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="border-green-500/20">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Net Profit</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium text-muted-foreground">Net Profit</CardTitle>
+              <div className="p-2 bg-green-500/10 rounded-lg">
+                <CreditCard className="h-4 w-4 text-green-500" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-600">MWK {(analytics?.financial?.netProfit || 0).toLocaleString()}</div>
