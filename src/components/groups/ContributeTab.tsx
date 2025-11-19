@@ -190,17 +190,7 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
     try {
       const { data, error } = await supabase
         .from('contributions')
-        .select(`
-          *,
-          mobile_money_accounts:payment_method (
-            provider,
-            account_name
-          ),
-          bank_accounts:payment_method (
-            bank_name,
-            account_name
-          )
-        `)
+        .select('*')
         .eq('group_id', groupId)
         .eq('user_id', currentUserId)
         .order('created_at', { ascending: false });
@@ -351,17 +341,21 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
   };
 
   const getProviderName = (contribution: any) => {
+    const paymentMethodId = contribution.payment_method;
+    
     // Check if it's a mobile money account
-    if (contribution.mobile_money_accounts) {
-      const provider = contribution.mobile_money_accounts.provider?.toLowerCase();
+    const mobileAccount = mobileMoneyAccounts.find(acc => acc.id === paymentMethodId);
+    if (mobileAccount) {
+      const provider = mobileAccount.provider?.toLowerCase();
       if (provider === 'airtel') return 'Airtel Money';
       if (provider === 'tnm') return 'TNM Mpamba';
-      return contribution.mobile_money_accounts.provider || 'Mobile Money';
+      return mobileAccount.provider || 'Mobile Money';
     }
     
     // Check if it's a bank account
-    if (contribution.bank_accounts) {
-      return contribution.bank_accounts.bank_name || 'Bank Transfer';
+    const bankAccount = bankAccounts.find(acc => acc.id === paymentMethodId);
+    if (bankAccount) {
+      return bankAccount.bank_name || 'Bank Transfer';
     }
     
     return 'Unknown';
