@@ -14,10 +14,10 @@ export const AIAssistantButton = ({ userId }: AIAssistantButtonProps) => {
 
   return (
     <>
-      {/* Floating Action Button - Visible on all screen sizes */}
+      {/* Floating Action Button - Below middle on mobile, bottom on larger screens */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed right-4 bottom-4 md:right-8 md:bottom-8 h-14 w-14 rounded-full shadow-xl z-50 hover:scale-110 transition-all duration-300 p-0 overflow-hidden animate-pulse hover:animate-none"
+        className="fixed right-4 top-[60%] md:right-8 md:bottom-8 md:top-auto h-14 w-14 rounded-full shadow-xl z-50 hover:scale-110 transition-all duration-300 p-0 overflow-hidden animate-pulse hover:animate-none"
         size="icon"
       >
         <div className="relative w-full h-full flex items-center justify-center">
