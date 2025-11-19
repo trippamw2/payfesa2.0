@@ -28,6 +28,9 @@ const NotificationsTab = ({ user }: Props) => {
     if (user) {
       fetchNotifications();
       
+      // Mark all notifications as read when tab is viewed
+      markAllAsRead();
+      
       // Set up realtime subscription for new notifications
       const channel = supabase
         .channel(`user-notifications-${user.id}`)
@@ -77,6 +80,21 @@ const NotificationsTab = ({ user }: Props) => {
       toast.error('Failed to load notifications');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await supabase
+        .from('user_notifications')
+        .update({ read: true, read_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .eq('read', false);
+      
+      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
     }
   };
 
