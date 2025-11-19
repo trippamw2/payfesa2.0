@@ -138,7 +138,6 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
           .from('mobile_money_accounts')
           .select('*')
           .eq('user_id', currentUserId)
-          .eq('is_active', true)
           .order('is_primary', { ascending: false }),
         supabase
           .from('bank_accounts')
@@ -150,31 +149,23 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
       if (mobileData.error) throw mobileData.error;
       if (bankData.error) throw bankData.error;
       
+      // Store ALL accounts for history display
       setMobileMoneyAccounts(mobileData.data || []);
       setBankAccounts(bankData.data || []);
       
-      // Only show primary account
-      const primaryMobile = mobileData.data?.find(acc => acc.is_primary);
-      const primaryBank = bankData.data?.find(acc => acc.is_primary);
+      // Find primary or first ACTIVE account for default selection
+      const activeMobileAccounts = (mobileData.data || []).filter(acc => acc.is_active);
+      const primaryMobile = activeMobileAccounts.find(acc => acc.is_primary);
+      const primaryBank = (bankData.data || []).find(acc => acc.is_primary);
       
-      // Keep only the primary payment method
+      // Set default selected account
       if (primaryMobile) {
-        setMobileMoneyAccounts([primaryMobile]);
-        setBankAccounts([]);
         setSelectedAccountId(primaryMobile.id);
       } else if (primaryBank) {
-        setBankAccounts([primaryBank]);
-        setMobileMoneyAccounts([]);
         setSelectedAccountId(primaryBank.id);
-      } else if (mobileData.data && mobileData.data.length > 0) {
-        // Fallback to first mobile account if no primary set
-        setMobileMoneyAccounts([mobileData.data[0]]);
-        setBankAccounts([]);
-        setSelectedAccountId(mobileData.data[0].id);
+      } else if (activeMobileAccounts.length > 0) {
+        setSelectedAccountId(activeMobileAccounts[0].id);
       } else if (bankData.data && bankData.data.length > 0) {
-        // Fallback to first bank account if no primary set
-        setBankAccounts([bankData.data[0]]);
-        setMobileMoneyAccounts([]);
         setSelectedAccountId(bankData.data[0].id);
       }
     } catch (error) {
