@@ -86,3 +86,15 @@ verify_jwt = false
 
 [functions.ai-auto-decision]
 verify_jwt = false
+
+[functions.ai-system-monitor]
+verify_jwt = false
+
+[functions.ai-report-generator]
+verify_jwt = false
+
+[functions.ai-group-health-analyzer]
+verify_jwt = false
+
+[functions.ai-support-assistant]
+verify_jwt = false

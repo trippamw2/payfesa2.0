@@ -496,6 +496,107 @@ export type Database = {
           },
         ]
       }
+      ai_group_insights: {
+        Row: {
+          ai_recommendation: string | null
+          analysis: Json
+          created_at: string | null
+          group_id: string | null
+          health_score: number
+          health_status: string
+          id: string
+          next_review_date: string | null
+          predictions: Json | null
+          risk_level: string
+          strengths: string[] | null
+          updated_at: string | null
+          weaknesses: string[] | null
+        }
+        Insert: {
+          ai_recommendation?: string | null
+          analysis: Json
+          created_at?: string | null
+          group_id?: string | null
+          health_score: number
+          health_status: string
+          id?: string
+          next_review_date?: string | null
+          predictions?: Json | null
+          risk_level: string
+          strengths?: string[] | null
+          updated_at?: string | null
+          weaknesses?: string[] | null
+        }
+        Update: {
+          ai_recommendation?: string | null
+          analysis?: Json
+          created_at?: string | null
+          group_id?: string | null
+          health_score?: number
+          health_status?: string
+          id?: string
+          next_review_date?: string | null
+          predictions?: Json | null
+          risk_level?: string
+          strengths?: string[] | null
+          updated_at?: string | null
+          weaknesses?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_group_insights_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "rosca_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_reports: {
+        Row: {
+          created_at: string | null
+          data: Json
+          generated_by: string | null
+          id: string
+          insights: Json | null
+          period_end: string
+          period_start: string
+          recommendations: Json | null
+          report_category: string
+          report_type: string
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          data: Json
+          generated_by?: string | null
+          id?: string
+          insights?: Json | null
+          period_end: string
+          period_start: string
+          recommendations?: Json | null
+          report_category: string
+          report_type: string
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          data?: Json
+          generated_by?: string | null
+          id?: string
+          insights?: Json | null
+          period_end?: string
+          period_start?: string
+          recommendations?: Json | null
+          report_category?: string
+          report_type?: string
+          summary?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       ai_risk_scores: {
         Row: {
           ai_recommendation: string | null
@@ -537,6 +638,148 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      ai_support_suggestions: {
+        Row: {
+          admin_feedback: string | null
+          ai_analysis: string | null
+          confidence_score: number
+          created_at: string | null
+          id: string
+          issue_type: string
+          suggested_actions: Json | null
+          suggested_answer: string
+          ticket_id: string | null
+          used_at: string | null
+          used_by: string | null
+          user_id: string | null
+          user_query: string
+          was_helpful: boolean | null
+        }
+        Insert: {
+          admin_feedback?: string | null
+          ai_analysis?: string | null
+          confidence_score: number
+          created_at?: string | null
+          id?: string
+          issue_type: string
+          suggested_actions?: Json | null
+          suggested_answer: string
+          ticket_id?: string | null
+          used_at?: string | null
+          used_by?: string | null
+          user_id?: string | null
+          user_query: string
+          was_helpful?: boolean | null
+        }
+        Update: {
+          admin_feedback?: string | null
+          ai_analysis?: string | null
+          confidence_score?: number
+          created_at?: string | null
+          id?: string
+          issue_type?: string
+          suggested_actions?: Json | null
+          suggested_answer?: string
+          ticket_id?: string | null
+          used_at?: string | null
+          used_by?: string | null
+          user_id?: string | null
+          user_query?: string
+          was_helpful?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_support_suggestions_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_support_suggestions_used_by_fkey"
+            columns: ["used_by"]
+            isOneToOne: false
+            referencedRelation: "vw_admin_users_safe"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_support_suggestions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_system_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          affected_entity_id: string | null
+          affected_entity_type: string | null
+          ai_recommendation: string | null
+          alert_type: string
+          created_at: string | null
+          description: string | null
+          id: string
+          metrics: Json | null
+          resolved_at: string | null
+          severity: string
+          status: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          affected_entity_id?: string | null
+          affected_entity_type?: string | null
+          ai_recommendation?: string | null
+          alert_type: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metrics?: Json | null
+          resolved_at?: string | null
+          severity: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          affected_entity_id?: string | null
+          affected_entity_type?: string | null
+          ai_recommendation?: string | null
+          alert_type?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          metrics?: Json | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_system_alerts_acknowledged_by_fkey"
+            columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "admin_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_system_alerts_acknowledged_by_fkey"
+            columns: ["acknowledged_by"]
+            isOneToOne: false
+            referencedRelation: "vw_admin_users_safe"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       analytics_events: {
         Row: {
