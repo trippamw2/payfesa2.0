@@ -3,15 +3,17 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Send, Users } from 'lucide-react';
+import { ArrowLeft, Send, Users, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { User } from '@/types';
 
 interface Message {
   id: string;
-  user_id: string;
+  sender_id: string | null;
   message: string;
+  image_url?: string;
+  message_type: string;
   created_at: string;
   profiles: {
     full_name: string;
@@ -32,7 +34,10 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
   const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchUserGroups();
@@ -81,18 +86,21 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
       return;
     }
 
-    // Fetch users separately
-    const userIds = [...new Set(data?.map(m => m.sender_id) || [])];
-    const { data: usersData } = await supabase
+    // Fetch users separately (filter out null sender_ids)
+    const userIds = [...new Set(data?.map(m => m.sender_id).filter(id => id !== null) || [])];
+    const { data: usersData } = userIds.length > 0 ? await supabase
       .from('users')
       .select('id, name')
-      .in('id', userIds);
+      .in('id', userIds) : { data: [] };
 
     // Merge user data with messages
     const messagesWithUsers = data?.map(msg => ({
       ...msg,
-      user_id: msg.sender_id,
-      profiles: { full_name: usersData?.find(u => u.id === msg.sender_id)?.name || 'Unknown' }
+      profiles: { 
+        full_name: msg.sender_id 
+          ? (usersData?.find(u => u.id === msg.sender_id)?.name || 'Unknown')
+          : 'PayFesa'
+      }
     }));
 
     setMessages((messagesWithUsers || []) as any);
@@ -113,7 +121,7 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
         },
         async (payload) => {
           // Fetch user profile for sender_id (can be null for system messages)
-          let userName = 'System';
+          let userName = 'PayFesa';
           if (payload.new.sender_id) {
             const { data: userProfile } = await supabase
               .from('users')
@@ -125,11 +133,10 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
 
           const newMessage = {
             ...payload.new,
-            user_id: payload.new.sender_id || 'system',
             profiles: { full_name: userName }
-          } as Message;
+          };
 
-          setMessages(prev => [...prev, newMessage]);
+          setMessages(prev => [...prev, newMessage as Message]);
           
           // Show toast for system messages
           if (payload.new.message_type === 'system' && payload.new.sender_id !== user.id) {
@@ -151,8 +158,9 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !selectedGroup) return;
+    if (!newMessage.trim() || !selectedGroup || sending) return;
 
+    setSending(true);
     try {
       const { data: insertedMessage, error } = await supabase
         .from('messages')
@@ -211,6 +219,61 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
     } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedGroup) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('chat-images')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('chat-images')
+        .getPublicUrl(fileName);
+
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          group_id: selectedGroup.id,
+          sender_id: user.id,
+          message: '📷 Image',
+          image_url: publicUrl,
+          message_type: 'user'
+        });
+
+      if (error) throw error;
+      
+      toast.success('Image sent!');
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -264,46 +327,115 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
       {/* Messages */}
       <ScrollArea className="flex-1 p-3">
         <div className="space-y-3">
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.user_id === user?.id ? 'justify-end' : 'justify-start'}`}
-            >
+          {messages.map((msg) => {
+            const isOwn = msg.sender_id === user?.id;
+            const isSystem = msg.message_type === 'system';
+
+            if (isSystem) {
+              return (
+                <div key={msg.id} className="flex justify-center">
+                  <div className="flex flex-col items-center gap-1 max-w-[80%]">
+                    <span className="text-xs font-semibold text-primary">
+                      PayFesa
+                    </span>
+                    <div className="bg-primary/10 border border-primary/20 px-4 py-2 rounded-lg text-xs text-foreground text-center">
+                      {msg.message}
+                    </div>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(msg.created_at).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </span>
+                  </div>
+                </div>
+              );
+            }
+
+            return (
               <div
-                className={`max-w-[75%] rounded-lg p-2.5 ${
-                  msg.user_id === user?.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-muted'
-                }`}
+                key={msg.id}
+                className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
               >
-                <p className="text-[10px] font-medium mb-0.5 opacity-80">
-                  {(msg.profiles as any)?.full_name || 'Unknown'}
-                </p>
-                <p className="text-sm break-words">{msg.message}</p>
-                <p className="text-[10px] mt-1 opacity-70">
-                  {new Date(msg.created_at).toLocaleTimeString([], { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                  })}
-                </p>
+                <div className={`max-w-[75%] ${isOwn ? 'items-end' : 'items-start'} flex flex-col gap-1`}>
+                  <span className="text-xs font-medium text-muted-foreground px-2">
+                    {msg.profiles.full_name}
+                  </span>
+                  <div
+                    className={`rounded-lg p-2.5 ${
+                      isOwn
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted'
+                    }`}
+                  >
+                    {msg.image_url && (
+                      <img 
+                        src={msg.image_url} 
+                        alt="Shared image" 
+                        className="rounded-lg max-w-full h-auto mb-2 cursor-pointer hover:opacity-90 transition-opacity"
+                        onClick={() => window.open(msg.image_url, '_blank')}
+                      />
+                    )}
+                    {msg.message && msg.message !== '📷 Image' && (
+                      <p className="text-sm break-words">{msg.message}</p>
+                    )}
+                    <p className={`text-[10px] mt-1 ${isOwn ? 'opacity-70' : 'opacity-70'}`}>
+                      {new Date(msg.created_at).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </p>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
           <div ref={messagesEndRef} />
         </div>
       </ScrollArea>
 
       {/* Input */}
       <form onSubmit={handleSendMessage} className="p-3 bg-background border-t">
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            onChange={handleImageUpload}
+            className="hidden"
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            className="h-9 w-9"
+          >
+            {uploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <ImageIcon className="h-4 w-4" />
+            )}
+          </Button>
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             placeholder="Type a message..."
             className="flex-1 h-9 text-sm"
+            disabled={sending || uploading}
           />
-          <Button type="submit" size="icon" className="h-9 w-9 bg-primary text-primary-foreground">
-            <Send className="h-4 w-4" />
+          <Button 
+            type="submit" 
+            size="icon" 
+            className="h-9 w-9"
+            disabled={!newMessage.trim() || sending || uploading}
+          >
+            {sending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
           </Button>
         </div>
       </form>
