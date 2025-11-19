@@ -60,6 +60,9 @@ import AccountSettings from "./pages/AccountSettings";
 import SecuritySettings from "./pages/SecuritySettings";
 import PaymentSettings from "./pages/PaymentSettings";
 import PushNotificationSettings from "./pages/PushNotificationSettings";
+import PaymentHistory from "./pages/PaymentHistory";
+import PaymentAnalytics from "./pages/PaymentAnalytics";
+import PaymentSchedule from "./pages/PaymentSchedule";
 import { ShareListener } from "./components/dashboard/ShareListener";
 
 
@@ -166,6 +169,9 @@ const AppContent = () => {
         <Route path="/settings/notifications" element={<ProtectedRoute><PushNotificationSettings /></ProtectedRoute>} />
         <Route path="/instant-payout" element={<ProtectedRoute><OptimizedInstantPayout /></ProtectedRoute>} />
         <Route path="/disputes" element={<ProtectedRoute><DisputeManagement /></ProtectedRoute>} />
+        <Route path="/payment-history" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
+        <Route path="/payment-analytics" element={<ProtectedRoute><PaymentAnalytics /></ProtectedRoute>} />
+        <Route path="/payment-schedule" element={<ProtectedRoute><PaymentSchedule /></ProtectedRoute>} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
