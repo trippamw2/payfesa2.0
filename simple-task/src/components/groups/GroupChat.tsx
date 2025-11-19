@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 
 interface Message {
   id: string;
-  user_id: string;
+  sender_id: string;
   message: string;
   created_at: string;
   profiles: {
@@ -57,7 +57,13 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
   const fetchMessages = async () => {
     const { data, error } = await supabase
       .from('messages')
-      .select('*')
+      .select(`
+        id,
+        sender_id,
+        message,
+        created_at,
+        profiles:users!messages_sender_id_fkey(name)
+      `)
       .eq('group_id', groupId)
       .order('created_at', { ascending: true });
 
@@ -66,23 +72,12 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
       return;
     }
 
-    // Fetch profile names separately
-    const messagesWithProfiles = await Promise.all(
-      (data || []).map(async (msg: any) => {
-        if (!msg.sender_id) return { ...msg, profiles: { full_name: 'System' } };
-        
-        const { data: profile } = await supabase
-          .from('users')
-          .select('name')
-          .eq('id', msg.sender_id)
-          .single();
-
-        return {
-          ...msg,
-          profiles: { full_name: profile?.name || 'Unknown' }
-        };
-      })
-    );
+    const messagesWithProfiles = (data || []).map((msg: any) => ({
+      ...msg,
+      profiles: { 
+        full_name: msg.sender_id ? (msg.profiles?.name || 'Unknown') : 'System'
+      }
+    }));
 
     setMessages(messagesWithProfiles as any);
   };
@@ -99,7 +94,23 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
           filter: `group_id=eq.${groupId}`
         },
         async (payload) => {
-          setMessages(prev => [...prev, payload.new as any]);
+          const newMsg = payload.new as any;
+          
+          // Fetch sender profile if exists
+          let profileName = 'System';
+          if (newMsg.sender_id) {
+            const { data: profile } = await supabase
+              .from('users')
+              .select('name')
+              .eq('id', newMsg.sender_id)
+              .single();
+            profileName = profile?.name || 'Unknown';
+          }
+          
+          setMessages(prev => [...prev, {
+            ...newMsg,
+            profiles: { full_name: profileName }
+          }]);
         }
       )
       .subscribe();
@@ -157,12 +168,12 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`flex ${msg.user_id === user?.id ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${msg.sender_id === user?.id ? 'justify-end' : 'justify-start'}`}
             >
               <Card
                 className={`max-w-[70%] p-3 ${
-                  msg.user_id === user?.id
-                    ? 'bg-primary text-white'
+                  msg.sender_id === user?.id
+                    ? 'bg-primary text-primary-foreground'
                     : 'bg-secondary'
                 }`}
               >
@@ -191,7 +202,7 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
               placeholder="Type a message..."
               className="flex-1"
             />
-            <Button type="submit" className="bg-primary text-white">
+            <Button type="submit" disabled={!newMessage.trim()}>
               <Send className="h-4 w-4" />
             </Button>
           </div>
