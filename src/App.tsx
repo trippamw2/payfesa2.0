@@ -63,6 +63,7 @@ import PushNotificationSettings from "./pages/PushNotificationSettings";
 import PaymentHistory from "./pages/PaymentHistory";
 import PaymentAnalytics from "./pages/PaymentAnalytics";
 import PaymentSchedule from "./pages/PaymentSchedule";
+import InviteFriends from "./pages/InviteFriends";
 import { ShareListener } from "./components/dashboard/ShareListener";
 
 
@@ -172,6 +173,7 @@ const AppContent = () => {
         <Route path="/payment-history" element={<ProtectedRoute><PaymentHistory /></ProtectedRoute>} />
         <Route path="/payment-analytics" element={<ProtectedRoute><PaymentAnalytics /></ProtectedRoute>} />
         <Route path="/payment-schedule" element={<ProtectedRoute><PaymentSchedule /></ProtectedRoute>} />
+        <Route path="/invite" element={<ProtectedRoute><InviteFriends /></ProtectedRoute>} />
         
         {/* Admin Routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
