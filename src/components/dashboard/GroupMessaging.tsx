@@ -159,18 +159,41 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
         .insert({
           group_id: selectedGroup.id,
           sender_id: user.id,
-          message: newMessage.trim()
+          message: newMessage.trim(),
+          message_type: 'user'
         })
         .select('id')
         .single();
 
       if (error) throw error;
 
-      // Trigger batched notification system
-      if (insertedMessage?.id) {
-        supabase.functions.invoke('send-chat-notifications', {
-          body: { message_id: insertedMessage.id }
-        }).catch(err => console.error('Failed to trigger notification:', err));
+      // Get all group members except sender for notifications
+      const { data: members } = await supabase
+        .from('group_members')
+        .select('user_id')
+        .eq('group_id', selectedGroup.id)
+        .neq('user_id', user.id);
+
+      if (members && members.length > 0) {
+        // Get sender name
+        const { data: senderData } = await supabase
+          .from('users')
+          .select('name')
+          .eq('id', user.id)
+          .single();
+
+        supabase.functions.invoke('send-push-notification', {
+          body: {
+            userIds: members.map(m => m.user_id),
+            title: `${senderData?.name || 'Group member'} in ${selectedGroup.name}`,
+            body: newMessage.trim(),
+            data: { 
+              groupId: selectedGroup.id,
+              messageId: insertedMessage.id,
+              type: 'group_message'
+            }
+          }
+        }).catch(err => console.error('Notification error:', err));
       }
 
       setNewMessage('');
