@@ -31,6 +31,10 @@ serve(async (req) => {
         message = `🎉 ${data.userName} paid their contribution! Trust Score +${data.trustScoreChange || 5}`;
         break;
       
+      case 'contribution_completed':
+        message = `🎉 ${data.userName} completed their contribution of ${data.amount} MWK! Great job! 💪`;
+        break;
+      
       case 'missed_payment':
         message = `⚠️ ${data.userName} missed their payment. Covered by PayFesa Guarantee.`;
         break;
@@ -44,7 +48,15 @@ serve(async (req) => {
         break;
       
       case 'payout_completed':
-        message = `✅ ${data.userName} received their payout of ${data.amount}! Congratulations! 🎊`;
+        message = `✅ ${data.userName} received their payout of ${data.amount} MWK! Congratulations! 🎊`;
+        break;
+      
+      case 'bonus_awarded':
+        message = `🎁 ${data.userName} earned a ${data.bonusName} bonus of ${data.amount} MWK! Well done! 🌟`;
+        break;
+      
+      case 'achievement_earned':
+        message = `🏆 ${data.userName} unlocked "${data.achievementTitle}" achievement! ${data.achievementDescription || 'Keep up the great work!'}`;
         break;
       
       case 'trust_score_milestone':
