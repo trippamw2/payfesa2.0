@@ -167,53 +167,54 @@ const JoinByCodeDialog = ({ open, onOpenChange, onSuccess }: JoinByCodeDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>{t('joinByCode')}</DialogTitle>
+      <DialogContent className="max-w-md p-4">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-base">{t('joinByCode')}</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="groupCode">{t('groupCode')} *</Label>
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="groupCode" className="text-xs">{t('groupCode')} *</Label>
             <Input
               id="groupCode"
               value={groupCode}
               onChange={(e) => setGroupCode(e.target.value.toUpperCase())}
               placeholder={t('enterGroupCode')}
               maxLength={6}
-              className="uppercase"
+              className="uppercase h-8 text-xs"
               required
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="inviterName">{t('inviterName')} *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="inviterName" className="text-xs">{t('inviterName')} *</Label>
             <Input
               id="inviterName"
               value={inviterName}
               onChange={(e) => setInviterName(e.target.value)}
               placeholder={t('enterInviterName')}
+              className="h-8 text-xs"
               required
             />
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="flex-1"
+              className="flex-1 h-8 text-xs"
               disabled={loading}
             >
               {t('cancel')}
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-primary text-white"
+              className="flex-1 h-8 text-xs"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="mr-1.5 h-3 w-3 animate-spin" />
                   {t('joinGroup')}...
                 </>
               ) : (
