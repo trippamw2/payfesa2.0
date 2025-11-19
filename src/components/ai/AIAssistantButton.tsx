@@ -17,7 +17,7 @@ export const AIAssistantButton = ({ userId }: AIAssistantButtonProps) => {
       {/* Floating Action Button - Above mobile nav on small screens */}
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed right-4 top-[60%] md:bottom-4 md:top-auto md:right-8 h-12 w-12 rounded-full shadow-lg z-40 hover:scale-110 transition-transform p-0 overflow-hidden"
+        className="fixed right-4 top-[60%] md:bottom-4 md:top-auto md:right-8 h-12 w-12 rounded-full shadow-lg z-40 hover:scale-110 transition-transform p-0 overflow-hidden animate-pulse"
         size="icon"
       >
         <div className="relative w-full h-full flex items-center justify-center">
