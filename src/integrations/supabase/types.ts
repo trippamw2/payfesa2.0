@@ -1168,6 +1168,7 @@ export type Database = {
           created_at: string | null
           group_id: string | null
           id: string
+          image_url: string | null
           is_pinned: boolean | null
           message: string
           message_type: string | null
@@ -1180,6 +1181,7 @@ export type Database = {
           created_at?: string | null
           group_id?: string | null
           id?: string
+          image_url?: string | null
           is_pinned?: boolean | null
           message: string
           message_type?: string | null
@@ -1192,6 +1194,7 @@ export type Database = {
           created_at?: string | null
           group_id?: string | null
           id?: string
+          image_url?: string | null
           is_pinned?: boolean | null
           message?: string
           message_type?: string | null
