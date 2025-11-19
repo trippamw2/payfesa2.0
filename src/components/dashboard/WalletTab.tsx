@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { Wallet, TrendingUp, TrendingDown, Clock, ArrowUpRight, ArrowDownLeft, CreditCard, Settings, Zap, Building2 } from 'lucide-react';
+import { Wallet, TrendingUp, TrendingDown, Clock, ArrowUpRight, ArrowDownLeft, CreditCard, Settings, Zap, Building2, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,7 @@ import tnmLogo from '@/assets/tnm-mpamba-logo.jpg';
 import AddPaymentMethodDialog from '@/components/wallet/AddPaymentMethodDialog';
 import { getBankLogo } from '@/utils/bankLogos';
 import { AIWalletInsights } from '@/components/wallet/AIWalletInsights';
+import { CollapsibleAIInsights } from '@/components/ai/CollapsibleAIInsights';
 
 interface Props {
   user: any;
@@ -264,9 +265,14 @@ const WalletTab = ({ user }: Props) => {
 
   return (
     <div className="space-y-2 pb-4">
-      {/* AI Wallet Insights */}
+      {/* AI Wallet Insights - Collapsible */}
       <div className="px-3">
-        <AIWalletInsights userId={user?.id} />
+        <CollapsibleAIInsights
+          title="AI Wallet Insights"
+          icon={<Lightbulb className="h-4 w-4 text-primary" />}
+        >
+          <AIWalletInsights userId={user?.id} />
+        </CollapsibleAIInsights>
       </div>
 
       {/* Balance Card */}
