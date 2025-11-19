@@ -147,10 +147,10 @@ export function OnboardingFlow() {
               className="w-full"
               onClick={() => {
                 completeOnboarding();
-                window.location.href = '/mobile-money';
+                window.location.href = '/payment-accounts';
               }}
             >
-              Add Mobile Money
+              Add Payment Method
             </Button>
             <Button
               variant="outline"

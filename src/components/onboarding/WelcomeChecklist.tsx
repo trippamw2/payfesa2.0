@@ -33,7 +33,7 @@ export function WelcomeChecklist() {
       description: 'Setup mobile money or bank account',
       completed: false,
       action: 'Setup',
-      route: '/mobile-money',
+      route: '/payment-accounts',
     },
     {
       id: 'group',
