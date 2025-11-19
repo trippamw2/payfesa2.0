@@ -68,3 +68,9 @@ verify_jwt = true
 
 [functions.admin-manual-payout]
 verify_jwt = false
+
+[functions.generate-smart-notification]
+verify_jwt = false
+
+[functions.send-smart-alerts]
+verify_jwt = false
