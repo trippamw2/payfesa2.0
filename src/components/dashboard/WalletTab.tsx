@@ -11,6 +11,7 @@ import airtelLogo from '@/assets/airtel-money-logo.png';
 import tnmLogo from '@/assets/tnm-mpamba-logo.jpg';
 import AddPaymentMethodDialog from '@/components/wallet/AddPaymentMethodDialog';
 import { getBankLogo } from '@/utils/bankLogos';
+import { AIWalletInsights } from '@/components/wallet/AIWalletInsights';
 
 interface Props {
   user: any;
@@ -263,6 +264,11 @@ const WalletTab = ({ user }: Props) => {
 
   return (
     <div className="space-y-2 pb-4">
+      {/* AI Wallet Insights */}
+      <div className="px-3">
+        <AIWalletInsights userId={user?.id} />
+      </div>
+
       {/* Balance Card */}
       <Card className="mx-3 bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
         <div className="p-3 space-y-2">

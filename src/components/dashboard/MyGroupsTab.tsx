@@ -13,6 +13,7 @@ import UpcomingWidget from '@/components/dashboard/UpcomingWidget';
 import { TrustScoreWidget } from '@/components/dashboard/TrustScoreWidget';
 import { BonusesWidget } from '@/components/dashboard/BonusesWidget';
 import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
+import { AIInsightsPanel } from '@/components/ai/AIInsightsPanel';
 
 import { User, Profile } from '@/types';
 
@@ -136,6 +137,9 @@ const MyGroupsTab = ({ user, profile }: Props) => {
     <div className="p-2 space-y-2 max-w-6xl mx-auto">
       {/* Onboarding Checklist */}
       <OnboardingChecklist userId={user.id} />
+
+      {/* AI Insights Panel */}
+      <AIInsightsPanel userId={user.id} />
 
       {/* Stats Overview */}
       <div className="grid grid-cols-3 gap-1.5">
