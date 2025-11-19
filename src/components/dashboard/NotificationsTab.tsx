@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Bell, MessageSquare, AlertCircle, Clock, CheckCircle, CheckCircle2, XCircle, BookOpen, Gift, Sparkles, PartyPopper, TrendingUp, Shield, Users, Trophy, Settings } from "lucide-react";
+import { Bell, MessageSquare, AlertCircle, Clock, CheckCircle, CheckCircle2, XCircle, BookOpen, Gift, Sparkles, PartyPopper, TrendingUp, Shield, Users, Trophy, Settings, Trash2 } from "lucide-react";
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -94,6 +94,26 @@ const NotificationsTab = ({ user }: Props) => {
     } catch (error) {
       console.error('Error marking notification as read:', error);
       toast.error('Failed to mark notification as read');
+    }
+  };
+
+  const deleteNotification = async (notificationId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    try {
+      await supabase
+        .from('user_notifications')
+        .delete()
+        .eq('id', notificationId);
+      
+      setNotifications(prev => prev.filter(n => n.id !== notificationId));
+      setUnreadCount(prev => {
+        const notification = notifications.find(n => n.id === notificationId);
+        return notification && !notification.read ? Math.max(0, prev - 1) : prev;
+      });
+      toast.success('Notification deleted');
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error('Failed to delete notification');
     }
   };
 
@@ -213,7 +233,7 @@ const NotificationsTab = ({ user }: Props) => {
                   onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex gap-2">
-                    <div className={`p-1 rounded-full h-fit ${
+                    <div className={`p-1 rounded-full h-fit flex-shrink-0 ${
                       !notification.read ? 'bg-primary/10' : 'bg-muted'
                     }`}>
                       {getNotificationIcon(notification.type)}
@@ -221,9 +241,19 @@ const NotificationsTab = ({ user }: Props) => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-1 mb-0.5">
                         <h4 className="font-semibold text-[10px] leading-tight">{notification.title}</h4>
-                        <span className="text-[8px] text-muted-foreground whitespace-nowrap">
-                          {new Date(notification.created_at).toLocaleDateString()}
-                        </span>
+                        <div className="flex items-center gap-1">
+                          <span className="text-[8px] text-muted-foreground whitespace-nowrap">
+                            {new Date(notification.created_at).toLocaleDateString()}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-4 w-4 p-0 hover:bg-destructive/10 hover:text-destructive"
+                            onClick={(e) => deleteNotification(notification.id, e)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                        <p className="text-[9px] text-muted-foreground line-clamp-2">{notification.message}</p>
                        <span className="text-[8px] text-primary mt-0.5 inline-block">Tap to read more</span>
