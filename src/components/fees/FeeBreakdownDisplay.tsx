@@ -18,7 +18,7 @@ const FeeBreakdownDisplay = ({ amount, compact = false }: Props) => {
           <span className="font-medium">MWK {amount.toLocaleString()}</span>
         </div>
         <div className="flex justify-between items-center text-muted-foreground">
-          <span>Total Fees (12%)</span>
+          <span>Platform Fee (8%)</span>
           <span>-MWK {totalFees.toLocaleString()}</span>
         </div>
         <div className="h-px bg-border my-2" />
@@ -32,53 +32,24 @@ const FeeBreakdownDisplay = ({ amount, compact = false }: Props) => {
 
   return (
     <Card className="p-4 space-y-3">
-      <h4 className="font-semibold text-sm mb-3">Fee Breakdown</h4>
+      <h4 className="font-semibold text-sm mb-3">Fee Summary</h4>
       
-      <div className="space-y-2">
+      <div className="space-y-3">
+        <div className="flex justify-between items-center">
+          <span className="text-xs text-muted-foreground">Gross Amount</span>
+          <span className="text-sm font-medium">MWK {amount.toLocaleString()}</span>
+        </div>
+
         <div className="flex justify-between items-start gap-4">
           <div className="flex items-start gap-2 flex-1">
             <Shield className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
             <div>
-              <p className="text-xs font-medium">Payout Safety (1%)</p>
-              <p className="text-[10px] text-muted-foreground">Protects your payout if someone pays late</p>
+              <p className="text-xs font-medium">Platform Fee (8%)</p>
+              <p className="text-[10px] text-muted-foreground">Includes 1% reserve guarantee for payout protection</p>
             </div>
           </div>
-          <span className="text-xs font-medium">MWK {payoutSafetyFee.toLocaleString()}</span>
+          <span className="text-xs font-medium text-destructive">-MWK {totalFees.toLocaleString()}</span>
         </div>
-
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex items-start gap-2 flex-1">
-            <Zap className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-xs font-medium">Service & Protection (5%)</p>
-              <p className="text-[10px] text-muted-foreground">Platform, fraud detection, notifications, support</p>
-            </div>
-          </div>
-          <span className="text-xs font-medium">MWK {serviceFee.toLocaleString()}</span>
-        </div>
-
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex items-start gap-2 flex-1">
-            <Building2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-xs font-medium">Government Fees (6%)</p>
-              <p className="text-[10px] text-muted-foreground">Mobile money, bank, telecom fees</p>
-            </div>
-          </div>
-          <span className="text-xs font-medium">MWK {governmentFee.toLocaleString()}</span>
-        </div>
-      </div>
-
-      <div className="h-px bg-border" />
-
-      <div className="flex justify-between items-center pt-2">
-        <span className="text-xs text-muted-foreground">Gross Amount</span>
-        <span className="text-sm font-medium">MWK {amount.toLocaleString()}</span>
-      </div>
-
-      <div className="flex justify-between items-center text-xs text-destructive">
-        <span>Total Fees (12%)</span>
-        <span>-MWK {totalFees.toLocaleString()}</span>
       </div>
 
       <div className="h-px bg-border" />
