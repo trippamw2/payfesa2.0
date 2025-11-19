@@ -198,24 +198,34 @@ serve(async (req) => {
 
     // Process payment using unified service
     console.log(`[${requestId}] Initiating payment with PayChangu...`);
+    
+    // Prepare payment request based on method
+    const paymentRequest: any = {
+      type: 'collection',
+      method: isMobileMoney ? 'mobile_money' : 'bank_transfer',
+      amount: amount,
+      chargeId: chargeId,
+      currency: 'MWK',
+    };
+
+    // Add method-specific fields
+    if (isMobileMoney) {
+      paymentRequest.phoneNumber = phoneNumber;
+      paymentRequest.provider = paymentMethod;
+    }
+    // Bank transfers don't need phone number - PayChangu generates virtual account
+
     const paymentResult = await PaychanguService.processPayment(
       {
         secretKey: PAYCHANGU_SECRET_KEY,
         baseUrl: PAYCHANGU_BASE_URL,
       },
-      {
-        type: 'collection',
-        method: isMobileMoney ? 'mobile_money' : 'bank_transfer',
-        amount: amount,
-        phoneNumber: phoneNumber,
-        provider: paymentMethod,
-        chargeId: chargeId,
-        currency: 'MWK',
-      }
+      paymentRequest
     );
 
     if (!paymentResult.success) {
       console.error(`[${requestId}] Payment failed:`, paymentResult.error);
+
       return new Response(
         JSON.stringify({ 
           error: paymentResult.error || 'Payment initialization failed'
@@ -252,6 +262,7 @@ serve(async (req) => {
         metadata: {
           phone_number: phoneNumber,
           provider: paymentMethod,
+          payment_account_details: paymentAccountDetails || null,
           fee_breakdown: {
             payout_safety_fee: feeBreakdown.payoutSafetyFee,
             service_fee: feeBreakdown.serviceFee,

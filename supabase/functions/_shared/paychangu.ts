@@ -1,5 +1,6 @@
-// Unified Paychangu Payment Gateway Service
-// Handles all payment operations: collections, payouts, mobile money, bank transfers
+// Unified PayChangu Payment Gateway Service
+// Based on official PayChangu API documentation
+// Handles collections (money in) and payouts (money out) via mobile money and bank transfers
 
 export interface PaychanguConfig {
   secretKey: string;
@@ -27,11 +28,22 @@ export interface PaymentResponse {
     status: string;
     charge_id: string;
   };
-  payment_account_details?: any;
+  payment_account_details?: {
+    bank_name: string;
+    account_number: string;
+    account_name: string;
+    account_expiration_timestamp: number;
+  };
+  recipient_account_details?: {
+    bank_uuid: string;
+    bank_name: string;
+    account_name: string;
+    account_number: string;
+  };
   error?: string;
 }
 
-// Paychangu mobile money operator ref IDs for Malawi
+// PayChangu mobile money operator ref IDs for Malawi
 const MOBILE_MONEY_OPERATORS: Record<string, string> = {
   'airtel': '20be6c20-adeb-4b5b-a7ba-0769820df4fb',
   'airtel money': '20be6c20-adeb-4b5b-a7ba-0769820df4fb',
@@ -40,9 +52,9 @@ const MOBILE_MONEY_OPERATORS: Record<string, string> = {
   'tnm mpamba': '27494cb5-ba9e-437f-a114-4e7a7686bcca',
 };
 
-// Paychangu bank UUIDs for disbursements
+// PayChangu bank UUIDs for payouts
 const BANK_UUIDS: Record<string, string> = {
-  // Mobile money operators
+  // Mobile money operators (for payouts to mobile money)
   'tnm': '5e9946ae-76ed-43f5-ad59-63e09096006a',
   'tnm mpamba': '5e9946ae-76ed-43f5-ad59-63e09096006a',
   'mpamba': '5e9946ae-76ed-43f5-ad59-63e09096006a',
@@ -52,41 +64,46 @@ const BANK_UUIDS: Record<string, string> = {
   'national bank of malawi': '82310dd1-ec9b-4fe7-a32c-2f262ef08681',
   'ecobank malawi limited': '87e62436-0553-4fb5-a76d-f27d28420c5b',
   'fdh bank limited': 'b064172a-8a1b-4f7f-aad7-81b036c46c57',
+  'fdh bank': 'b064172a-8a1b-4f7f-aad7-81b036c46c57',
   'standard bank limited': 'e7447c2c-c147-4907-b194-e087fe8d8585',
+  'standard bank': 'e7447c2c-c147-4907-b194-e087fe8d8585',
   'centenary bank': '236760c9-3045-4a01-990e-497b28d115bb',
   'first capital limited': '968ac588-3b1f-4d89-81ff-a3d43a599003',
+  'first capital bank': '968ac588-3b1f-4d89-81ff-a3d43a599003',
   'cdh investment bank': 'c759d7b6-ae5c-4a95-814a-79171271897a',
   'nbs bank limited': '86007bf5-1b04-49ba-84c1-9758bbf5c996',
+  'nbs bank': '86007bf5-1b04-49ba-84c1-9758bbf5c996',
 };
 
-// Calculate 11% fee
-export function calculateFee(amount: number): { feeAmount: number; netAmount: number } {
-  const feeAmount = Math.round(amount * 0.11 * 100) / 100;
-  const netAmount = Math.round((amount - feeAmount) * 100) / 100;
-  return { feeAmount, netAmount };
-}
-
-// Normalize phone number to 9 digits (Malawi format)
+// Normalize phone number to 9 digits (Malawi format without country code)
 export function normalizePhoneNumber(phone: string): string {
   const digitsOnly = phone.replace(/\D/g, '');
   const withoutCountryCode = digitsOnly.startsWith('265') ? digitsOnly.slice(3) : digitsOnly;
   return withoutCountryCode.slice(-9);
 }
 
-// Unified payment processing
+// Unified payment processing following PayChangu documentation
 export async function processPayment(
   config: PaychanguConfig,
   request: PaymentInitRequest
 ): Promise<PaymentResponse> {
   try {
-    console.log('Processing payment:', { type: request.type, method: request.method, amount: request.amount });
+    console.log('Processing payment:', { 
+      type: request.type, 
+      method: request.method, 
+      amount: request.amount,
+      chargeId: request.chargeId 
+    });
 
     let apiUrl: string;
     let payload: any;
 
     if (request.type === 'collection') {
-      // Collections (money in from users)
+      // ========== COLLECTIONS (Money In) ==========
+      
       if (request.method === 'mobile_money') {
+        // Mobile Money Collection
+        // Endpoint: /mobile-money/payments/initialize
         const mobileNumber = normalizePhoneNumber(request.phoneNumber || '');
         const operatorRefId = MOBILE_MONEY_OPERATORS[request.provider?.toLowerCase() || ''];
 
@@ -105,8 +122,17 @@ export async function processPayment(
           amount: request.amount.toString(),
           charge_id: request.chargeId,
         };
+
+        console.log('Mobile money collection payload:', { 
+          mobile: mobileNumber, 
+          operator: request.provider,
+          operatorRefId 
+        });
+
       } else {
-        // Bank transfer collection
+        // Bank Transfer Collection (Direct Charge)
+        // Endpoint: /direct-charge/payments/initialize
+        // This creates virtual account details for customer to transfer to
         apiUrl = `${config.baseUrl}/direct-charge/payments/initialize`;
         payload = {
           payment_method: 'mobile_bank_transfer',
@@ -115,34 +141,76 @@ export async function processPayment(
           charge_id: request.chargeId,
           create_permanent_account: 'false',
         };
+
+        console.log('Bank transfer collection (direct charge) payload:', payload);
       }
+
     } else {
-      // Payouts (money out to users)
-      const phoneNumber = normalizePhoneNumber(request.phoneNumber || '');
-      const bankUuid = BANK_UUIDS[request.provider?.toLowerCase() || ''] || 
-                      BANK_UUIDS[request.bankName?.toLowerCase() || ''];
+      // ========== PAYOUTS (Money Out) ==========
+      
+      if (request.method === 'mobile_money') {
+        // Mobile Money Payout
+        // Endpoint: /mobile-money/payouts/initialize
+        const mobileNumber = normalizePhoneNumber(request.phoneNumber || '');
+        const operatorRefId = MOBILE_MONEY_OPERATORS[request.provider?.toLowerCase() || ''];
 
-      if (!bankUuid) {
-        throw new Error(`Unsupported bank/provider: ${request.provider || request.bankName}`);
+        if (!operatorRefId) {
+          throw new Error(`Unsupported mobile money operator: ${request.provider}`);
+        }
+
+        if (!/^\d{9}$/.test(mobileNumber)) {
+          throw new Error('Invalid mobile number for payout');
+        }
+
+        apiUrl = `${config.baseUrl}/mobile-money/payouts/initialize`;
+        payload = {
+          mobile_money_operator_ref_id: operatorRefId,
+          mobile: mobileNumber,
+          amount: request.amount.toString(),
+          charge_id: request.chargeId,
+        };
+
+        console.log('Mobile money payout payload:', { 
+          mobile: mobileNumber, 
+          operator: request.provider,
+          operatorRefId 
+        });
+
+      } else {
+        // Bank Transfer Payout
+        // Endpoint: /direct-charge/payouts/initialize
+        const bankUuid = BANK_UUIDS[request.bankName?.toLowerCase() || ''] || 
+                        BANK_UUIDS[request.provider?.toLowerCase() || ''];
+
+        if (!bankUuid) {
+          throw new Error(`Unsupported bank: ${request.bankName || request.provider}`);
+        }
+
+        if (!request.accountNumber || !request.accountName) {
+          throw new Error('Account number and account name are required for bank payouts');
+        }
+
+        apiUrl = `${config.baseUrl}/direct-charge/payouts/initialize`;
+        payload = {
+          payout_method: 'bank_transfer',
+          bank_uuid: bankUuid,
+          amount: request.amount.toString(),
+          charge_id: request.chargeId,
+          bank_account_name: request.accountName,
+          bank_account_number: request.accountNumber,
+        };
+
+        console.log('Bank transfer payout payload:', { 
+          bank: request.bankName, 
+          bankUuid,
+          accountNumber: request.accountNumber 
+        });
       }
-
-      if (request.method === 'mobile_money' && !/^\d{9}$/.test(phoneNumber)) {
-        throw new Error('Invalid mobile number for payout');
-      }
-
-      apiUrl = `${config.baseUrl}/direct-charge/payouts/initialize`;
-      payload = {
-        amount: request.amount.toString(),
-        currency: request.currency || 'MWK',
-        charge_id: request.chargeId,
-        bank_uuid: bankUuid,
-        account_number: request.method === 'mobile_money' ? phoneNumber : request.accountNumber,
-        account_name: request.accountName || 'Payfesa User',
-      };
     }
 
-    console.log('Calling Paychangu API:', { endpoint: apiUrl, chargeId: request.chargeId });
+    console.log('Calling PayChangu API:', { endpoint: apiUrl, chargeId: request.chargeId });
 
+    // Make API request to PayChangu
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
@@ -154,10 +222,16 @@ export async function processPayment(
     });
 
     const data = await response.json();
-    console.log('Paychangu response:', { status: data?.status, message: data?.message });
+    console.log('PayChangu response:', { 
+      status: response.status,
+      ok: response.ok,
+      dataStatus: data?.status, 
+      message: data?.message 
+    });
 
+    // Check if request was successful
     if (!response.ok || data?.status !== 'success') {
-      console.error('Paychangu API error:', data);
+      console.error('PayChangu API error:', data);
       return {
         success: false,
         transaction: {
@@ -166,12 +240,14 @@ export async function processPayment(
           status: 'failed',
           charge_id: request.chargeId,
         },
-        error: data?.message || 'Payment initialization failed',
+        error: data?.message || `HTTP ${response.status}: Payment request failed`,
       };
     }
 
+    // Extract transaction details from response
     const transaction = data?.data?.transaction || {};
     const paymentAccountDetails = data?.data?.payment_account_details;
+    const recipientAccountDetails = data?.data?.recipient_account_details;
 
     return {
       success: true,
@@ -182,7 +258,9 @@ export async function processPayment(
         charge_id: request.chargeId,
       },
       payment_account_details: paymentAccountDetails,
+      recipient_account_details: recipientAccountDetails,
     };
+
   } catch (error) {
     console.error('Error processing payment:', error);
     return {
@@ -200,6 +278,5 @@ export async function processPayment(
 
 export const PaychanguService = {
   processPayment,
-  calculateFee,
   normalizePhoneNumber,
 };
