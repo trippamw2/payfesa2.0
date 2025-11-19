@@ -139,7 +139,6 @@ export async function processPayment(
           amount: request.amount.toString(),
           currency: request.currency || 'MWK',
           charge_id: request.chargeId,
-          create_permanent_account: 'false',
         };
 
         console.log('Bank transfer collection (direct charge) payload:', payload);
