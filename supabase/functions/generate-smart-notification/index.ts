@@ -93,6 +93,16 @@ serve(async (req) => {
         userPrompt = `${themeContext}${timeOfDay === 'morning' ? 'Great news to start your day' : timeOfDay === 'afternoon' ? 'Exciting update for you' : 'Something new before tomorrow'}. Tell ${user?.name} (${groups?.length || 0} Chipereganyu groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'faster payouts, stronger security, and easier group management'}. Explain how this makes their Chipereganyu experience smoother and safer. Show them we're always working to serve them better. Write like a friend sharing good news.`;
         break;
 
+      case 'trust':
+        systemPrompt = `You are explaining a trust score change to ${user?.name} using simple Grade 6 English. Use Donald Miller's style: help them understand what happened and what to do next. Be honest but encouraging. NO special characters or formatting. Keep under 120 characters for title and under 250 for message.`;
+        userPrompt = `${themeContext}Explain to ${user?.name} about their trust score change. Event: ${context?.event || 'trust score update'}. ${context?.change ? `Their score ${context.change > 0 ? 'increased' : 'decreased'} by ${Math.abs(context.change)} points.` : ''} Help them understand why this happened (on-time payments increase it, late/missed payments decrease it). ${context?.change && context.change < 0 ? 'Encourage them - one setback doesn\'t define them. Show how to rebuild trust through consistent payments.' : 'Celebrate their good behavior and encourage them to keep it up.'} Write like a supportive friend who believes in them.`;
+        break;
+
+      case 'insight':
+        systemPrompt = `You are sharing personalized money insights with ${user?.name} about their Chipereganyu savings using Grade 6 English. Use Donald Miller's style: show them patterns they might not see and how to use this knowledge to win. ${timeOfDay === 'morning' ? 'Help them start the day informed' : timeOfDay === 'afternoon' ? 'Give them useful knowledge' : 'Help them reflect on their progress'}. NO special characters or lists. Plain insightful sentences. Keep under 120 characters for title and under 250 for message.`;
+        userPrompt = `${themeContext}Analyze ${user?.name}'s wallet: MWK ${context?.walletBalance?.toLocaleString() || '0'} available, MWK ${context?.escrowBalance?.toLocaleString() || '0'} in Chipereganyu escrow, ${context?.totalContributions || 0} total contributions averaging MWK ${context?.avgContribution?.toLocaleString() || '0'}. ${context?.totalContributed > 0 ? `They've contributed MWK ${context.totalContributed.toLocaleString()} total.` : 'They are just starting their savings journey.'} Give them one powerful insight about their saving pattern - maybe they save more on certain days, or their contributions are growing, or they could optimize timing. Include one actionable tip to save smarter. Make it feel like advice from a financially savvy friend.`;
+        break;
+
       default:
         throw new Error('Invalid notification type');
     }
