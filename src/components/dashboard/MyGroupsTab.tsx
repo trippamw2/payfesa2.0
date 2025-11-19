@@ -12,6 +12,7 @@ import JoinByCodeDialog from '@/components/groups/JoinByCodeDialog';
 import UpcomingWidget from '@/components/dashboard/UpcomingWidget';
 import { TrustScoreWidget } from '@/components/dashboard/TrustScoreWidget';
 import { BonusesWidget } from '@/components/dashboard/BonusesWidget';
+import { OnboardingChecklist } from '@/components/onboarding/OnboardingChecklist';
 import { User, Profile } from '@/types';
 
 interface Group {
@@ -132,6 +133,9 @@ const MyGroupsTab = ({ user, profile }: Props) => {
 
   return (
     <div className="p-2 space-y-2 max-w-6xl mx-auto">
+      {/* Onboarding Checklist */}
+      <OnboardingChecklist userId={user.id} />
+
       {/* Stats Overview */}
       <div className="grid grid-cols-3 gap-1.5">
         <Card className="p-1.5 border border-border/50">

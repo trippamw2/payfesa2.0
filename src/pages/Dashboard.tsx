@@ -23,6 +23,17 @@ const DashboardTabs = () => {
   const [profile, setProfile] = useState<any>(null);
   const [activeTab, setActiveTab] = useState('groups');
 
+  // Listen for switch to messages tab from notifications
+  useEffect(() => {
+    const handleSwitchToMessages = ((event: CustomEvent) => {
+      setActiveTab('groups'); // Switch to groups tab which contains messaging
+      // You could add additional logic here to open specific group
+    }) as EventListener;
+
+    window.addEventListener('switch-to-messages', handleSwitchToMessages);
+    return () => window.removeEventListener('switch-to-messages', handleSwitchToMessages);
+  }, []);
+
   useEffect(() => {
     let mounted = true;
     
