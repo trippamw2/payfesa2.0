@@ -176,7 +176,7 @@ const DashboardTabs = () => {
 
       setAlertsCount(alertsUnread || 0);
 
-      // Fetch unread messages count from all groups
+      // Fetch unread messages count from all groups using message_read_receipts
       const { data: userGroups } = await supabase
         .from('group_members')
         .select('group_id')
@@ -185,16 +185,23 @@ const DashboardTabs = () => {
       if (userGroups && userGroups.length > 0) {
         const groupIds = userGroups.map(g => g.group_id);
         
-        // Get messages from user's groups that are unread
+        // Get messages from user's groups
         const { data: messages } = await supabase
           .from('messages')
-          .select('id, created_at, sender_id')
+          .select(`
+            id,
+            sender_id,
+            message_read_receipts!inner (user_id)
+          `)
           .in('group_id', groupIds)
-          .order('created_at', { ascending: false });
+          .neq('sender_id', user.id);
 
-        // Count messages sent by others that are newer than user's last read
-        const unreadMessages = messages?.filter(m => m.sender_id !== user.id) || [];
-        setMessagesCount(unreadMessages.length > 0 ? Math.min(unreadMessages.length, 9) : 0);
+        // Count messages that don't have a read receipt for this user
+        const unreadCount = messages?.filter(m => 
+          !m.message_read_receipts?.some((r: any) => r.user_id === user.id)
+        ).length || 0;
+
+        setMessagesCount(unreadCount > 9 ? 9 : unreadCount);
       }
     };
 
@@ -218,11 +225,21 @@ const DashboardTabs = () => {
       )
       .subscribe();
 
+    // Subscribe to message read receipts
+    const readReceiptsChannel = supabase
+      .channel(`read-receipts-${user.id}`)
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'message_read_receipts', filter: `user_id=eq.${user.id}` },
+        () => fetchCounts()
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(alertsChannel);
       supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(readReceiptsChannel);
     };
-  }, [user]);
+  }, [user?.id]);
 
   // Show loading state while fetching user
   if (!user) {
