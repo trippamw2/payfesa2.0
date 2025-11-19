@@ -44,29 +44,35 @@ serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(5);
 
-    // Build AI prompt based on notification type
+    // Calculate user financial metrics
+    const totalSaved = recentContributions?.reduce((sum, c) => sum + (c.amount || 0), 0) || 0;
+    const avgContribution = recentContributions?.length ? totalSaved / recentContributions.length : 0;
+    const groupsData = groups?.map(g => g.rosca_groups).filter(Boolean) || [];
+    const totalPotentialSavings = groupsData.reduce((sum, g: any) => sum + (g?.contribution_amount || 0), 0);
+
+    // Build AI prompt based on notification type with Malawi-specific context
     let systemPrompt = '';
     let userPrompt = '';
 
     switch (notificationType) {
       case 'reminder':
-        systemPrompt = `You are a friendly financial assistant for PayFesa, a savings group platform. Generate a personalized reminder message that is warm, encouraging, and actionable. Keep it under 150 characters.`;
-        userPrompt = `User ${user?.name} has ${groups?.length || 0} active groups. Recent activity: ${recentContributions?.length || 0} contributions in the last month. Generate a friendly reminder to contribute to their savings group.`;
+        systemPrompt = `You are a trusted financial advisor for PayFesa, deeply understanding Malawi's culture and economy. You combine traditional Malawian wisdom about money (like chilimba principles) with modern fintech. Generate warm, culturally-relevant reminders that inspire action. Use local context when appropriate. Keep under 150 characters.`;
+        userPrompt = `${user?.name} has saved MWK ${totalSaved.toLocaleString()} across ${groups?.length || 0} groups with ${recentContributions?.length || 0} recent contributions. Remind them to contribute while acknowledging their progress. Consider Malawian values of community and mutual support.`;
         break;
 
       case 'education':
-        systemPrompt = `You are a financial education expert for PayFesa. Generate educational content that helps users understand savings, financial planning, or group savings benefits. Be informative but keep it digestible. Limit to 200 characters.`;
-        userPrompt = `Generate a financial tip for ${user?.name} who is part of ${groups?.length || 0} savings groups. Make it relevant to group savings and trust building.`;
+        systemPrompt = `You are a financial literacy expert specializing in Malawian economic realities. You understand local challenges: forex, inflation, agricultural cycles, and the informal economy. Provide practical, actionable financial advice rooted in both global best practices and Malawian context. Teach wealth-building principles. Limit to 200 characters.`;
+        userPrompt = `${user?.name} has saved MWK ${totalSaved.toLocaleString()} (avg: MWK ${avgContribution.toFixed(0)}/contribution) in ${groups?.length || 0} groups. ${totalSaved > 50000 ? 'They are building wealth - suggest investment opportunities (SMEs, agriculture, bonds).' : 'They are starting their journey - teach basic money management and compound savings benefits.'} Make it relevant to Malawi's economy.`;
         break;
 
       case 'promotion':
-        systemPrompt = `You are a growth marketing expert for PayFesa. Generate engaging promotional messages that highlight platform features and benefits. Be exciting but not pushy. Keep under 150 characters.`;
-        userPrompt = `Create a promotion message for ${user?.name} about PayFesa features. They have ${groups?.length || 0} groups and ${recentContributions?.length || 0} recent contributions. Highlight relevant benefits.`;
+        systemPrompt = `You are a fintech growth strategist who understands Malawian consumer behavior and mobile money culture. Create engaging messages that show how PayFesa helps users achieve financial freedom, start businesses, and support families. Highlight real benefits like group accountability and emergency funds. Be inspiring and authentic. Keep under 150 characters.`;
+        userPrompt = `${user?.name}: ${groups?.length || 0} groups, MWK ${totalSaved.toLocaleString()} saved, ${recentContributions?.length || 0} recent contributions. ${totalSaved > 100000 ? 'Promote business funding capabilities and investment features.' : totalSaved > 30000 ? 'Highlight how they can invite friends and grow their savings faster.' : 'Show how regular saving leads to financial security.'} Frame around Malawian dreams (business, education, property).`;
         break;
 
       case 'update':
-        systemPrompt = `You are a product announcer for PayFesa. Generate clear, concise update messages about platform improvements or new features. Be informative and positive. Keep under 150 characters.`;
-        userPrompt = `Generate an update message for ${user?.name} about recent PayFesa improvements. Context: ${context || 'general platform updates'}`;
+        systemPrompt = `You are PayFesa's community manager, speaking to Malawians about platform improvements. Be clear, positive, and show how updates solve real problems they face (like payout delays, trust issues, or contribution tracking). Keep under 150 characters.`;
+        userPrompt = `Tell ${user?.name} (${groups?.length || 0} groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'improved security features, faster payouts, and better group management tools'}. Connect it to their financial goals and peace of mind.`;
         break;
 
       default:
