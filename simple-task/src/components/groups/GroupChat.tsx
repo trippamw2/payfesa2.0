@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Message {
@@ -11,6 +11,7 @@ interface Message {
   sender_id: string;
   message: string;
   created_at: string;
+  image_url?: string | null;
   profiles: {
     full_name: string;
   };
@@ -26,7 +27,10 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
   const [newMessage, setNewMessage] = useState('');
   const [user, setUser] = useState<any>(null);
   const [groupName, setGroupName] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     checkUser();
@@ -62,6 +66,7 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
         sender_id,
         message,
         created_at,
+        image_url,
         profiles:users!messages_sender_id_fkey(name)
       `)
       .eq('group_id', groupId)
@@ -124,31 +129,90 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be less than 5MB');
+      return;
+    }
+
+    setSelectedImage(file);
+  };
+
+  const uploadImage = async (file: File): Promise<string | null> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `group-images/${groupId}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('group-chat-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('group-chat-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error('Failed to upload image');
+      return null;
+    }
+  };
+
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!newMessage.trim() || !user) return;
+    if ((!newMessage.trim() && !selectedImage) || !user) return;
 
     try {
-      const { data: insertedMessage, error } = await supabase
+      setUploadingImage(true);
+      let imageUrl: string | null = null;
+
+      if (selectedImage) {
+        imageUrl = await uploadImage(selectedImage);
+        if (!imageUrl) {
+          setUploadingImage(false);
+          return;
+        }
+      }
+
+      const { error } = await supabase
         .from('messages')
         .insert({
           group_id: groupId,
           sender_id: user.id,
-          message: newMessage.trim(),
-          message_type: 'user'
+          message: newMessage.trim() || (imageUrl ? 'Shared an image' : ''),
+          message_type: 'user',
+          image_url: imageUrl
         })
         .select('id')
         .single();
 
       if (error) throw error;
 
-      // Note: send-chat-notifications function not implemented yet
-
       setNewMessage('');
-    } catch (error: any) {
+      setSelectedImage(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
       console.error('Error sending message:', error);
       toast.error('Failed to send message');
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -180,6 +244,13 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
                 <p className="text-xs font-semibold mb-1 opacity-80">
                   {msg.profiles.full_name}
                 </p>
+                {msg.image_url && (
+                  <img 
+                    src={msg.image_url} 
+                    alt="Shared image" 
+                    className="rounded-lg mb-2 max-w-full h-auto"
+                  />
+                )}
                 <p className="text-sm">{msg.message}</p>
                 <p className="text-xs mt-1 opacity-70">
                   {new Date(msg.created_at).toLocaleTimeString([], { 
@@ -195,14 +266,50 @@ const GroupChat = ({ groupId, onBack }: GroupChatProps) => {
 
         {/* Input */}
         <form onSubmit={handleSendMessage} className="p-4 bg-background border-t">
+          {selectedImage && (
+            <div className="mb-2 p-2 bg-muted rounded-lg flex items-center justify-between">
+              <span className="text-sm truncate">{selectedImage.name}</span>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedImage(null);
+                  if (fileInputRef.current) fileInputRef.current.value = '';
+                }}
+              >
+                Remove
+              </Button>
+            </div>
+          )}
           <div className="flex gap-2">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingImage}
+            >
+              <ImageIcon className="h-4 w-4" />
+            </Button>
             <Input
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type a message..."
               className="flex-1"
+              disabled={uploadingImage}
             />
-            <Button type="submit" disabled={!newMessage.trim()}>
+            <Button 
+              type="submit" 
+              disabled={(!newMessage.trim() && !selectedImage) || uploadingImage}
+            >
               <Send className="h-4 w-4" />
             </Button>
           </div>
