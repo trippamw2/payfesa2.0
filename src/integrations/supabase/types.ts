@@ -1802,6 +1802,10 @@ export type Database = {
           avatar_url: string | null
           full_name: string | null
           id: string
+          onboarding_completed: boolean | null
+          onboarding_completed_at: string | null
+          onboarding_step: number | null
+          referral_code: string | null
           updated_at: string | null
           username: string | null
         }
@@ -1809,6 +1813,10 @@ export type Database = {
           avatar_url?: string | null
           full_name?: string | null
           id: string
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
+          onboarding_step?: number | null
+          referral_code?: string | null
           updated_at?: string | null
           username?: string | null
         }
@@ -1816,6 +1824,10 @@ export type Database = {
           avatar_url?: string | null
           full_name?: string | null
           id?: string
+          onboarding_completed?: boolean | null
+          onboarding_completed_at?: string | null
+          onboarding_step?: number | null
+          referral_code?: string | null
           updated_at?: string | null
           username?: string | null
         }
@@ -1848,6 +1860,39 @@ export type Database = {
           identifier?: string
           request_count?: number
           window_start?: string
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          referee_id: string
+          referrer_id: string
+          reward_amount: number | null
+          reward_paid: boolean | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          referee_id: string
+          referrer_id: string
+          reward_amount?: number | null
+          reward_paid?: boolean | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          referee_id?: string
+          referrer_id?: string
+          reward_amount?: number | null
+          reward_paid?: boolean | null
+          status?: string
         }
         Relationships: []
       }
