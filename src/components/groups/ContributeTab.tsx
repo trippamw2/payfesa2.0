@@ -190,7 +190,17 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
     try {
       const { data, error } = await supabase
         .from('contributions')
-        .select('*')
+        .select(`
+          *,
+          mobile_money_accounts:payment_method (
+            provider,
+            account_name
+          ),
+          bank_accounts:payment_method (
+            bank_name,
+            account_name
+          )
+        `)
         .eq('group_id', groupId)
         .eq('user_id', currentUserId)
         .order('created_at', { ascending: false });
@@ -340,12 +350,21 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
     }
   };
 
-  const getProviderName = (provider: string | null) => {
-    if (!provider) return 'Unknown';
-    const lowerProvider = provider.toLowerCase();
-    if (lowerProvider === 'airtel') return 'Airtel Money';
-    if (lowerProvider === 'tnm') return 'TNM Mpamba';
-    return provider;
+  const getProviderName = (contribution: any) => {
+    // Check if it's a mobile money account
+    if (contribution.mobile_money_accounts) {
+      const provider = contribution.mobile_money_accounts.provider?.toLowerCase();
+      if (provider === 'airtel') return 'Airtel Money';
+      if (provider === 'tnm') return 'TNM Mpamba';
+      return contribution.mobile_money_accounts.provider || 'Mobile Money';
+    }
+    
+    // Check if it's a bank account
+    if (contribution.bank_accounts) {
+      return contribution.bank_accounts.bank_name || 'Bank Transfer';
+    }
+    
+    return 'Unknown';
   };
 
   return (
@@ -512,11 +531,9 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
                       )}
                     </div>
                   </div>
-                  {contribution.payment_provider && (
-                    <Badge variant="outline" className="text-[10px]">
-                      {getProviderName(contribution.payment_provider)}
-                    </Badge>
-                  )}
+                  <Badge variant="outline" className="text-[10px]">
+                    {getProviderName(contribution)}
+                  </Badge>
                 </div>
               </Card>
             ))}
