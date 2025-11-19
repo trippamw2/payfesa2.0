@@ -31,6 +31,10 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
   const [selectedAccountId, setSelectedAccountId] = useState('');
   const [loadingAccounts, setLoadingAccounts] = useState(true);
 
+  // Get the default/selected payment account for display
+  const defaultMobileAccount = mobileMoneyAccounts.find(acc => acc.id === selectedAccountId);
+  const defaultBankAccount = bankAccounts.find(acc => acc.id === selectedAccountId);
+
   useEffect(() => {
     fetchContributionHistory();
     fetchPaymentAccounts();
@@ -415,37 +419,37 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
             {/* Default Payment Method Display */}
             <div className="space-y-2">
               <Label>Payment Method</Label>
-              {/* Mobile Money Account */}
-              {mobileMoneyAccounts.map((account) => (
-                <Card key={account.id} className="p-3 border-primary border-2 bg-primary/5">
+              {/* Mobile Money Account (only show if it's the selected default) */}
+              {defaultMobileAccount && (
+                <Card className="p-3 border-primary border-2 bg-primary/5">
                   <div className="flex items-center gap-3">
-                    <Smartphone className={`h-5 w-5 ${account.provider === 'airtel' ? 'text-destructive' : 'text-info'}`} />
+                    <Smartphone className={`h-5 w-5 ${defaultMobileAccount.provider === 'airtel' ? 'text-destructive' : 'text-info'}`} />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{account.provider === 'airtel' ? 'Airtel Money' : 'TNM Mpamba'}</span>
+                        <span className="font-medium">{defaultMobileAccount.provider === 'airtel' ? 'Airtel Money' : 'TNM Mpamba'}</span>
                         <Badge variant="secondary" className="text-xs">Default</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">{account.phone_number}</p>
+                      <p className="text-xs text-muted-foreground">{defaultMobileAccount.phone_number}</p>
                     </div>
                   </div>
                 </Card>
-              ))}
+              )}
               
-              {/* Bank Account */}
-              {bankAccounts.map((account) => (
-                <Card key={account.id} className="p-3 border-primary border-2 bg-primary/5">
+              {/* Bank Account (only show if it's the selected default) */}
+              {defaultBankAccount && (
+                <Card className="p-3 border-primary border-2 bg-primary/5">
                   <div className="flex items-center gap-3">
                     <Wallet className="h-5 w-5 text-primary" />
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{account.bank_name}</span>
+                        <span className="font-medium">{defaultBankAccount.bank_name}</span>
                         <Badge variant="secondary" className="text-xs">Default</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground">{account.account_number}</p>
+                      <p className="text-xs text-muted-foreground">{defaultBankAccount.account_number}</p>
                     </div>
                   </div>
                 </Card>
-              ))}
+              )}
               
               <p className="text-xs text-muted-foreground">
                 Change default in <Link to="/settings/payment" className="text-primary underline hover:text-primary/80">Payment Settings</Link>
