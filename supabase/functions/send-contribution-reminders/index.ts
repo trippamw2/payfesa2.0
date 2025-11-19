@@ -66,6 +66,17 @@ serve(async (req) => {
           },
         });
 
+        // Also send system message to group chat for transparency
+        await supabaseClient.functions.invoke('send-system-message', {
+          body: {
+            groupId: group.id,
+            template: 'encouragement',
+            data: {
+              message: `📢 Contribution Reminder: ${members.length} member(s) pending contribution of MWK ${group.contribution_amount.toLocaleString()}. Let's keep up the momentum! 💪`
+            }
+          }
+        }).catch(err => console.error('Failed to send group message:', err));
+
         remindersSent += members.length;
       } catch (error) {
         console.error(`Failed to send reminders for group ${group.id}:`, error);
