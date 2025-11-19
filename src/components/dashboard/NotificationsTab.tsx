@@ -107,8 +107,23 @@ const NotificationsTab = ({ user }: Props) => {
         return <Users className="h-4 w-4 text-primary" />;
       case 'achievement':
         return <Trophy className="h-4 w-4 text-warning" />;
+      case 'group_message':
+        return <MessageSquare className="h-4 w-4 text-primary" />;
       default:
         return <Bell className="h-4 w-4 text-muted-foreground" />;
+    }
+  };
+
+  const handleNotificationClick = (notification: Notification) => {
+    markAsRead(notification.id);
+    
+    // Navigate to Messages tab if it's a group message
+    if (notification.type === 'group_message' && notification.metadata?.groupId) {
+      // The parent dashboard will handle tab switching
+      const event = new CustomEvent('switch-to-messages', { 
+        detail: { groupId: notification.metadata.groupId } 
+      });
+      window.dispatchEvent(event);
     }
   };
 
@@ -173,9 +188,7 @@ const NotificationsTab = ({ user }: Props) => {
                   className={`p-2 cursor-pointer transition-all hover:shadow-sm ${
                     !notification.read ? 'border-primary bg-primary/5' : ''
                   }`}
-                  onClick={() => {
-                    if (!notification.read) markAsRead(notification.id);
-                  }}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex gap-2">
                     <div className={`p-1 rounded-full h-fit ${

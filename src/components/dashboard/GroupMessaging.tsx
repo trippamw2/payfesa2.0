@@ -182,18 +182,29 @@ const GroupMessaging = ({ user }: GroupMessagingProps) => {
           .eq('id', user.id)
           .single();
 
-        supabase.functions.invoke('send-push-notification', {
-          body: {
-            userIds: members.map(m => m.user_id),
-            title: `${senderData?.name || 'Group member'} in ${selectedGroup.name}`,
-            body: newMessage.trim(),
-            data: { 
-              groupId: selectedGroup.id,
-              messageId: insertedMessage.id,
-              type: 'group_message'
-            }
+        const senderName = senderData?.name || user.email?.split('@')[0] || 'Someone';
+
+        // Create in-app notifications directly
+        const notifications = members.map(member => ({
+          user_id: member.user_id,
+          type: 'group_message',
+          title: selectedGroup.name,
+          message: `${senderName}: ${newMessage.trim()}`,
+          metadata: { 
+            groupId: selectedGroup.id,
+            messageId: insertedMessage.id,
+            senderId: user.id,
+            senderName
           }
-        }).catch(err => console.error('Notification error:', err));
+        }));
+
+        const { error: notifError } = await supabase
+          .from('user_notifications')
+          .insert(notifications);
+
+        if (notifError) {
+          console.error('Error creating notifications:', notifError);
+        }
       }
 
       setNewMessage('');
