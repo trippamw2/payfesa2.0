@@ -149,6 +149,11 @@ export const OnboardingChecklist = ({ userId }: { userId: string }) => {
                     className="flex-shrink-0"
                     onClick={() => {
                       navigate(step.route);
+                      if (step.id === 'join_group' || step.id === 'first_contribution') {
+                        setTimeout(() => {
+                          window.dispatchEvent(new CustomEvent('switch-to-tab', { detail: { tab: 'groups' } }));
+                        }, 100);
+                      }
                       toast.success(`Let's ${step.title.toLowerCase()}`);
                     }}
                   >

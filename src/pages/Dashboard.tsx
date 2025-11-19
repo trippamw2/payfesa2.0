@@ -30,8 +30,18 @@ const DashboardTabs = () => {
       // You could add additional logic here to open specific group
     }) as EventListener;
 
+    const handleSwitchToTab = ((event: CustomEvent<{ tab: string }>) => {
+      if (event.detail?.tab) {
+        setActiveTab(event.detail.tab);
+      }
+    }) as EventListener;
+
     window.addEventListener('switch-to-messages', handleSwitchToMessages);
-    return () => window.removeEventListener('switch-to-messages', handleSwitchToMessages);
+    window.addEventListener('switch-to-tab', handleSwitchToTab);
+    return () => {
+      window.removeEventListener('switch-to-messages', handleSwitchToMessages);
+      window.removeEventListener('switch-to-tab', handleSwitchToTab);
+    };
   }, []);
 
   useEffect(() => {
