@@ -8,6 +8,10 @@ import { ArrowLeft, Bot, Shield, TrendingDown, Sparkles } from 'lucide-react';
 import { AIFraudDetectionPanel } from '@/components/admin/AIFraudDetectionPanel';
 import { AIRiskScoresPanel } from '@/components/admin/AIRiskScoresPanel';
 import { AIDecisionsPanel } from '@/components/admin/AIDecisionsPanel';
+import { AISystemMonitorPanel } from '@/components/admin/AISystemMonitorPanel';
+import { AIReportsPanel } from '@/components/admin/AIReportsPanel';
+import { AIGroupHealthPanel } from '@/components/admin/AIGroupHealthPanel';
+import { AISupportPanel } from '@/components/admin/AISupportPanel';
 
 const AdminAIAutomation = () => {
   const navigate = useNavigate();
@@ -79,18 +83,34 @@ const AdminAIAutomation = () => {
 
         {/* AI Panels Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-7 lg:grid-cols-7">
             <TabsTrigger value="fraud">
               <Shield className="h-4 w-4 mr-2" />
-              Fraud Detection
+              Fraud
             </TabsTrigger>
             <TabsTrigger value="risk">
               <TrendingDown className="h-4 w-4 mr-2" />
-              Risk Scores
+              Risk
             </TabsTrigger>
             <TabsTrigger value="decisions">
               <Sparkles className="h-4 w-4 mr-2" />
-              Auto Decisions
+              Decisions
+            </TabsTrigger>
+            <TabsTrigger value="monitoring">
+              <Bot className="h-4 w-4 mr-2" />
+              Monitor
+            </TabsTrigger>
+            <TabsTrigger value="reports">
+              <TrendingDown className="h-4 w-4 mr-2" />
+              Reports
+            </TabsTrigger>
+            <TabsTrigger value="groups">
+              <Shield className="h-4 w-4 mr-2" />
+              Groups
+            </TabsTrigger>
+            <TabsTrigger value="support">
+              <Sparkles className="h-4 w-4 mr-2" />
+              Support
             </TabsTrigger>
           </TabsList>
 
@@ -104,6 +124,22 @@ const AdminAIAutomation = () => {
 
           <TabsContent value="decisions" className="space-y-4">
             <AIDecisionsPanel />
+          </TabsContent>
+
+          <TabsContent value="monitoring" className="space-y-4">
+            <AISystemMonitorPanel />
+          </TabsContent>
+
+          <TabsContent value="reports" className="space-y-4">
+            <AIReportsPanel />
+          </TabsContent>
+
+          <TabsContent value="groups" className="space-y-4">
+            <AIGroupHealthPanel />
+          </TabsContent>
+
+          <TabsContent value="support" className="space-y-4">
+            <AISupportPanel />
           </TabsContent>
         </Tabs>
 
