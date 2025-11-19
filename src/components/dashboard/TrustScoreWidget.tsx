@@ -91,11 +91,11 @@ export const TrustScoreWidget = () => {
   if (loading) {
     return (
       <Card>
-        <CardContent className="p-6">
-          <div className="animate-pulse space-y-3">
-            <div className="h-4 bg-muted rounded w-24"></div>
-            <div className="h-12 bg-muted rounded"></div>
-            <div className="h-2 bg-muted rounded"></div>
+        <CardContent className="p-3">
+          <div className="animate-pulse space-y-2">
+            <div className="h-3 bg-muted rounded w-16"></div>
+            <div className="h-8 bg-muted rounded"></div>
+            <div className="h-1.5 bg-muted rounded"></div>
           </div>
         </CardContent>
       </Card>
@@ -111,17 +111,17 @@ export const TrustScoreWidget = () => {
     <Card className="relative overflow-hidden">
       <div className={`absolute inset-0 opacity-10 ${level.color}`}></div>
       
-      <CardHeader className="relative p-2 pb-2">
+      <CardHeader className="relative p-2 pb-1.5">
         <div className="flex items-center justify-between">
           <CardTitle className="text-[10px] font-semibold flex items-center gap-1">
             🎯 Trust Score
           </CardTitle>
           {recentChange && recentChange.change_amount !== 0 && (
-            <Badge variant={recentChange.change_amount > 0 ? 'default' : 'destructive'} className="gap-0.5 text-[8px] px-1.5 py-0 h-4">
+            <Badge variant={recentChange.change_amount > 0 ? 'default' : 'destructive'} className="gap-0.5 text-[8px] px-1 py-0 h-3.5">
               {recentChange.change_amount > 0 ? (
-                <TrendingUp className="h-2.5 w-2.5" />
+                <TrendingUp className="h-2 w-2" />
               ) : (
-                <TrendingDown className="h-2.5 w-2.5" />
+                <TrendingDown className="h-2 w-2" />
               )}
               {recentChange.change_amount > 0 ? '+' : ''}{recentChange.change_amount}
             </Badge>
@@ -130,18 +130,18 @@ export const TrustScoreWidget = () => {
       </CardHeader>
 
       <CardContent className="relative p-2 pt-0">
-        <div className="text-center py-1">
-          <div className="text-2xl font-bold">
+        <div className="text-center py-0.5">
+          <div className="text-xl font-bold">
             {level.icon} {score}
-            <span className="text-sm text-muted-foreground">/100</span>
+            <span className="text-xs text-muted-foreground">/100</span>
           </div>
-          <Badge className={level.color + ' text-primary-foreground border-0 text-[8px] px-1.5 py-0'}>
+          <Badge className={level.color + ' text-primary-foreground border-0 text-[8px] px-1.5 py-0 h-4'}>
             {level.label}
           </Badge>
         </div>
         <Button
           variant="ghost"
-          className="w-full h-6 text-[9px] mt-1"
+          className="w-full h-6 text-[9px] mt-0.5"
           onClick={() => navigate('/trust-score-history')}
         >
           View History

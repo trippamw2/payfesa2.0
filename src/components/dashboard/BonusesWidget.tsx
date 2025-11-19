@@ -127,20 +127,19 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
   if (loading) {
     return (
       <Card className="bg-card/50 backdrop-blur border-primary/10">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Gift className="h-4 w-4 text-primary" />
+        <CardHeader className="pb-1.5 p-2">
+          <CardTitle className="text-[10px] font-semibold flex items-center gap-1">
+            <Gift className="h-3 w-3 text-primary" />
             Bonuses
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="flex items-center gap-2 p-2 bg-muted/50 rounded animate-pulse">
-                <div className="h-8 w-8 rounded-full bg-muted" />
+          <div className="space-y-1.5">
+            {[1, 2].map(i => (
+              <div key={i} className="flex items-center gap-1.5 p-1.5 bg-muted/50 rounded animate-pulse">
+                <div className="h-6 w-6 rounded-full bg-muted" />
                 <div className="flex-1 space-y-1">
-                  <div className="h-3 bg-muted rounded w-3/4" />
-                  <div className="h-2 bg-muted rounded w-1/2" />
+                  <div className="h-2.5 bg-muted rounded w-3/4" />
                 </div>
               </div>
             ))}
@@ -153,16 +152,16 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
   if (error) {
     return (
       <Card className="bg-card/50 backdrop-blur border-destructive/20">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Gift className="h-4 w-4 text-destructive" />
+        <CardHeader className="pb-1.5 p-2">
+          <CardTitle className="text-[10px] font-semibold flex items-center gap-1">
+            <Gift className="h-3 w-3 text-destructive" />
             Bonuses
           </CardTitle>
         </CardHeader>
-        <CardContent className="text-center py-4">
-          <p className="text-xs text-muted-foreground mb-2">{error}</p>
-          <Button onClick={fetchBonuses} variant="outline" size="sm">
-            <RefreshCw className="h-3 w-3 mr-2" />
+        <CardContent className="text-center py-2">
+          <p className="text-[9px] text-muted-foreground mb-1.5">{error}</p>
+          <Button onClick={fetchBonuses} variant="outline" size="sm" className="h-6 text-[9px]">
+            <RefreshCw className="h-2.5 w-2.5 mr-1" />
             Retry
           </Button>
         </CardContent>
@@ -172,22 +171,22 @@ export const BonusesWidget = ({ userId }: { userId: string }) => {
 
   return (
     <Card className="bg-gradient-to-br from-primary/5 to-secondary/5 backdrop-blur border-primary/20">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-1.5 p-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-[10px] font-semibold flex items-center gap-1">
             <Gift className="h-3 w-3 text-primary" />
             Bonuses
           </CardTitle>
           {recentBonuses.length > 0 && (
-            <Badge variant="secondary" className="text-[8px] px-1.5 py-0 h-4 font-mono">
-              Latest: +{Number(recentBonuses[0].amount).toLocaleString()}
+            <Badge variant="secondary" className="text-[8px] px-1 py-0 h-3.5 font-mono">
+              +{Number(recentBonuses[0].amount).toLocaleString()}
             </Badge>
           )}
         </div>
       </CardHeader>
       <CardContent className="p-2 pt-0">
-        <div className="text-center py-1">
-          <div className="text-2xl font-bold">
+        <div className="text-center py-0.5">
+          <div className="text-xl font-bold">
             MWK {totalEarned.toLocaleString()}
           </div>
           <p className="text-[9px] text-muted-foreground">Total Earned</p>
