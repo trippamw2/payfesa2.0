@@ -34,9 +34,12 @@ serve(async (req) => {
     }
 
     const results = {
+      welcome: 0,
       reminders: 0,
       education: 0,
-      promotions: 0,
+      milestone: 0,
+      growth: 0,
+      trust: 0,
       updates: 0,
       errors: 0
     };
@@ -54,86 +57,67 @@ serve(async (req) => {
             .select('created_at, type, metadata')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
-            .limit(10);  // Get last 10 to find AI-generated ones
+            .limit(10);
 
           // Find the last AI-generated notification
-          const lastNotification = notifications?.find(n => n.metadata?.ai_generated === true) || null;
+          const lastAiNotification = notifications?.find(n => n.metadata?.ai_generated === true) || null;
           
-          console.log(`User ${user.name} last AI notification:`, lastNotification?.type || 'none');
+          console.log(`User ${user.name} last AI notification:`, lastAiNotification?.type || 'none');
 
-          const now = new Date();
-          const lastNotificationTime = lastNotification 
-            ? new Date(lastNotification.created_at)
-            : new Date(0);
-          const hoursSinceLastNotification = 
-            (now.getTime() - lastNotificationTime.getTime()) / (1000 * 60 * 60);
+          // Cycle through all 7 notification types to engage users throughout their journey
+          const notificationTypes = ['welcome', 'reminder', 'education', 'milestone', 'growth', 'trust', 'update'];
+          const lastType = lastAiNotification?.metadata?.notification_type as string;
+          const lastIndex = lastType ? notificationTypes.indexOf(lastType) : -1;
+          const nextIndex = (lastIndex + 1) % notificationTypes.length;
+          const notificationType = notificationTypes[nextIndex];
 
-          // Check if user has pending contributions
-          const { data: groups } = await supabase
-            .from('group_members')
-            .select('group_id, has_contributed')
-            .eq('user_id', user.id)
-            .eq('has_contributed', false);
+          console.log('Sending notification:', {
+            userId: user.id,
+            userName: user.name,
+            type: notificationType,
+            lastType,
+            nextIndex,
+            allTypes: notificationTypes
+          });
+            
+          // Call generate-smart-notification function
+          const response = await supabase.functions.invoke('generate-smart-notification', {
+            body: {
+              userId: user.id,
+              notificationType,
+              context: notificationType === 'update' ? 'Platform improvements and new features' : null
+            }
+          });
 
-          // For immediate testing: always send a notification cycling through types
-          let notificationType = null;
-          
-          // Cycle through notification types based on last sent
-          if (!lastNotification) {
-            notificationType = 'reminder';
+          if (response.error) {
+            console.error(`Error for user ${user.id}:`, response.error);
+            results.errors++;
           } else {
-            switch (lastNotification.type) {
+            // Increment the correct counter based on type
+            switch (notificationType) {
+              case 'welcome':
+                results.welcome = (results.welcome || 0) + 1;
+                break;
               case 'reminder':
-                notificationType = 'education';
+                results.reminders++;
                 break;
               case 'education':
-                notificationType = 'promotion';
+                results.education++;
                 break;
-              case 'promotion':
-                notificationType = 'update';
+              case 'milestone':
+                results.milestone = (results.milestone || 0) + 1;
+                break;
+              case 'growth':
+                results.growth = (results.growth || 0) + 1;
+                break;
+              case 'trust':
+                results.trust = (results.trust || 0) + 1;
                 break;
               case 'update':
-                notificationType = 'reminder';
+                results.updates++;
                 break;
-              default:
-                notificationType = 'reminder';
             }
           }
-
-          if (notificationType) {
-            console.log(`Generating ${notificationType} for user ${user.name}`);
-            
-            // Call generate-smart-notification function
-            const response = await supabase.functions.invoke('generate-smart-notification', {
-              body: {
-                userId: user.id,
-                notificationType,
-                context: notificationType === 'update' ? 'Platform improvements and new features' : null
-              }
-            });
-
-            if (response.error) {
-              console.error(`Error for user ${user.id}:`, response.error);
-              results.errors++;
-            } else {
-              // Increment the correct counter based on type
-              switch (notificationType) {
-                case 'reminder':
-                  results.reminders++;
-                  break;
-                case 'education':
-                  results.education++;
-                  break;
-                case 'promotion':
-                  results.promotions++;
-                  break;
-                case 'update':
-                  results.updates++;
-                  break;
-              }
-            }
-          }
-
         } catch (error) {
           console.error(`Error processing user ${user.id}:`, error);
           results.errors++;
