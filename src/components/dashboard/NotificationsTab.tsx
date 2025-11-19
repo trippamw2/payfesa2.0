@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Bell, MessageSquare, CheckCircle2, TrendingUp, Users, Clock, Settings, Trophy, Lightbulb, BookOpen, Gift, Sparkles } from 'lucide-react';
+import { Bell, MessageSquare, AlertCircle, Clock, CheckCircle, CheckCircle2, XCircle, BookOpen, Gift, Sparkles, PartyPopper, TrendingUp, Shield, Users, Trophy, Settings } from "lucide-react";
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -99,6 +99,8 @@ const NotificationsTab = ({ user }: Props) => {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
+      case 'welcome':
+        return <PartyPopper className="h-4 w-4 text-primary" />;
       case 'contribution_success':
         return <TrendingUp className="h-4 w-4 text-success" />;
       case 'payout_approved':
@@ -116,6 +118,12 @@ const NotificationsTab = ({ user }: Props) => {
         return <Bell className="h-4 w-4 text-info animate-pulse" />;
       case 'education':
         return <BookOpen className="h-4 w-4 text-purple-500" />;
+      case 'milestone':
+        return <Gift className="h-4 w-4 text-success" />;
+      case 'growth':
+        return <TrendingUp className="h-4 w-4 text-blue-500" />;
+      case 'trust':
+        return <Shield className="h-4 w-4 text-green-600" />;
       case 'promotion':
         return <Gift className="h-4 w-4 text-success" />;
       case 'update':

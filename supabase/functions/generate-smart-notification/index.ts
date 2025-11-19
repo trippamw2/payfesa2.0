@@ -55,24 +55,39 @@ serve(async (req) => {
     let userPrompt = '';
 
     switch (notificationType) {
+      case 'welcome':
+        systemPrompt = `You are welcoming ${user?.name} to PayFesa and Chipereganyu (savings groups). Write like a friend who's excited to show them something amazing using simple Grade 6 English. Use Donald Miller's StoryBrand style: show them the journey ahead and how they're the hero. Be warm and inspiring. NO asterisks, dashes, or special characters. Write in plain sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${user?.name} just joined PayFesa. Welcome them warmly to the Chipereganyu community. Tell them they're about to start a journey where small steps lead to big dreams - school fees, business, helping family. Explain that saving with trusted friends makes goals possible. Make them excited to take their first step.`;
+        break;
+
       case 'reminder':
-        systemPrompt = `You are a friendly neighbor helping ${user?.name} save money through Chipereganyu (savings groups). Write like you're talking to a friend using simple Grade 6 English. Use Donald Miller's StoryBrand style: make them the hero of their money story. Be warm, personal, and encouraging. NO asterisks, dashes, or special characters. Write in plain sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `${user?.name} saved MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} Chipereganyu groups. They made ${recentContributions?.length || 0} contributions. Write a personal reminder that makes them feel proud of their progress and gently reminds them their Chipereganyu group needs their next contribution. Talk like you're their friend who believes in them.`;
+        systemPrompt = `You are a caring friend reminding ${user?.name} about their Chipereganyu contribution using simple Grade 6 English. Use Donald Miller's style: make them the hero staying consistent. Be gentle, supportive, and encouraging. NO asterisks, dashes, or special characters. Write in plain sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${user?.name} saved MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} Chipereganyu groups through ${recentContributions?.length || 0} contributions. Remind them their next contribution keeps their promise to the group. Show how their consistency builds trust and brings them closer to their goal. Talk like their friend who believes in them.`;
         break;
 
       case 'education':
-        systemPrompt = `You are a trusted friend teaching ${user?.name} about money and Chipereganyu (savings groups) using Grade 6 English. Use Donald Miller's style: make the lesson clear, simple, and about how it helps them win. One simple money tip they can use today. NO lists, asterisks, or dashes. Just friendly advice in plain sentences. Keep under 120 characters for title and under 250 for message.`;
-        userPrompt = `${user?.name} has MWK ${totalSaved.toLocaleString()} saved in their Chipereganyu (average MWK ${avgContribution.toFixed(0)} per time). ${totalSaved > 50000 ? 'Teach them one simple way to grow this money further through Chipereganyu - maybe starting a small business, buying goods to resell, or helping their group members grow together.' : 'Teach them why saving small amounts regularly in Chipereganyu is powerful - how MWK 1,000 today becomes MWK 50,000 over time through group savings.'} Make it feel like advice from a caring friend.`;
+        systemPrompt = `You are teaching ${user?.name} one simple money lesson about Chipereganyu using Grade 6 English. Use Donald Miller's style: make it clear how this helps them win. One practical tip they can use today. NO lists, asterisks, or dashes. Just friendly advice in plain sentences. Keep under 120 characters for title and under 250 for message.`;
+        userPrompt = `${user?.name} has MWK ${totalSaved.toLocaleString()} saved in Chipereganyu. ${totalSaved > 50000 ? 'Teach them how to make money grow - buying goods to resell, starting a side business, or pooling resources with group members for bigger opportunities.' : 'Teach them why MWK 1,000 saved today becomes MWK 50,000 tomorrow through consistent Chipereganyu savings. Show how small regular amounts build big results.'} Make it feel like wisdom from a caring friend.`;
         break;
 
-      case 'promotion':
-        systemPrompt = `You are telling ${user?.name} about how PayFesa helps them win with money through Chipereganyu (savings groups). Use Grade 6 English and Donald Miller's style: show the problem they face, then how PayFesa helps them overcome it. Make it personal and real. NO asterisks or special formatting. Plain friendly sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `${user?.name} has ${groups?.length || 0} Chipereganyu groups and saved MWK ${totalSaved.toLocaleString()}. ${totalSaved > 100000 ? 'Show how they can use this money from Chipereganyu to start something big - a business, property, or helping family with school fees.' : totalSaved > 30000 ? 'Show how inviting friends to join their Chipereganyu makes everyone reach their goals faster.' : 'Show how Chipereganyu - saving with friends they trust - makes reaching money goals easier than saving alone.'} Write like you're sharing good news with a friend.`;
+      case 'milestone':
+        systemPrompt = `You are celebrating ${user?.name}'s progress with Chipereganyu using simple Grade 6 English. Use Donald Miller's style: make them feel like the hero of their money story. Be genuinely excited about their achievement. NO asterisks or special formatting. Plain celebratory sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${user?.name} has saved MWK ${totalSaved.toLocaleString()} across ${groups?.length || 0} Chipereganyu groups with ${recentContributions?.length || 0} contributions! Celebrate this milestone. ${totalSaved > 100000 ? 'They crossed 100,000 MWK - that is life-changing money!' : totalSaved > 50000 ? 'They are building real savings that can change their future!' : 'Every Kwacha saved is a step toward their dreams!'} Make them proud of how far they have come.`;
+        break;
+
+      case 'growth':
+        systemPrompt = `You are encouraging ${user?.name} to grow their Chipereganyu journey using Grade 6 English. Use Donald Miller's style: show the opportunity ahead. Be inspiring about helping others succeed too. NO asterisks or special formatting. Plain motivating sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${user?.name} has ${(groups?.length || 0)} Chipereganyu groups and MWK ${totalSaved.toLocaleString()} saved. ${(groups?.length || 0) > 0 ? 'Encourage them to invite trusted friends to start their own Chipereganyu journey. When friends save together, everyone reaches goals faster.' : 'Encourage them to start or join a Chipereganyu group. Saving alone is hard, but with trusted friends it becomes possible and even enjoyable.'} Write like you are sharing an opportunity.`;
+        break;
+
+      case 'trust':
+        systemPrompt = `You are building trust with ${user?.name} about PayFesa and Chipereganyu using Grade 6 English. Use Donald Miller's style: show how the system protects them and keeps their money safe. Be reassuring and clear. NO special characters or formatting. Plain confident sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${user?.name} has MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} Chipereganyu groups. Reassure them their money is safe and their group members are real people they know and trust. Explain how Chipereganyu has helped Malawians save safely for generations - now made easier with PayFesa. Write like a trusted friend.`;
         break;
 
       case 'update':
-        systemPrompt = `You are sharing good news with ${user?.name} about PayFesa improvements for their Chipereganyu (savings groups). Use Grade 6 English and Donald Miller's style: tell them what problem is now solved and how it makes their life easier. Be clear and positive. NO special characters or formatting. Plain sentences only. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `Tell ${user?.name} (${groups?.length || 0} Chipereganyu groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'faster payouts, better security, and easier group management'}. Explain how this one improvement makes saving money with their Chipereganyu groups safer and easier. Write like a friend sharing good news.`;
+        systemPrompt = `You are sharing exciting PayFesa improvements for ${user?.name}'s Chipereganyu using Grade 6 English. Use Donald Miller's style: tell them what got better and how it helps them win. Be clear and positive. NO special characters or formatting. Plain enthusiastic sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `Tell ${user?.name} (${groups?.length || 0} Chipereganyu groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'faster payouts, stronger security, and easier group management'}. Explain how this makes their Chipereganyu experience smoother and safer. Show them we're always working to serve them better. Write like a friend sharing good news.`;
         break;
 
       default:
@@ -119,10 +134,13 @@ serve(async (req) => {
 
     // Generate title based on type
     const titles: Record<string, string> = {
-      reminder: '💰 Time to Save!',
-      education: '📚 Financial Tip',
-      promotion: '🎉 Exciting News!',
-      update: '✨ What\'s New'
+      welcome: '👋 Welcome to PayFesa',
+      reminder: '💰 Time to Save',
+      education: '📚 Money Wisdom',
+      milestone: '🎉 You\'re Winning!',
+      growth: '🌱 Grow Together',
+      trust: '🔒 Safe & Secure',
+      update: '✨ Good News'
     };
 
     // Create notification in database
