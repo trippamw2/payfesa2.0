@@ -6,7 +6,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Plus, Users, ArrowLeft, MessageCircle, Key } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Users, ArrowLeft, MessageCircle, Key, DollarSign, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import CreateGroupDialog from '@/components/groups/CreateGroupDialog';
 import JoinByCodeDialog from '@/components/groups/JoinByCodeDialog';
@@ -243,85 +244,170 @@ const Groups = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/5">
-      <div className="container max-w-4xl mx-auto p-4 space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-background pb-16">
+      <div className="max-w-6xl mx-auto">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between p-2 border-b sticky top-0 bg-background/95 backdrop-blur-sm z-10">
           <Button
             variant="ghost"
             size="icon"
             onClick={goBack}
+            className="h-8 w-8"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
-          <h1 className="text-2xl font-bold">{t('groups') || 'Groups'}</h1>
-          <div className="flex gap-2">
+          <h1 className="text-base font-bold">{t('groups') || 'Groups'}</h1>
+          <div className="flex gap-1">
             <Button
               onClick={() => setShowJoinByCodeDialog(true)}
               variant="outline"
               size="icon"
+              className="h-8 w-8"
             >
-              <Key className="h-4 w-4" />
+              <Key className="h-3.5 w-3.5" />
             </Button>
             <Button
               onClick={() => setShowCreateDialog(true)}
-              className="bg-primary text-white"
+              className="h-8 text-xs px-2"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-3.5 w-3.5 mr-1" />
               Create
             </Button>
           </div>
         </div>
 
-        {/* My Groups */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            {t('myGroups') || 'My Groups'}
-          </h2>
-          {loading ? (
-            <Card className="p-8 text-center text-muted-foreground">
-              Loading...
-            </Card>
-          ) : myGroups.length === 0 ? (
-            <Card className="p-8 text-center text-muted-foreground">
-              {t('noGroupsYet') || 'You haven\'t joined any groups yet'}
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {myGroups.map((group) => (
-                <GroupCard
-                  key={group.id}
-                  group={group}
-                  onAction={() => navigate(`/groups/${group.id}`)}
-                  actionLabel="Manage"
-                  actionIcon={<MessageCircle className="h-4 w-4" />}
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        <div className="p-2 space-y-3">
+          {/* My Groups */}
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold flex items-center gap-1.5 px-1">
+              <Users className="h-3.5 w-3.5 text-primary" />
+              {t('myGroups') || 'My Groups'}
+            </h2>
+            {loading ? (
+              <Card className="p-3 text-center">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+              </Card>
+            ) : myGroups.length === 0 ? (
+              <Card className="p-3 text-center">
+                <Users className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
+                <p className="text-[10px] text-muted-foreground">
+                  {t('noGroupsYet') || 'You haven\'t joined any groups yet'}
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {myGroups.map((group) => (
+                  <Card 
+                    key={group.id}
+                    className="p-2 hover:shadow-md transition-shadow cursor-pointer border border-border/50"
+                    onClick={() => navigate(`/groups/${group.id}`)}
+                  >
+                    <div className="flex justify-between items-start mb-1.5">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-sm">{group.name}</h3>
+                        {group.description && (
+                          <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
+                            {group.description}
+                          </p>
+                        )}
+                      </div>
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                        {group.frequency}
+                      </Badge>
+                    </div>
 
-        {/* Available Groups */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold">{t('availableGroups') || 'Available Groups'}</h2>
-          {availableGroups.length === 0 ? (
-            <Card className="p-8 text-center text-muted-foreground">
-              {t('noAvailableGroups') || 'No available groups to join'}
-            </Card>
-          ) : (
-            <div className="grid gap-4">
-              {availableGroups.map((group) => (
-                <GroupCard
-                  key={group.id}
-                  group={group}
-                  onAction={() => handleJoinGroup(group.id)}
-                  actionLabel="Join"
-                  actionIcon={<Plus className="h-4 w-4" />}
-                />
-              ))}
-            </div>
-          )}
+                    <div className="grid grid-cols-3 gap-2 mb-1.5">
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <DollarSign className="h-3 w-3 text-primary" />
+                        <span className="font-medium">MK {group.contribution_amount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <Users className="h-3 w-3 text-primary" />
+                        <span>{group.current_members}/{group.max_members}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <Calendar className="h-3 w-3 text-primary" />
+                        <span>{new Date(group.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/groups/${group.id}`);
+                      }}
+                      className="w-full h-7 text-[11px]"
+                      size="sm"
+                    >
+                      <MessageCircle className="h-3 w-3 mr-1" />
+                      Manage
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Available Groups */}
+          <div className="space-y-2">
+            <h2 className="text-sm font-semibold px-1">{t('availableGroups') || 'Available Groups'}</h2>
+            {availableGroups.length === 0 ? (
+              <Card className="p-3 text-center">
+                <Users className="w-6 h-6 mx-auto text-muted-foreground mb-1" />
+                <p className="text-[10px] text-muted-foreground">
+                  {t('noAvailableGroups') || 'No available groups to join'}
+                </p>
+              </Card>
+            ) : (
+              <div className="space-y-2">
+                {availableGroups.map((group) => (
+                  <Card 
+                    key={group.id}
+                    className="p-2 hover:shadow-md transition-shadow border border-border/50"
+                  >
+                    <div className="flex justify-between items-start mb-1.5">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-sm">{group.name}</h3>
+                        {group.description && (
+                          <p className="text-[10px] text-muted-foreground line-clamp-1 mt-0.5">
+                            {group.description}
+                          </p>
+                        )}
+                      </div>
+                      <Badge variant="secondary" className="text-[9px] px-1.5 py-0 ml-2">
+                        {group.frequency}
+                      </Badge>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 mb-1.5">
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <DollarSign className="h-3 w-3 text-primary" />
+                        <span className="font-medium">MK {group.contribution_amount.toLocaleString()}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <Users className="h-3 w-3 text-primary" />
+                        <span>{group.current_members}/{group.max_members}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-[10px]">
+                        <Calendar className="h-3 w-3 text-primary" />
+                        <span>{new Date(group.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => handleJoinGroup(group.id)}
+                      className="w-full h-7 text-[11px]"
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      Join
+                    </Button>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         <CreateGroupDialog
