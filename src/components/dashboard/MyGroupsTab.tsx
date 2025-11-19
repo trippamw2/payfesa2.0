@@ -164,8 +164,8 @@ const MyGroupsTab = ({ user, profile }: Props) => {
           onClick={() => navigate('/groups')}
           className="bg-gradient-to-r from-primary to-secondary text-white h-8 text-[11px]"
         >
-          <Plus className="h-3 w-3 mr-1" />
-          {t('createGroup')}
+          <UsersIcon className="h-3 w-3 mr-1" />
+          View Groups
         </Button>
         
         <Button 
