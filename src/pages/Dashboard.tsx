@@ -292,13 +292,15 @@ const DashboardTabs = () => {
               value="notifications" 
               className="flex flex-col gap-0.5 data-[state=active]:text-primary relative"
             >
-              <Bell className="h-4 w-4" />
+              <div className="relative">
+                <Bell className="h-4 w-4" />
+                {alertsCount > 0 && (
+                  <Badge variant="destructive" className="absolute -top-1.5 -right-2 h-4 w-4 flex items-center justify-center p-0 text-[8px]">
+                    {alertsCount > 9 ? '9+' : alertsCount}
+                  </Badge>
+                )}
+              </div>
               <span className="text-[9px]">Alerts</span>
-              {alertsCount > 0 && (
-                <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[8px]">
-                  {alertsCount > 9 ? '9+' : alertsCount}
-                </Badge>
-              )}
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
