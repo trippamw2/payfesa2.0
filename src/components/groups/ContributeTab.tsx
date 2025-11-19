@@ -353,6 +353,14 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
     }
   };
 
+  const getProviderName = (provider: string | null) => {
+    if (!provider) return 'Unknown';
+    const lowerProvider = provider.toLowerCase();
+    if (lowerProvider === 'airtel') return 'Airtel Money';
+    if (lowerProvider === 'tnm') return 'TNM Mpamba';
+    return provider;
+  };
+
   return (
     <PaymentErrorBoundary>
       <div className="p-4 max-w-6xl mx-auto">
@@ -559,9 +567,11 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
                       )}
                     </div>
                   </div>
-                  <Badge variant="outline" className="text-[10px] capitalize">
-                    {contribution.payment_method}
-                  </Badge>
+                  {contribution.payment_provider && (
+                    <Badge variant="outline" className="text-[10px]">
+                      {getProviderName(contribution.payment_provider)}
+                    </Badge>
+                  )}
                 </div>
               </Card>
             ))}
