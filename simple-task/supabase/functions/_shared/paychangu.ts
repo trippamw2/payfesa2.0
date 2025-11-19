@@ -113,7 +113,7 @@ export async function processPayment(
           amount: request.amount.toString(),
           currency: request.currency || 'MWK',
           charge_id: request.chargeId,
-          create_permanent_account: 'false',
+          create_permanent_account: false,
         };
       }
     } else {
