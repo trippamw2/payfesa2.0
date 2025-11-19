@@ -17,11 +17,14 @@ serve(async (req) => {
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    const { userId, notificationType, context } = await req.json();
+    const { userId, notificationType, context, dailyTheme, timeOfDay } = await req.json();
 
     if (!userId || !notificationType) {
       throw new Error('Missing required fields: userId and notificationType');
     }
+
+    // Get the day's theme context
+    const themeContext = dailyTheme ? `Today's focus: ${dailyTheme}. ` : '';
 
     // Fetch user data for context
     const { data: user } = await supabase
@@ -57,37 +60,37 @@ serve(async (req) => {
     switch (notificationType) {
       case 'welcome':
         systemPrompt = `You are welcoming ${user?.name} to PayFesa and Chipereganyu (savings groups). Write like a friend who's excited to show them something amazing using simple Grade 6 English. Use Donald Miller's StoryBrand style: show them the journey ahead and how they're the hero. Be warm and inspiring. NO asterisks, dashes, or special characters. Write in plain sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `${user?.name} just joined PayFesa. Welcome them warmly to the Chipereganyu community. Tell them they're about to start a journey where small steps lead to big dreams - school fees, business, helping family. Explain that saving with trusted friends makes goals possible. Make them excited to take their first step.`;
+        userPrompt = `${themeContext}${user?.name} ${timeOfDay === 'morning' ? 'starts a new day with' : timeOfDay === 'afternoon' ? 'continues their journey with' : 'ends the day thinking about'} PayFesa. Welcome them warmly to the Chipereganyu community. Tell them they're about to start a journey where small steps lead to big dreams - school fees, business, helping family. Explain that saving with trusted friends makes goals possible. Make them excited to take their first step.`;
         break;
 
       case 'reminder':
         systemPrompt = `You are a caring friend reminding ${user?.name} about their Chipereganyu contribution using simple Grade 6 English. Use Donald Miller's style: make them the hero staying consistent. Be gentle, supportive, and encouraging. NO asterisks, dashes, or special characters. Write in plain sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `${user?.name} saved MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} Chipereganyu groups through ${recentContributions?.length || 0} contributions. Remind them their next contribution keeps their promise to the group. Show how their consistency builds trust and brings them closer to their goal. Talk like their friend who believes in them.`;
+        userPrompt = `${themeContext}${timeOfDay === 'morning' ? 'Start the day strong' : timeOfDay === 'afternoon' ? 'Quick reminder' : 'Before the day ends'}. ${user?.name} saved MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} Chipereganyu groups through ${recentContributions?.length || 0} contributions. Remind them their next contribution keeps their promise to the group. Show how their consistency builds trust and brings them closer to their goal. Talk like their friend who believes in them.`;
         break;
 
       case 'education':
-        systemPrompt = `You are teaching ${user?.name} one simple money lesson about Chipereganyu using Grade 6 English. Use Donald Miller's style: make it clear how this helps them win. One practical tip they can use today. NO lists, asterisks, or dashes. Just friendly advice in plain sentences. Keep under 120 characters for title and under 250 for message.`;
-        userPrompt = `${user?.name} has MWK ${totalSaved.toLocaleString()} saved in Chipereganyu. ${totalSaved > 50000 ? 'Teach them how to make money grow - buying goods to resell, starting a side business, or pooling resources with group members for bigger opportunities.' : 'Teach them why MWK 1,000 saved today becomes MWK 50,000 tomorrow through consistent Chipereganyu savings. Show how small regular amounts build big results.'} Make it feel like wisdom from a caring friend.`;
+        systemPrompt = `You are teaching ${user?.name} one simple money lesson about Chipereganyu using Grade 6 English. Use Donald Miller's style: make it clear how this helps them win. One practical tip they can use ${timeOfDay === 'morning' ? 'to start their day smart' : timeOfDay === 'afternoon' ? 'right now' : 'before tomorrow'}. NO lists, asterisks, or dashes. Just friendly advice in plain sentences. Keep under 120 characters for title and under 250 for message.`;
+        userPrompt = `${themeContext}${timeOfDay === 'morning' ? 'Morning wisdom' : timeOfDay === 'afternoon' ? 'Afternoon learning' : 'Evening reflection'}: ${user?.name} has MWK ${totalSaved.toLocaleString()} saved in Chipereganyu. ${totalSaved > 50000 ? 'Teach them how to make money grow - buying goods to resell, starting a side business, or pooling resources with group members for bigger opportunities.' : 'Teach them why MWK 1,000 saved today becomes MWK 50,000 tomorrow through consistent Chipereganyu savings. Show how small regular amounts build big results.'} Make it feel like wisdom from a caring friend.`;
         break;
 
       case 'milestone':
-        systemPrompt = `You are celebrating ${user?.name}'s progress with Chipereganyu using simple Grade 6 English. Use Donald Miller's style: make them feel like the hero of their money story. Be genuinely excited about their achievement. NO asterisks or special formatting. Plain celebratory sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `${user?.name} has saved MWK ${totalSaved.toLocaleString()} across ${groups?.length || 0} Chipereganyu groups with ${recentContributions?.length || 0} contributions! Celebrate this milestone. ${totalSaved > 100000 ? 'They crossed 100,000 MWK - that is life-changing money!' : totalSaved > 50000 ? 'They are building real savings that can change their future!' : 'Every Kwacha saved is a step toward their dreams!'} Make them proud of how far they have come.`;
+        systemPrompt = `You are celebrating ${user?.name}'s progress with Chipereganyu using simple Grade 6 English. Use Donald Miller's style: make them feel like the hero of their money story. Be genuinely excited about their achievement. ${timeOfDay === 'morning' ? 'Start their day with pride' : timeOfDay === 'afternoon' ? 'Brighten their afternoon' : 'End their day on a high note'}. NO asterisks or special formatting. Plain celebratory sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${themeContext}${timeOfDay === 'morning' ? 'Good morning champion!' : timeOfDay === 'afternoon' ? 'Look how far you have come!' : 'Celebrate your progress today!'} ${user?.name} has saved MWK ${totalSaved.toLocaleString()} across ${groups?.length || 0} Chipereganyu groups with ${recentContributions?.length || 0} contributions! ${totalSaved > 100000 ? 'They crossed 100,000 MWK - that is life-changing money!' : totalSaved > 50000 ? 'They are building real savings that can change their future!' : 'Every Kwacha saved is a step toward their dreams!'} Make them proud of how far they have come.`;
         break;
 
       case 'growth':
-        systemPrompt = `You are encouraging ${user?.name} to grow their Chipereganyu journey using Grade 6 English. Use Donald Miller's style: show the opportunity ahead. Be inspiring about helping others succeed too. NO asterisks or special formatting. Plain motivating sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `${user?.name} has ${(groups?.length || 0)} Chipereganyu groups and MWK ${totalSaved.toLocaleString()} saved. ${(groups?.length || 0) > 0 ? 'Encourage them to invite trusted friends to start their own Chipereganyu journey. When friends save together, everyone reaches goals faster.' : 'Encourage them to start or join a Chipereganyu group. Saving alone is hard, but with trusted friends it becomes possible and even enjoyable.'} Write like you are sharing an opportunity.`;
+        systemPrompt = `You are encouraging ${user?.name} to grow their Chipereganyu journey using Grade 6 English. Use Donald Miller's style: show the opportunity ahead. Be inspiring about helping others succeed too. ${timeOfDay === 'morning' ? 'Plant seeds for growth today' : timeOfDay === 'afternoon' ? 'Share the opportunity' : 'Reflect on growing together'}. NO asterisks or special formatting. Plain motivating sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${themeContext}${timeOfDay === 'morning' ? 'Start growing today' : timeOfDay === 'afternoon' ? 'Opportunity calling' : 'Think bigger together'}. ${user?.name} has ${(groups?.length || 0)} Chipereganyu groups and MWK ${totalSaved.toLocaleString()} saved. ${(groups?.length || 0) > 0 ? 'Encourage them to invite trusted friends to start their own Chipereganyu journey. When friends save together, everyone reaches goals faster.' : 'Encourage them to start or join a Chipereganyu group. Saving alone is hard, but with trusted friends it becomes possible and even enjoyable.'} Write like you are sharing an opportunity.`;
         break;
 
       case 'trust':
-        systemPrompt = `You are building trust with ${user?.name} about PayFesa and Chipereganyu using Grade 6 English. Use Donald Miller's style: show how the system protects them and keeps their money safe. Be reassuring and clear. NO special characters or formatting. Plain confident sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `${user?.name} has MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} Chipereganyu groups. Reassure them their money is safe and their group members are real people they know and trust. Explain how Chipereganyu has helped Malawians save safely for generations - now made easier with PayFesa. Write like a trusted friend.`;
+        systemPrompt = `You are building trust with ${user?.name} about PayFesa and Chipereganyu using Grade 6 English. Use Donald Miller's style: show how the system protects them and keeps their money safe. ${timeOfDay === 'morning' ? 'Give them confidence to start the day' : timeOfDay === 'afternoon' ? 'Reinforce their security' : 'Help them sleep peacefully'}. Be reassuring and clear. NO special characters or formatting. Plain confident sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${themeContext}${timeOfDay === 'morning' ? 'Your money is safe with us' : timeOfDay === 'afternoon' ? 'Security you can count on' : 'Rest easy tonight'}. ${user?.name} has MWK ${totalSaved.toLocaleString()} in ${groups?.length || 0} Chipereganyu groups. Reassure them their money is safe and their group members are real people they know and trust. Explain how Chipereganyu has helped Malawians save safely for generations - now made easier with PayFesa. Write like a trusted friend.`;
         break;
 
       case 'update':
-        systemPrompt = `You are sharing exciting PayFesa improvements for ${user?.name}'s Chipereganyu using Grade 6 English. Use Donald Miller's style: tell them what got better and how it helps them win. Be clear and positive. NO special characters or formatting. Plain enthusiastic sentences. Keep under 120 characters for title and under 200 for message.`;
-        userPrompt = `Tell ${user?.name} (${groups?.length || 0} Chipereganyu groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'faster payouts, stronger security, and easier group management'}. Explain how this makes their Chipereganyu experience smoother and safer. Show them we're always working to serve them better. Write like a friend sharing good news.`;
+        systemPrompt = `You are sharing exciting PayFesa improvements for ${user?.name}'s Chipereganyu using Grade 6 English. Use Donald Miller's style: tell them what got better and how it helps them win. ${timeOfDay === 'morning' ? 'Start their day with good news' : timeOfDay === 'afternoon' ? 'Brighten their afternoon' : 'End their day positively'}. Be clear and positive. NO special characters or formatting. Plain enthusiastic sentences. Keep under 120 characters for title and under 200 for message.`;
+        userPrompt = `${themeContext}${timeOfDay === 'morning' ? 'Great news to start your day' : timeOfDay === 'afternoon' ? 'Exciting update for you' : 'Something new before tomorrow'}. Tell ${user?.name} (${groups?.length || 0} Chipereganyu groups, MWK ${totalSaved.toLocaleString()} saved) about: ${context || 'faster payouts, stronger security, and easier group management'}. Explain how this makes their Chipereganyu experience smoother and safer. Show them we're always working to serve them better. Write like a friend sharing good news.`;
         break;
 
       default:
