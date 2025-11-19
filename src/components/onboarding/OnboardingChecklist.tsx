@@ -43,7 +43,7 @@ export const OnboardingChecklist = ({ userId }: { userId: string }) => {
       description: 'Complete your first payment',
       completed: false,
       action: 'View Groups',
-      route: '/dashboard',
+      route: '/groups',
       icon: Wallet
     }
   ]);
