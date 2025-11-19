@@ -218,8 +218,9 @@ serve(async (req) => {
 
     // Add method-specific fields
     if (isMobileMoney) {
-      paymentRequest.phoneNumber = phoneNumber;
-      paymentRequest.provider = paymentMethod;
+      // Use account details if available, otherwise fallback to provided values
+      paymentRequest.phoneNumber = account?.phone_number || phoneNumber;
+      paymentRequest.provider = account?.provider || paymentMethod;
     }
     // Bank transfers don't need phone number - PayChangu generates virtual account
 
