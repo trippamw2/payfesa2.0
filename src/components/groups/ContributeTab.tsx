@@ -341,7 +341,9 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
   };
 
   const getProviderName = (contribution: any) => {
-    const paymentMethodId = contribution.payment_method;
+    const paymentMethodId = contribution?.payment_method;
+    
+    if (!paymentMethodId) return 'Unknown';
     
     // Check if it's a mobile money account
     const mobileAccount = mobileMoneyAccounts.find(acc => acc.id === paymentMethodId);
@@ -516,11 +518,11 @@ const ContributeTab = ({ groupId, contributionAmount, groupName, currentUserId }
                         {getStatusBadge(contribution.status)}
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Cycle #{contribution.cycle_number} • {new Date(contribution.created_at).toLocaleDateString()}
+                        {new Date(contribution.created_at).toLocaleDateString()}
                       </p>
-                      {contribution.mobile_money_reference && (
+                      {contribution.payment_reference && (
                         <p className="text-xs text-muted-foreground mt-1">
-                          Ref: {contribution.mobile_money_reference}
+                          Ref: {contribution.payment_reference}
                         </p>
                       )}
                     </div>
